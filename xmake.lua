@@ -9,6 +9,7 @@ add_requires("libsdl3 3.2.10")
 
 target("main")
     set_kind("binary")
+    set_basename("MyGameEngine")
     add_files("src/*.c")
     add_packages("libsdl3")
     --add_options("use_SDL3")
