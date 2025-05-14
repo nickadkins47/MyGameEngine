@@ -1,35 +1,23 @@
 
-#include <glm/glm.hpp>
-#include <glm/ext.hpp>
 #include <SDL3/SDL_main.h>
 
-#include "update.hh"
-
-char const* const engName = "MyGameEngine";
+#include "EngineCore.hh"
+#include "Obj/Quad.hh"
 
 int main(int argc, char** argv) {
-    print("{}: Starting Up\n", engName);
-
-    //print("{}\n", glm::pi<float>());
-
-    SDL_Init(SDL_INIT_VIDEO);
-    SDL_Window* window = SDL_CreateWindow(engName, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, NULL);
-
-    renderQuad({0.0f, 0.0f, 0.0f}, QuadOrientation::XY);
-    renderQuad({0.0f, 0.0f, 0.0f}, QuadOrientation::XZ);
-    renderQuad({0.0f, 0.0f, 0.0f}, QuadOrientation::YZ);
-
-    renderQuad({0.0f, 0.0f, 1.0f}, QuadOrientation::XY);
-    renderQuad({0.0f, 1.0f, 0.0f}, QuadOrientation::XZ);
-    renderQuad({1.0f, 0.0f, 0.0f}, QuadOrientation::YZ);
+    MGE::EngineCore engine;
     
-    while(update(window, renderer));
+    engine.add_obj(MGE::ObjQuad({0.0f, 0.0f, 0.0f}, MGE::QuadOrientation::XY));
 
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+    engine.add_objs({
+        MGE::ObjQuad({0.0f, 0.0f, 0.0f}, MGE::QuadOrientation::XZ),
+        MGE::ObjQuad({0.0f, 0.0f, 0.0f}, MGE::QuadOrientation::YZ),
+        MGE::ObjQuad({0.0f, 0.0f, 1.0f}, MGE::QuadOrientation::XY),
+        MGE::ObjQuad({0.0f, 1.0f, 0.0f}, MGE::QuadOrientation::XZ),
+        MGE::ObjQuad({1.0f, 0.0f, 0.0f}, MGE::QuadOrientation::YZ),
+    });
+    
+    while(!engine.shutdown) engine.update();
 
-    print("{}: Shutting Down\n", engName);
     return 0;
 }

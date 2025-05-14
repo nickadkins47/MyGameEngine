@@ -1,18 +1,37 @@
 
 #pragma once
 
-#include <glm/glm.hpp>
-#include <glm/ext.hpp>
+#include "Globals.hh"
+#include "Keyboard.hh"
 
-#include "update.hh"
+namespace MGE {
+    
+    class Camera {
+    public:
+        Camera();
+        ~Camera();
 
-static const int WINDOW_WIDTH = 1200;
-static const int WINDOW_HEIGHT = 900;
+        deleteOtherOps(Camera)
 
-static const float fov = 90.0f;
-static const float aspect = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
-static const float zNear = 0.1f;
-static const float zFar = 100.0f;
+        void update();
+        void updateCamAngle(Float xrel, Float yrel);
 
-//do camera stuff & return VPMatrix
-glm::mat4 camUpdate(glm::vec3& camPos, glm::vec3& camAng, std::array<bool,6>& movements);
+        Mat<4,4> getVPMat() const;
+
+        void setProjMat(Float fov, Float windowWidth, Float windowHeight, Float zNear, Float zFar);
+        
+        Keyboard* kbdPtr = nullptr;
+
+    //protected:
+        Mat<4,4> projMat {0};
+
+        Vec<3> pos {0,0,0}; //camera's position in x/y/z
+        Vec<3> angle {0,0,0}; //camera's angle in pitch/yaw/roll
+
+        Vec<3> lookDirF {0};
+        Vec<3> lookDirL {0};
+        Vec<3> lookDirU {0};
+
+    };
+
+}

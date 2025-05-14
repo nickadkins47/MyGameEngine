@@ -1,38 +1,62 @@
 
-#include "camera.hh"
+#include "Camera.hh"
 
-glm::mat4 camUpdate(glm::vec3& camPos, glm::vec3& camAng, std::array<bool,6>& movements) {
+namespace MGE {
     
-    static glm::mat4 projMat = glm::perspective(glm::radians(fov), aspect, zNear, zFar);
-    static bool isInverted = false;
-    if (!isInverted) {
-        projMat[1][1] = -projMat[1][1];
-        isInverted = true;
+    Camera::Camera() {}
+    Camera::~Camera() {}
+
+    void Camera::update() {
+
+        //RH Z-up Coord system
+        Float& pitch = angle[0];
+        Float& yaw = angle[1];
+        lookDirF = {
+            sin(radians(yaw)) * cos(radians(pitch)),
+            cos(radians(yaw)) * cos(radians(pitch)),
+            sin(radians(pitch))
+        };
+        lookDirF = normalize(lookDirF);
+
+        lookDirL = normalize(cross({0,0,1}, lookDirF));
+        lookDirU = normalize(cross(lookDirF, lookDirL));
+
+        bool movements[6] {
+            kbdPtr->isKeyDown(SDLK_W), kbdPtr->isKeyDown(SDLK_S), // +/- Forward
+            kbdPtr->isKeyDown(SDLK_A), kbdPtr->isKeyDown(SDLK_D), // +/- Left
+            kbdPtr->isKeyDown(SDLK_Q), kbdPtr->isKeyDown(SDLK_E), // +/- Up
+        };
+        pos += (
+            lookDirF * static_cast<Float>(movements[0] - movements[1]) * 0.0125f +
+            lookDirL * static_cast<Float>(movements[2] - movements[3]) * 0.0125f +
+            lookDirU * static_cast<Float>(movements[4] - movements[5]) * 0.0125f
+        );
     }
 
-    //RH Z-up Coord system
-    float& pitch = camAng[0];
-    float& yaw = camAng[1];
-    glm::vec3 lookDir (
-        sin(glm::radians(yaw)) * cos(glm::radians(pitch)),
-        cos(glm::radians(yaw)) * cos(glm::radians(pitch)),
-        -sin(glm::radians(pitch))
-    );
-    lookDir = glm::normalize(lookDir);
+    void Camera::updateCamAngle(Float xrel, Float yrel) {
+        angle[0] += yrel * 0.125f;
+        angle[1] += xrel * 0.125f;
 
-    glm::vec3 lookLeft = glm::normalize(glm::cross({0,0,1}, lookDir));
-    glm::vec3 lookUp   = glm::normalize(glm::cross(lookDir, lookLeft));
-    
-    glm::mat4 viewMat = glm::lookAt(camPos, camPos + lookDir, lookUp);
+        if (angle[0] < -89.0f) { //constrain pitch to (-90, 90)
+            angle[0] = -89.0f;
+        } else if (angle[0] > 89.0f) {
+            angle[0] = 89.0f;
+        }
+        if (angle[1] < 0.0f) { //yaw will wrap around if beyond (0, 360)
+            angle[1] += 360.0f;
+        } else if (angle[1] >= 360.0f) {
+            angle[1] -= 360.0f;
+        }
+    }
 
-    glm::mat4 vpMat = projMat * viewMat;
+    Mat<4,4> Camera::getVPMat() const {
+        return projMat * lookAt(pos, pos + lookDirF, lookDirU); //projMat * viewMat
+    }
 
-    //cam movements
-    camPos += (
-        lookDir  * (float)(movements[0] - movements[1]) * 0.0125f +
-        lookLeft * (float)(movements[2] - movements[3]) * 0.0125f +
-        lookUp   * (float)(movements[4] - movements[5]) * 0.0125f
-    );
+    void Camera::setProjMat(Float fov, Float windowWidth, Float windowHeight, Float zNear, Float zFar) {
+        projMat = perspective(
+            radians(fov), static_cast<Float>(windowWidth) / static_cast<Float>(windowHeight), zNear, zFar
+        );
+    }
 
-    return vpMat;
 }
