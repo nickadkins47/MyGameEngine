@@ -19,7 +19,6 @@ namespace MGE {
 
         //stores things to do upon pressing a given key
         struct Key {
-        public:
             std::function<void(void)> onKeyDown = [](){return;};
             std::function<void(void)> onKeyUp   = [](){return;};
             bool isKeyDown = false;

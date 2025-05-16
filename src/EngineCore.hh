@@ -15,6 +15,7 @@ namespace MGE {
 
         deleteOtherOps(EngineCore)
 
+        void run();
         void update();
 
         void add_obj(Obj const& o);
@@ -37,7 +38,10 @@ namespace MGE {
         Float static inline const zNear = 0.1f;
         Float static inline const zFar = 100.0f;
 
-        StringView static inline const engName {"MyGameEngine"};
+        StringView static inline const engName = "MyGameEngine";
+
+        //map vertex from world coords to screen coords
+        //static Vec<3> mapVertex(Vec<3> vertex);
 
     };
 

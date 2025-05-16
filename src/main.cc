@@ -15,9 +15,9 @@ int main(int argc, char** argv) {
         MGE::ObjQuad({0.0f, 0.0f, 1.0f}, MGE::QuadOrientation::XY),
         MGE::ObjQuad({0.0f, 1.0f, 0.0f}, MGE::QuadOrientation::XZ),
         MGE::ObjQuad({1.0f, 0.0f, 0.0f}, MGE::QuadOrientation::YZ),
-    });
-    
-    while(!engine.shutdown) engine.update();
+    }); 
+
+    engine.run();
 
     return 0;
 }

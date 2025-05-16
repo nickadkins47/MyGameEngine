@@ -20,6 +20,10 @@ namespace MGE {
         SDL_Quit();
     }
 
+    void EngineCore::run() {
+        while (!shutdown) update();
+    }
+
     void EngineCore::update() {
 
         //handle any inputs from either mouse or keyboard
@@ -98,13 +102,15 @@ namespace MGE {
                 SDL_RenderLines(renderer, fpoints, 4);
 
                 SDL_Vertex vertices[] = {
-                    {fpoints[0], {0.5f, 0.5f, 0.5f, 1.0f}, {0,0}},
+                    /* {fpoints[0], {0.5f, 0.5f, 0.5f, 1.0f}, {0,0}},
                     {fpoints[1], {0.5f, 0.5f, 0.5f, 1.0f}, {0,0}},
-                    {fpoints[2], {0.5f, 0.5f, 0.5f, 1.0f}, {0,0}},
-                    {fpoints[3], {0.5f, 0.5f, 0.5f, 1.0f}, {0,0}},
+                    {fpoints[2], {0.5f, 0.5f, 0.5f, 1.0f}, {0,0}}, */
+                    {fpoints[0], {0.7f, 0.3f, 0.3f, 1.0f}, {0,0}},
+                    {fpoints[1], {0.3f, 0.7f, 0.3f, 1.0f}, {0,0}},
+                    {fpoints[2], {0.3f, 0.3f, 0.7f, 1.0f}, {0,0}},
                 };
-                Int indices[] = { 0,1,2, 2,3,0 };
-                SDL_RenderGeometry(renderer, NULL, vertices, 4, indices, 6);
+                SDL_RenderGeometry(renderer, NULL, vertices, 3, NULL, 0);
+                
             }
         }
 
@@ -114,5 +120,9 @@ namespace MGE {
         print("{}", SDL_GetError());
 
     }
+
+    /* Vec<3> EngineCore::mapVertex(Vec<3> vertex) {
+        //TODO
+    } */
 
 }
