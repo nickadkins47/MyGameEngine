@@ -14,8 +14,7 @@ target("main")
     set_languages("c++23")
     add_packages("libsdl3", "glm")
 
-    add_files("src/Shaders/*.vert", "src/Shaders/*.frag")
+    add_files("shaders/*.vert", "shaders/*.frag")
     add_rules("utils.glsl2spv", {outputdir = "build/shaders"})
     on_clean(function (target) os.rm("build/shaders/*") end)
     add_packages("vulkansdk")
-    

@@ -2,9 +2,11 @@
 #pragma once
 
 #include <array>
+#include <format>
 #include <print>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <vector>
 
 #include <glm/glm.hpp>
@@ -19,13 +21,19 @@
     className& operator=( const className& toCopyAssign ) = delete; \
     className& operator=( className&& toMoveAssign ) = delete;
 
+//"if not null" check for if (thing) is not NULL or nullptr
+#define ifntn(thing) if (thing != NULL && thing != nullptr)
+
 namespace MGE {
 
     using Int = int;
     using Float = float;
+    using Size = size_t;
 
-    template<typename T, size_t S>
+    template<typename T, Size S>
         using Array = std::array<T,S>;
+
+    using std::format;
 
     using std::print;
 
@@ -36,13 +44,13 @@ namespace MGE {
     template<typename T>
         using Vector = std::vector<T>;
 
-    template<size_t T>
+    template<Size T>
         using Vec = glm::vec<T, Float>;
 
-    template<size_t T, size_t U>
+    template<Size T, Size U>
         using Mat = glm::mat<T, U, Float>;
 
-    template<size_t T>
+    template<Size T>
         using Triangle = Array<Vec<T>, 3>;
 
     using glm::radians;
@@ -55,4 +63,21 @@ namespace MGE {
 
     using glm::perspective;
 
+    //main directory, relative to GetBasePath, which is exe's directory, aka build/windows/x64/release
+    String static const srcDir = format("{}../../../..", SDL_GetBasePath());
+
+    //wrapper for SDL_LoadFile; returns pointer to code & the size of code.
+    //dont forget to free the void* later
+    //str: path relative to project dir (Ex. Main is src/Main.cc)
+    static inline std::tuple<void*, Size> load_file_as_code(String const& str) {
+        Size codeSize;
+        void* code = SDL_LoadFile(format("{}/{}", srcDir, str).c_str(), &codeSize);
+        if (code == NULL) {
+            print("load_file_as_code ERROR: \"{}\" returned NULL\n{}\n", str, SDL_GetError());
+            return {nullptr, 0};
+        } else {
+            return {code, codeSize};
+        }
+    }
+    
 }
