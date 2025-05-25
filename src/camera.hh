@@ -18,7 +18,7 @@ namespace MGE {
 
         Mat<4,4> getVPMat() const;
 
-        void setProjMat(Float fov, Float windowWidth, Float windowHeight, Float zNear, Float zFar);
+        void setProjMat(Float fov, Float window_width, Float window_height, Float near_z, Float far_z);
         
         Keyboard* kbdPtr = nullptr;
 

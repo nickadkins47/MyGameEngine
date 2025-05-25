@@ -53,9 +53,9 @@ namespace MGE {
         return projMat * lookAt(pos, pos + lookDirF, lookDirU); //projMat * viewMat
     }
 
-    void Camera::setProjMat(Float fov, Float windowWidth, Float windowHeight, Float zNear, Float zFar) {
+    void Camera::setProjMat(Float fov, Float window_width, Float window_height, Float near_z, Float far_z) {
         projMat = perspective(
-            radians(fov), static_cast<Float>(windowWidth) / static_cast<Float>(windowHeight), zNear, zFar
+            radians(fov), static_cast<Float>(window_width) / static_cast<Float>(window_height), near_z, far_z
         );
     }
 

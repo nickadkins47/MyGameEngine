@@ -8,6 +8,7 @@
 #include <string_view>
 #include <tuple>
 #include <vector>
+#include <utility>
 
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
@@ -27,6 +28,7 @@
 namespace MGE {
 
     using Int = int;
+    using Uint = unsigned int;
     using Float = float;
     using Size = size_t;
 
@@ -52,6 +54,11 @@ namespace MGE {
 
     template<Size T>
         using Triangle = Array<Vec<T>, 3>;
+
+    template<typename T, typename S>
+        using Pair = std::pair<T,S>;
+    
+    using std::make_pair;
 
     using glm::radians;
 
