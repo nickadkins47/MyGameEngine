@@ -8,16 +8,6 @@
 
 namespace MGE {
 
-    class BufInfo {
-    public:
-        BufInfo();
-        ~BufInfo();
-
-        SDL_GPUBuffer* vertex_buf = nullptr;
-        SDL_GPUTransferBuffer* transfer_buf = nullptr;
-        Uint size = 0;
-    };
-
     class EngineCore {
     public:
         EngineCore();
@@ -32,20 +22,21 @@ namespace MGE {
         void add_objs(Vector<Obj> const& o_vec);
         void render();
 
-        void asdf();
-
     //protected:
         bool shutdown = false;
 
         Camera cam;
         Keyboard kbd;
         SDL_Window* window = nullptr;
-        SDL_GPUDevice* gpu_device = nullptr;
-        SDL_GPUShader* vert_shader = nullptr;
-        SDL_GPUShader* frag_shader = nullptr;
-        SDL_GPUGraphicsPipeline* graphics_pipeline = nullptr;
+        //SDL_Renderer* renderer = nullptr;
+        SDL_GLContext gl_context;
 
-        Vector<Pair<Obj, BufInfo>> obj_list {};
+        GLuint gProgramID = 0;
+        GLint gVertexPos2DLocation = -1;
+        GLuint gVBO = 0;
+        GLuint gIBO = 0;
+
+        Vector<Obj> obj_list {};
 
         Int static inline const window_width = 1200;
         Int static inline const window_height = 900;
@@ -64,43 +55,19 @@ namespace MGE {
         //Deactivates all SDL-related components.
         void quit_sdl();
 
-        //given a path (relative to the project dir) and the Shader's CreateInfo
-        //(minus the "code", "code_size", and "format" parameters), construct a SDL_GPUShader & return
-        //a pointer to it (or to nullptr if it failed).
-        SDL_GPUShader* get_shader(String const& path, SDL_GPUShaderCreateInfo info);
-
-        //creates vertex/transfer buffer info from an object
-        BufInfo get_buf_info(Obj const& o);
-
-        //(re)calculate graphics pipeline
-        void calc_graphics_pipeline();
-
-        //map vertex from world coords to screen coords
-        //static Vec<3> mapVertex(Vec<3> vertex);
-
     };
 
-    // the vertex input layout
-    struct Vertex {
-        float x, y, z;      //vec3 position
-        float r, g, b, a;   //vec4 color
-    };
+    //load shader from path (relative to proj_dir)
+    GLuint load_shader(String const& shader_path, gl::GLenum const& shader_type);
 
-    struct UniformBuffer {
-        float time; // you can add other properties here
-        //float z_buf[EngineCore::window_width][EngineCore::window_height]
+    // Quad vertices
+    float quadVertices[] = {
+        // Positions   // TexCoords
+        -1.0f,  1.0f,   0.0f, 1.0f,
+        -1.0f, -1.0f,   0.0f, 0.0f,
+            1.0f, -1.0f,   1.0f, 0.0f,
+            1.0f,  1.0f,   1.0f, 1.0f
     };
-    static UniformBuffer timeUniform {};
-
-    // a list of vertices
-    static Vertex vertices[] {
-        {0.0f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f},     // top vertex
-        {-0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f},   // bottom left vertex
-        {0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f},    // bottom right vertex
-        {-0.1f, 0.4f, 0.1f, 1.0f, 0.0f, 0.0f, 1.0f},    // top vertex
-        {-0.6f, -0.6f, 0.1f, 1.0f, 1.0f, 0.0f, 1.0f},   // bottom left vertex
-        {0.4f, -0.6f, 0.1f, 1.0f, 0.0f, 1.0f, 1.0f},    // bottom right vertex
-    };
-    static int vertices_len = 6;
+    unsigned int indices[] = { 0, 1, 2, 0, 2, 3 };
 
 }

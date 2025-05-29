@@ -7,12 +7,11 @@
 #include "Obj/Quad.hh"
 
 int main(int argc, char** argv) {
-    MGE::EngineCore engine;
+    /* MGE::EngineCore engine;
     if (engine.shutdown) return -1;
 
     engine.kbd[SDLK_Z].onKeyDown = [&engine](){
         MGE::print("Z Pressed\n");
-        engine.asdf();
     };
     
     engine.add_obj(MGE::ObjQuad({0.0f, 0.0f, 0.0f}, MGE::QuadOrientation::XY));
@@ -23,9 +22,18 @@ int main(int argc, char** argv) {
         MGE::ObjQuad({0.0f, 0.0f, 1.0f}, MGE::QuadOrientation::XY),
         MGE::ObjQuad({0.0f, 1.0f, 0.0f}, MGE::QuadOrientation::XZ),
         MGE::ObjQuad({1.0f, 0.0f, 0.0f}, MGE::QuadOrientation::YZ),
-    });
+    }); */
+
+    std::ifstream inFile(format("{}/src/Obj/Obj.cc", MGE::proj_dir));
+    if (inFile.fail()) {
+        std::print("infile FAILED\n"); return -1;
+    }
+
+    std::string str = (std::stringstream() << inFile.rdbuf()).str();
+    std::print("{}\n", str);
     
-    engine.run();
-    
+    //engine.run();
+
+    inFile.close();
     return 0;
 }
