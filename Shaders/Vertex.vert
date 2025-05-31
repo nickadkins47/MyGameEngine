@@ -7,9 +7,13 @@ layout (location = 2) in vec2 v_texco;
 out vec3 f_color;
 out vec2 f_texco;
 
+uniform mat4 model_mat;
+uniform mat4 vp_mat;
+
 void main()
 {
     f_color = v_color;
     f_texco = v_texco;
-    gl_Position = vec4(v_pos, 1.0);
+    //gl_Position = vec4(v_pos, 1.0);
+    gl_Position = vp_mat * model_mat * vec4(v_pos, 1.0);
 }
