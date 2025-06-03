@@ -7,9 +7,6 @@
 
 #pragma once
 
-#include <unordered_map>
-#include <functional>
-
 #include "Globals.hh"
 
 //Keeps track of external inputs for any given type of GLFW Input
@@ -20,8 +17,7 @@ class InputHandler
 {
     public:
     
-    InputHandler(std::function<int(GLFWwindow*, GLFWInputCode)> input_func);
-    ~InputHandler();
+    InputHandler(std::function<int(GLFWwindow ptr, GLFWInputCode)> input_func);
     
     deleteOtherOps(InputHandler)
 
@@ -32,11 +28,11 @@ class InputHandler
         bool is_pressed = false;
     };
 
-    //return const& to key 
-    Input const& at(GLFWInputCode const ref input_code);
+    //return const reference to key 
+    Input const ref at(GLFWInputCode const ref input_code);
 
     //return reference to key
-    Input & operator[](GLFWInputCode const ref input_code);
+    Input ref operator[](GLFWInputCode const ref input_code);
 
     //handles checking keyboard input for a given window
     //if any given key is pressed, it triggers corresponding actions
@@ -47,7 +43,7 @@ class InputHandler
 
     protected:
 
-    std::function<int(GLFWwindow*, GLFWInputCode)> input_func;
+    std::function<int(GLFWwindow ptr, GLFWInputCode)> input_func;
 
     std::unordered_map<GLFWInputCode, Input> inputs;
 };

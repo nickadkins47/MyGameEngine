@@ -15,13 +15,12 @@ class Camera
     public:
 
     Camera();
-    ~Camera();
 
     deleteOtherOps(Camera)
 
     void update();
 
-    void update_angle(float xpos, float ypos);
+    void update_angle(GLFWwindow ptr window, int screen_width, int screen_height);
 
     //Return the View-Projection matrix for this camera
     glm::mat4 get_vp_mat() const;
@@ -30,7 +29,7 @@ class Camera
     void set_proj_mat(float fov_degrees, int window_width, int window_height, float near_z, float far_z);
     
     //Pointer to keyboard InputHandler
-    InputHandler ptr keyboardPtr = nullptr;
+    InputHandler ptr keyboard_ptr = nullptr;
 
     bool first_mouse = false;
 

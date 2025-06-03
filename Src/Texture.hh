@@ -5,16 +5,18 @@
  *  @brief: 
  */
 
+#pragma once
+
 #include "Globals.hh"
 
 class Texture
 {
     public:
 
-    Texture(string const& tex_path, GLenum img_format);
+    Texture(string const ref tex_path, GLenum img_format);
 
-    deleteOtherOps(Texture)
+    //deleteOtherOps(Texture)
 
-    GLuint id;
+    GLuint ID;
     int width = 0, height = 0, nr_channels = 0;
 };

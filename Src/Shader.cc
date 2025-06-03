@@ -7,7 +7,7 @@
 
 #include "Shader.hh"
 
-Shader::Shader(string const& vert_path, string const& frag_path)
+Shader::Shader(string const ref vert_path, string const ref frag_path, int tex_units)
 {
     int success;
     char info_log[512];
@@ -58,39 +58,35 @@ Shader::Shader(string const& vert_path, string const& frag_path)
         return;
     };
 
-    id = glCreateProgram();
-    glAttachShader(id, vert_shader);
-    glAttachShader(id, frag_shader);
-    glLinkProgram(id);
+    ID = glCreateProgram();
+    glAttachShader(ID, vert_shader);
+    glAttachShader(ID, frag_shader);
+    glLinkProgram(ID);
 
-    glGetProgramiv(id, GL_LINK_STATUS, &success);
+    glGetProgramiv(ID, GL_LINK_STATUS, &success);
     if(!success)
     {
-        glGetProgramInfoLog(id, 512, NULL, info_log);
+        glGetProgramInfoLog(ID, 512, NULL, info_log);
         print("ERROR: shader linking failed:\n{}\n", info_log);
         return;
     }
 
     glDeleteShader(vert_shader);
     glDeleteShader(frag_shader);
+
+    //set indices for Sampler2D to use
+    use();
+    for (int i = 0; i < tex_units; i++)
+        set_uniform(1i, (*this), format("s_tex{}", i).c_str(), i);
 }
 
 void Shader::use() const
 {
-    glUseProgram(id);
+    glUseProgram(ID);
 }
 
-void Shader::set_bool(string const& name, bool value) const
+void Shader::set_texture(int tex_unit, Texture const ref texture) const
 {
-    glUniform1i(glGetUniformLocation(id, name.c_str()), static_cast<int>(value));
-}
-
-void Shader::set_int(string const& name, int value) const
-{
-    glUniform1i(glGetUniformLocation(id, name.c_str()), value);
-}
-
-void Shader::set_float(string const& name, float value) const
-{
-    glUniform1f(glGetUniformLocation(id, name.c_str()), value);
+    glActiveTexture(GL_TEXTURE0 + tex_unit);
+    glBindTexture(GL_TEXTURE_2D, texture.ID);
 }

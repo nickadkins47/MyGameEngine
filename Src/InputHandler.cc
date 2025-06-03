@@ -7,12 +7,10 @@
 
 #include "InputHandler.hh"
 
-InputHandler::InputHandler(std::function<int(GLFWwindow*, GLFWInputCode)> input_func)
+InputHandler::InputHandler(std::function<int(GLFWwindow ptr, GLFWInputCode)> input_func)
 {
     this->input_func = input_func;
 }
-
-InputHandler::~InputHandler() {}
 
 InputHandler::Input const ref InputHandler::at(GLFWInputCode const ref input_code)
 {

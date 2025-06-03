@@ -8,7 +8,6 @@
 #include "Camera.hh"
     
 Camera::Camera() {}
-Camera::~Camera() {}
 
 void Camera::update()
 {
@@ -26,39 +25,42 @@ void Camera::update()
     lookDirU = glm::normalize(glm::cross(lookDirF, lookDirL));
 
     bool movements[6] {
-        keyboardPtr->is_pressed(GLFW_KEY_W), keyboardPtr->is_pressed(GLFW_KEY_S), // +/- Forward
-        keyboardPtr->is_pressed(GLFW_KEY_A), keyboardPtr->is_pressed(GLFW_KEY_D), // +/- Left
-        keyboardPtr->is_pressed(GLFW_KEY_Q), keyboardPtr->is_pressed(GLFW_KEY_E), // +/- Up
+        keyboard_ptr->is_pressed(GLFW_KEY_W), keyboard_ptr->is_pressed(GLFW_KEY_S), // +/- Forward
+        keyboard_ptr->is_pressed(GLFW_KEY_A), keyboard_ptr->is_pressed(GLFW_KEY_D), // +/- Left
+        keyboard_ptr->is_pressed(GLFW_KEY_Q), keyboard_ptr->is_pressed(GLFW_KEY_E), // +/- Up
     };
 
     float move_speed = (
-          (keyboardPtr->is_pressed(GLFW_KEY_LEFT_SHIFT)  ) ? 0.5f
-        : (keyboardPtr->is_pressed(GLFW_KEY_LEFT_CONTROL)) ? 0.03125f
+          (keyboard_ptr->is_pressed(GLFW_KEY_LEFT_SHIFT)  ) ? 0.5f
+        : (keyboard_ptr->is_pressed(GLFW_KEY_LEFT_CONTROL)) ? 0.03125f
                                   /*Else, Default to*/ : 0.125f
     );
     
     pos += (
-        move_speed * lookDirF * static_cast<float>(movements[0] - movements[1]) +
-        move_speed * lookDirL * static_cast<float>(movements[2] - movements[3]) +
-        move_speed * lookDirU * static_cast<float>(movements[4] - movements[5])
+        move_speed * lookDirF * cast<float>(movements[0] - movements[1]) +
+        move_speed * lookDirL * cast<float>(movements[2] - movements[3]) +
+        move_speed * lookDirU * cast<float>(movements[4] - movements[5])
     );
 }
 
-void Camera::update_angle(float xpos, float ypos)
+void Camera::update_angle(GLFWwindow ptr window, int screen_width, int screen_height)
 {
-    float static old_xpos = static_cast<float>(screen_width) / 2.0f;
-    float static old_ypos = static_cast<float>(screen_height) / 2.0f;
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+
+    float static old_xpos = cast<float>(screen_width) / 2.0f;
+    float static old_ypos = cast<float>(screen_height) / 2.0f;
     float static const sensitivity = 0.125f;
 
     if (first_mouse)
     {
-        old_xpos = xpos;
-        old_ypos = ypos;
+        old_xpos = cast<float>(xpos);
+        old_ypos = cast<float>(ypos);
         first_mouse = false;
     }
 
-    angle[0] -= (ypos - old_ypos) * sensitivity; //inverted?
-    angle[1] += (xpos - old_xpos) * sensitivity;
+    angle[0] -= (cast<float>(ypos) - old_ypos) * sensitivity; //inverted?
+    angle[1] += (cast<float>(xpos) - old_xpos) * sensitivity;
 
     old_ypos = ypos;
     old_xpos = xpos;
@@ -80,7 +82,7 @@ glm::mat4 Camera::get_vp_mat() const {
 }
 
 void Camera::set_proj_mat(float fov_degrees, int window_width, int window_height, float near_z, float far_z) {
-    float const aspect_ratio = static_cast<float>(window_width) / static_cast<float>(window_height);
+    float const aspect_ratio = cast<float>(window_width) / cast<float>(window_height);
     proj_mat = glm::perspective(
         glm::radians(fov_degrees), aspect_ratio, near_z, far_z
     );
