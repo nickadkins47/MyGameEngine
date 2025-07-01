@@ -1,0 +1,24 @@
+/**
+ *   @file: CubeIDs.hh
+ * @author: Nicholas Adkins
+ *   @date: Jun 15 2025
+ *  @brief: 
+ */
+
+#pragma once
+
+#include "../Core.hh"
+#include "../Texture.hh"
+
+template<typename T>
+using six = array<T,6>;
+
+//types of blocks present in game
+enum class CubeID: size_t {
+    AIR,
+    TEST,
+    GRASS,
+    DIRT
+};
+
+inline std::unordered_map<CubeID, six<Texture>> cube_txts;

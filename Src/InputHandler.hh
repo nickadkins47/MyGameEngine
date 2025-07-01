@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "Globals.hh"
+#include "Core.hh"
 
 //Keeps track of external inputs for any given type of GLFW Input
 //Ex: Keyboard keys, Mouse buttons, Joystick movements, etc.

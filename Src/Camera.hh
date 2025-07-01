@@ -7,8 +7,9 @@
 
 #pragma once
 
-#include "Globals.hh"
-#include "InputHandler.hh"
+#include "Core.hh"
+
+class Engine;
 
 class Camera
 {
@@ -20,18 +21,20 @@ class Camera
 
     void update();
 
-    void update_angle(GLFWwindow ptr window, int screen_width, int screen_height);
+    void update_angle();
 
     //Return the View-Projection matrix for this camera
     glm::mat4 get_vp_mat() const;
 
     //Set the Projection Matrix based on the given parameters
-    void set_proj_mat(float fov_degrees, int window_width, int window_height, float near_z, float far_z);
-    
-    //Pointer to keyboard InputHandler
-    InputHandler ptr keyboard_ptr = nullptr;
+    void set_proj_mat(float fov_degrees, float near_z, float far_z);
+
+    //Pointer to parent game engine
+    Engine ptr engine_ptr = nullptr;
 
     bool first_mouse = false;
+
+    function<float(void)> move_speed_func = [](){return 1.0f;};
 
     //protected:
 

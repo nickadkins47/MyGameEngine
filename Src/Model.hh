@@ -7,16 +7,18 @@
 
 #pragma once
 
-#include "Globals.hh"
+#include "Core.hh"
 #include "Shader.hh"
 #include "Texture.hh"
+
+class Obj;
 
 class Model
 {
     public:
 
     Model();
-    Model(vector<pair<int, GLenum>> const ref attributes, vector<float> const ref vertices, vector<unsigned int> const ref indices);
+    Model(vector<pair<int, GLenum>> cref attributes, vector<float> cref vertices, vector<uint> cref indices);
 
     ~Model();
 
@@ -25,6 +27,9 @@ class Model
     //bool use_EBO; //TODO
 
     Shader ptr shader = nullptr;
+
+    //given vertices, generate optimal vertices & indices vectors for this model
+    void gen_optimal_v_i(vector<float> cref base_verts);
 
     //Create the model's VAO, VBO, and EBO, from
     //the vertices, indices, and attributes;
@@ -41,7 +46,7 @@ class Model
 
     vector<pair<int, GLenum>> attributes;
     vector<float> vertices;
-    vector<unsigned int> indices;
+    vector<uint> indices;
 
     vector<Texture> textures;
 

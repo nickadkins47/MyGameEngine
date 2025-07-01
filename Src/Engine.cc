@@ -9,50 +9,60 @@
 
 Engine::Engine() { initialize(); }
 
-Engine::~Engine() { shutdown(); }
+Engine::Engine(string cref window_name)
+: window_name(window_name) { initialize(); }
 
-void Engine::add_obj(Obj const ref obj)
-{
-    //TODO
-}
+Engine::~Engine() { shutdown(); }
 
 void Engine::run()
 {
-    while(!glfwWindowShouldClose(window))
+    for (/**/; !glfwWindowShouldClose(window); glfwPollEvents())
     {
+        bool is_selected = is_selected_func();
+
         glClearColor(skybox_color.x, skybox_color.y, skybox_color.z, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glfwSetInputMode(window, GLFW_CURSOR,
-            (is_left_mouse_down | is_tab_mode)
-                ? GLFW_CURSOR_DISABLED
-                : GLFW_CURSOR_NORMAL
-        );
+        if (is_selected)
+        {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            camera.update_angle();
+        }
+        else
+        {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            camera.first_mouse = true;
+        }
 
         mouse_buttons.update(window);
         keyboard.update(window);
-
-        if (is_left_mouse_down | is_tab_mode)
-        {
-            camera.update_angle(window, screen_width, screen_height);
-        }
-        else camera.first_mouse = true;
 
         camera.update();
 
         glm::mat4 vp_mat = camera.get_vp_mat();
 
-        for (Model const ref model : models)
+        for (Obj cref obj : objs)
         {
-            model.bind();
-            for (Obj const ref obj : objs)
+            obj.model->bind();
+            obj.render(vp_mat);
+        }
+
+        //TEMP MCEng stuff
+        static const int offset = -15;
+        if (grid != nullptr)
+        {
+            for (int cx = 0; cx < grid->sz_x; cx++)
             {
-                obj.render(vp_mat);
+                for (int cy = 0; cy < grid->sz_y; cy++)
+                {
+                    MyChunk ref chunk = grid->chunk(cx,cy);
+                    chunk.model->bind();
+                    chunk.render(vp_mat);
+                }
             }
         }
 
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+        glfwSwapBuffers(window); //update screen
     }
 }
 
@@ -69,7 +79,7 @@ void Engine::initialize()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window = glfwCreateWindow(screen_width, screen_height, "My Game Engine", NULL, NULL);
+    window = glfwCreateWindow(window_width, window_height, window_name.c_str(), NULL, NULL);
     if (window == NULL)
         return error("Failed to create GLFW window");
     
@@ -86,12 +96,16 @@ void Engine::initialize()
 
     //Other callbacks setup
 
-    glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int width, int height)
+    glfwSetFramebufferSizeCallback(window, [](GLFWwindow ptr window, int width, int height)
     {
         glViewport(0, 0, width, height);
-        //screen_width = width;
-        //screen_height = height;
+        //window_width = width;
+        //window_height = height;
     });
+
+    //Subcomponents init
+
+    camera.engine_ptr = this;
 }
 
 void Engine::shutdown()
@@ -104,8 +118,8 @@ void Engine::shutdown()
     //also learn more about deleting certain specific things
 }
 
-void Engine::error(string const ref error_message)
+void Engine::error(string cref error_message)
 {
-    print("{}\n", error_message); //TODO print to stderr?
+    print("Game Engine: {}\n", error_message); //TODO print to stderr?
     shutdown();
 }

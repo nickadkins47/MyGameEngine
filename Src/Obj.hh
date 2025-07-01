@@ -7,9 +7,8 @@
 
 #pragma once
 
-#include "Globals.hh"
+#include "Core.hh"
 #include "Model.hh"
-#include "Shader.hh"
 
 class Obj
 {
@@ -20,9 +19,10 @@ class Obj
     Model ptr model = nullptr;
 
     glm::vec3 get_position() const;
-    void set_position(glm::vec3 const ref position);
+    void set_position(glm::vec3 cref position);
+    void move_position(glm::vec3 cref position);
 
-    void render(glm::mat4 const ref vp_mat) const;
+    void render(glm::mat4 cref vp_mat) const;
 
     //protected:
     

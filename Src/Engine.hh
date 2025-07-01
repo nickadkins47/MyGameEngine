@@ -7,7 +7,8 @@
 
 #pragma once
 
-#include "Globals.hh"
+#include "MCEng/Grid.hh"
+#include "Core.hh"
 #include "Camera.hh"
 #include "InputHandler.hh"
 #include "Model.hh"
@@ -20,38 +21,40 @@ class Engine
     public:
 
     Engine();
+    Engine(string cref window_name);
+
     ~Engine();
 
     deleteOtherOps(Engine)
-
-    void add_obj(Obj const ref obj);
 
     void run();
 
     //protected:
 
+    string window_name = "My Game Engine";
     bool valid = true;
 
-    int screen_width  = 1200;
-    int screen_height = 900;
+    int window_width  = 1200;
+    int window_height = 900;
 
-    bool is_left_mouse_down = false;
-    bool is_tab_mode = false;
-    bool tab_available = true;
+    function<bool(void)> is_selected_func = [](){return false;};
 
     GLFWwindow ptr window = nullptr;
     InputHandler keyboard {glfwGetKey};
     InputHandler mouse_buttons {glfwGetMouseButton};
     Camera camera;
 
-    vector<Model> models;
     vector<Obj> objs;
+    //TODO: have a more efficient way to store objs/models (multimap?)
+    //s.t. it minimizes the use of model::bind()
+
+    MyGrid* grid = nullptr; //TEMP MCEng stuff
 
     glm::vec3 skybox_color = {0.2f, 0.3f, 0.3f};
 
     void initialize();
     void shutdown();
 
-    void error(string const ref error_message);
+    void error(string cref error_message);
 
 };

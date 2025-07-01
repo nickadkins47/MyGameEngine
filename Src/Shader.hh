@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "Globals.hh"
+#include "Core.hh"
 #include "Texture.hh"
 
 //Sets a shader uniform value of a given name,

@@ -14,12 +14,17 @@ glm::vec3 Obj::get_position() const
     return glm::vec3{model_mat[3]};
 }
 
-void Obj::set_position(glm::vec3 const ref position)
+void Obj::set_position(glm::vec3 cref new_position)
 {
-
+    model_mat = glm::translate(model_mat, new_position - get_position());
 }
 
-void Obj::render(glm::mat4 const ref vp_mat) const
+void Obj::move_position(glm::vec3 cref movement)
+{
+    model_mat = glm::translate(model_mat, movement);
+}
+
+void Obj::render(glm::mat4 cref vp_mat) const
 {
     glm::mat4 mvp_mat = vp_mat * model_mat; //cam's vp_mat * obj's model_mat
 

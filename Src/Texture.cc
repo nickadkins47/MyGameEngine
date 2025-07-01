@@ -7,6 +7,8 @@
 
 #include "Texture.hh"
 
+Texture::Texture() {}
+
 Texture::Texture(string const ref tex_path, GLenum img_format)
 {
     stbi_set_flip_vertically_on_load(true);

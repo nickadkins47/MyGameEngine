@@ -5,6 +5,8 @@
  *  @brief: 
  */
 
+#include <sstream>
+
 #include "Shader.hh"
 
 Shader::Shader(string const ref vert_path, string const ref frag_path, int tex_units)
