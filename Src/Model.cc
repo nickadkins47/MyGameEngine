@@ -14,21 +14,22 @@ Model::Model(vector<pair<int, GLenum>> cref attributes, vector<float> cref verti
 
 Model::~Model()
 {
-    delete(shader);
+    //delete(shader);
 }
 
 void Model::gen_optimal_v_i(vector<float> cref base_verts)
 {
-    //TEMP: just make some indices
     //TODO: move to chunk & redo it since texture coords will mess it up
-    /* vertices = base_verts;
+
+    //TEMP: just make some indices for the existing verts
+    vertices = base_verts;
     uint num_quads = cast<uint>(base_verts.size() / 4);
     for (uint i = 0; i < num_quads; i += 4)
     {
         indices.append_range(vector<uint>{
             i+0, i+1, i+2,  i+2, i+3, i+0,
         });
-    } */
+    }
 }
 
 void Model::process()

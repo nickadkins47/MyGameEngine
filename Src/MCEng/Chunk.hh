@@ -65,5 +65,5 @@ class MyChunk : public Obj
     //Perlin noise function, given an x & y coordinate, # of octaves, persistence value, and a scalar + vertical shift value
     static double perlin2d(double x, double y, double scale, double shift, int32_t octaves, double persistence = 0.5);
 
-    inline static const float qs = 5.0f; //qs / quadSize: physical size of a quad / side of a cube
+    float inline static const qs = 5.0f; //qs / quadSize: physical size of a quad / side of a cube
 };

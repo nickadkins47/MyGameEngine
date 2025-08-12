@@ -31,9 +31,9 @@ void MyChunk::generate(int cx, int cy)
 
 void MyChunk::register_cube(int x, int y, int z, six<Texture> cref textures, six<bool> cref open_sides)
 {
-    const float gx = qs * x; //graphical/simulation location x
-    const float gy = qs * y; //etc
-    const float gz = qs * z; //etc
+    float const gx = qs * x; //graphical/simulation location x
+    float const gy = qs * y; //etc
+    float const gz = qs * z; //etc
 
     array<glm::vec3, 8> const v {
         glm::vec3{   gx,    gy,    gz},

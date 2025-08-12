@@ -22,3 +22,5 @@ enum class CubeID: size_t {
 };
 
 inline std::unordered_map<CubeID, six<Texture>> cube_txts;
+
+void load_cube_txts();

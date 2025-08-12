@@ -9,7 +9,7 @@
 
 #include "Core.hh"
 #include "Engine.hh"
-#include "Grid.hh"
+#include "MCEng/Grid.hh"
 
 int main(int argc, char const *argv[])
 {
@@ -151,7 +151,11 @@ int main(int argc, char const *argv[])
 
     //MCEng stuff
 
-    MyChunk::shader = new Shader("Shaders/Chunk.vert", "Shaders/Chunk.frag", 1);
+    load_cube_txts();
+
+    Shader chunk_shader = Shader("Shaders/Chunk.vert", "Shaders/Chunk.frag", 1);
+
+    MyChunk::shader = &chunk_shader;
 
     MyGrid grid;
 
@@ -168,8 +172,6 @@ int main(int argc, char const *argv[])
     engine.run();
 
     //Extra
-
-    delete(MyChunk::shader);
 
     return 0;
 }  /// main
