@@ -37,7 +37,7 @@ class MyChunk : public Obj
     );
 
     //gives this->vertices to the model
-    void make_model(int cx, int cy);
+    void make_model();
 
     bool is_gen = false; //is generated
     bool is_ren = false; //is rendered
@@ -46,9 +46,9 @@ class MyChunk : public Obj
 
     Shader inline static ptr shader = nullptr;
 
-    size_t inline static const x_dim = 16;
-    size_t inline static const y_dim = 16;
-    size_t inline static const z_dim = 32;
+    size_t inline static const x_dim = 8;
+    size_t inline static const y_dim = 8;
+    size_t inline static const z_dim = 16;
 
     private:
 

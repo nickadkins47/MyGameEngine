@@ -9,7 +9,6 @@
 
 #include "Core.hh"
 #include "Engine.hh"
-#include "MCEng/Grid.hh"
 
 int main(int argc, char const *argv[])
 {
@@ -69,8 +68,7 @@ int main(int argc, char const *argv[])
         return is_left_mouse_down | is_tab_mode;
     };
 
-    /*
-
+    //basic test
     //Model(s)
 
     Model tutorial_cube {
@@ -99,24 +97,26 @@ int main(int argc, char const *argv[])
     tutorial_cube.shader = new Shader("Shaders/TutorialCube.vert", "Shaders/TutorialCube.frag", 2);
     tutorial_cube.process();
 
-    tutorial_cube.textures.push_back(Texture("Textures/container.jpg", GL_RGB));
+    //tutorial_cube.textures.push_back(Texture("Textures/container.jpg", GL_RGB));
     tutorial_cube.textures.push_back(Texture("Textures/awesomeface.png", GL_RGBA));
+
+    tutorial_cube.textures.push_back(Texture("Textures/grass_side.png", GL_RGBA));
 
     //Objects
 
     glm::vec3 const axis1 = glm::normalize(glm::vec3(1.0f, 0.3f, 0.5f));
 
     array<glm::vec3, 10> const cube_positions {
-        glm::vec3( 0.0f,  0.0f,  0.0f),
+        glm::vec3( 0.0f,  0.0f,  0.0f ),
         glm::vec3( 2.0f,  5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-1.5f, -2.2f, -2.5f ),
         glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3( 2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f,  3.0f, -7.5f),
-        glm::vec3( 1.3f, -2.0f, -2.5f),
-        glm::vec3( 1.5f,  2.0f, -2.5f),
-        glm::vec3( 1.5f,  0.2f, -1.5f),
-        glm::vec3(-1.3f,  1.0f, -1.5f),
+        glm::vec3( 2.4f, -0.4f, -3.5f ),
+        glm::vec3(-1.7f,  3.0f, -7.5f ),
+        glm::vec3( 1.3f, -2.0f, -2.5f ),
+        glm::vec3( 1.5f,  2.0f, -2.5f ),
+        glm::vec3( 1.5f,  0.2f, -1.5f ),
+        glm::vec3(-1.3f,  1.0f, -1.5f ),
     };
 
     for (size_t i = 0; i < cube_positions.size(); i++)
@@ -147,11 +147,11 @@ int main(int argc, char const *argv[])
         new_obj.model_mat = glm::rotate(new_obj.model_mat, glm::radians(20.0f), axis1);
         engine.objs.push_back(new_obj);
         asdf += 2.0f;
-    }; */
+    };
 
     //MCEng stuff
 
-    load_cube_txts();
+    /* load_cube_txts();
 
     Shader chunk_shader = Shader("Shaders/Chunk.vert", "Shaders/Chunk.frag", 1);
 
@@ -166,6 +166,8 @@ int main(int argc, char const *argv[])
             grid.load(cx,cy);
         }
     }
+
+    grid.test(); */
 
     //Run Engine (Loop)
 

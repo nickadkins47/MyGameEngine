@@ -44,9 +44,9 @@ void MyGrid::load(int cx, int cy)
         for (size_t ly = 0; ly < chk.y_dim; ly++) { //local y
             int const y = ly + (cy * chk.y_dim); //global y
             for (size_t z = 0; z < chk.z_dim; z++) { //local & global z
-                //if (x,y,z) is 0 (air) or undefined, dont draw any quads for that block
+                //if (x,y,z) is 0 (air) or undefined, dont draw anything for that block
                 if (is_open(x,y,z)) continue;
-                six<bool> const openSides = {
+                six<bool> const open_sides = {
                     is_open(x-1,y,z), //is block at(x,y,z) air/empty/invalid?
                     is_open(x+1,y,z),
                     is_open(x,y-1,z),
@@ -54,11 +54,20 @@ void MyGrid::load(int cx, int cy)
                     is_open(x,y,z-1),
                     is_open(x,y,z+1),
                 };
-                chk.register_cube(x, y, z, cube_txts[chk.at(lx,ly,z)], openSides);
+                chk.register_cube(x, y, z, cube_txts[chk.at(lx,ly,z)], open_sides);
             }
         }
     }
-    chk.make_model(cx,cy);
+    chk.make_model();
+}
+
+void MyGrid::test()
+{
+    MyChunk ref chk = this->chunk(0,0);
+    //chk.generate(0,0);
+    six<bool> const open_sides = { true,true,true,true,true,true };
+    chk.register_cube(1,1,1, cube_txts[CubeID::TEST], open_sides);
+    chk.make_model();
 }
 
 bool MyGrid::is_open(int x, int y, int z)

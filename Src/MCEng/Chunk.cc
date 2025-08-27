@@ -27,6 +27,7 @@ void MyChunk::generate(int cx, int cy)
             }
         }
     }
+    is_gen = true;
 }
 
 void MyChunk::register_cube(int x, int y, int z, six<Texture> cref textures, six<bool> cref open_sides)
@@ -54,13 +55,14 @@ void MyChunk::register_cube(int x, int y, int z, six<Texture> cref textures, six
     if (open_sides[5]) vertices.append_range(get_from_v_at_indices(v, 1,3,7,5));
 }
 
-void MyChunk::make_model(int cx, int cy)
+void MyChunk::make_model()
 {
     model->attributes = {{3, GL_FLOAT}, {2, GL_FLOAT}};
     model->gen_optimal_v_i(vertices);
     model->shader = this->shader;
     model->process();
     model->textures.push_back(Texture("Textures/grass_side.png", GL_RGBA));
+    is_ren = true;
 }
 
 double MyChunk::perlin2d(double x, double y, double scale, double shift, int32_t octaves, double persistence)

@@ -9,12 +9,12 @@
 
 void load_cube_txts()
 {
-    Texture test1("Textures/test1.png", GL_RGBA);
-    Texture test2("Textures/test2.png", GL_RGBA);
-    Texture test3("Textures/test3.png", GL_RGBA);
-    Texture test4("Textures/test4.png", GL_RGBA);
-    Texture test5("Textures/test5.png", GL_RGBA);
-    Texture test6("Textures/test6.png", GL_RGBA);
+    Texture test1("Textures/test/test1.png", GL_RGBA);
+    Texture test2("Textures/test/test2.png", GL_RGBA);
+    Texture test3("Textures/test/test3.png", GL_RGBA);
+    Texture test4("Textures/test/test4.png", GL_RGBA);
+    Texture test5("Textures/test/test5.png", GL_RGBA);
+    Texture test6("Textures/test/test6.png", GL_RGBA);
     
     Texture grass_top("Textures/grass_top.png", GL_RGBA);
     Texture grass_side("Textures/grass_side.png", GL_RGBA);

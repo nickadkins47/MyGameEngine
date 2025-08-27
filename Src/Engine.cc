@@ -16,12 +16,38 @@ Engine::~Engine() { shutdown(); }
 
 void Engine::run()
 {
+    double prev_time = glfwGetTime();
+    int frame_count = 0;
+    int display_fps = 0;
+    double display_ms_frame = 0.0;
+
     for (/**/; !glfwWindowShouldClose(window); glfwPollEvents())
     {
-        bool is_selected = is_selected_func();
+        //ImGui New Frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+        
+        //FPS Count Handler
+        double current_time = glfwGetTime();
+        frame_count++;
+        if (current_time - prev_time >= 1.0)
+        {
+            //print("{} fps, {} ms/frame\n", frame_count, 1000.0 / cast<double>(frame_count));
+            display_fps = frame_count;
+            display_ms_frame = 1000.0 / cast<double>(frame_count);
+            
+            prev_time += 1.0;
+            frame_count = 0;
+        }
+        ImGui::Begin("FPS Counter");
+        ImGui::Text("%i FPS", display_fps);
+        ImGui::Text("%4.2lf ms/frame", display_ms_frame);
+        ImGui::End();
 
-        glClearColor(skybox_color.x, skybox_color.y, skybox_color.z, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //General Calculations
+
+        bool is_selected = is_selected_func();
 
         if (is_selected)
         {
@@ -41,13 +67,18 @@ void Engine::run()
 
         glm::mat4 vp_mat = camera.get_vp_mat();
 
+        //General Rendering
+
+        glClearColor(skybox_color.x, skybox_color.y, skybox_color.z, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         for (Obj cref obj : objs)
         {
             obj.model->bind();
             obj.render(vp_mat);
         }
 
-        //TEMP MCEng stuff
+        //MCEng Rendering (temp?)
         static const int offset = -15;
         if (grid != nullptr)
         {
@@ -61,6 +92,10 @@ void Engine::run()
                 }
             }
         }
+
+        //ImGui Rendering
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window); //update screen
     }
@@ -94,7 +129,17 @@ void Engine::initialize()
 
     glEnable(GL_DEPTH_TEST);
 
-    //Other callbacks setup
+    //ImGUI Init
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init();
+
+    //Other callbacks Init
 
     glfwSetFramebufferSizeCallback(window, [](GLFWwindow ptr window, int width, int height)
     {
@@ -111,6 +156,10 @@ void Engine::initialize()
 void Engine::shutdown()
 {
     print("Game Engine: Shutting Down\n");
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     glfwTerminate();
 
