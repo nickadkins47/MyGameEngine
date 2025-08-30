@@ -5,19 +5,30 @@
  *  @brief: 
  */
 
+#include <stb/stb_image.h>
+
 #include "Texture.hh"
 
 Texture::Texture() {}
 
-Texture::Texture(string const ref tex_path, GLenum img_format)
+Texture::Texture(string cref tex_path)
 {
     stbi_set_flip_vertically_on_load(true);
 
-    unsigned char* data = stbi_load(get_file(tex_path).c_str(), &width, &height, &nr_channels, 0);
+    unsigned char* data = stbi_load(get_file(tex_path).c_str(), &width, &height, &num_channels, 0);
     if (!data) {
         print("ERROR: Texture failed to load ({})\n", tex_path); //TODO?
         return;
     }
+
+    //print("File(\"{}\", width:{}, height:{}, channels:{})\n", tex_path, width, height, num_channels);
+
+    GLenum img_format = 
+        (num_channels == 3) ?
+            GL_RGB
+        : //(num_channels == 4) ?
+            GL_RGBA
+        ;
 
     glGenTextures(1, &ID);
     glBindTexture(GL_TEXTURE_2D, ID);

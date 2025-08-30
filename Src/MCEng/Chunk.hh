@@ -16,8 +16,9 @@
 #include "../Texture.hh"
 
 class MyGrid;
+class Engine;
 
-class MyChunk : public Obj
+class MyChunk //: public Obj
 {
     public:
     
@@ -32,19 +33,20 @@ class MyChunk : public Obj
     void generate(int cx, int cy);
 
     //sends quad data for a given cube to this->quadData
-    void register_cube(
-        int x, int y, int z, six<Texture> cref textures, six<bool> cref open_sides
-    );
+    void register_cube(int lx, int x, int ly, int y, int z, six<bool> cref open_sides);
 
     //gives this->vertices to the model
-    void make_model();
+    //void make_model();
 
     bool is_gen = false; //is generated
     bool is_ren = false; //is rendered
 
     int inline static seed = 0;
 
-    Shader inline static ptr shader = nullptr;
+    //Shader inline static ptr shader = nullptr;
+    Engine inline static ptr engine = nullptr;
+
+    array<Model ptr, 6> inline static quad_models;
 
     size_t inline static const x_dim = 8;
     size_t inline static const y_dim = 8;
@@ -54,16 +56,16 @@ class MyChunk : public Obj
 
     array<array<array<CubeID, z_dim>, y_dim>, x_dim> _chunk {}; //3d array of cube IDs
 
-    vector<float> vertices;
+    //vector<float> vertices;
 
     //given v & 4 indices for v, extract each of the 4 vec3s, concatenate them,
     //return it, plus two texture coordinates per vertex
-    static constexpr array<float, 20> get_from_v_at_indices(
+    /* static constexpr array<float, 20> get_from_v_at_indices(
         array<glm::vec3, 8> cref v, int i1, int i2, int i3, int i4
-    );
+    ); */
 
     //Perlin noise function, given an x & y coordinate, # of octaves, persistence value, and a scalar + vertical shift value
-    static double perlin2d(double x, double y, double scale, double shift, int32_t octaves, double persistence = 0.5);
+    static int perlin(int x, int y, float in_scale, float out_shift, float out_scale);
 
-    float inline static const qs = 5.0f; //qs / quadSize: physical size of a quad / side of a cube
+    float inline static const qs = 1.0f; //qs / quadSize: physical size of a quad / side of a cube
 };

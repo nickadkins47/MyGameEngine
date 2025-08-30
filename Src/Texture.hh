@@ -14,10 +14,10 @@ class Texture
     public:
 
     Texture();
-    Texture(string const ref tex_path, GLenum img_format);
+    Texture(string cref tex_path);
 
     //deleteOtherOps(Texture)
 
     GLuint ID;
-    int width = 0, height = 0, nr_channels = 0;
+    int width = 0, height = 0, num_channels = 0;
 };

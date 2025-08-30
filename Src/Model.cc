@@ -53,9 +53,9 @@ void Model::process()
 
     int64_t size_thus_far = 0; //TODO: maybe issue on 32bit OSes?
     //for (size_t i = 0; i < attributes.size(); i++)
-    for (auto [i, attr] : std::views::enumerate(attributes))
+    for (GLuint i = 0; i < attributes.size(); i++)
     {
-        auto [num, type] = attr;
+        auto [num, type] = attributes[i];
         glVertexAttribPointer(i, num, type, GL_FALSE, total_size, r_cast<void ptr>(size_thus_far)); 
         glEnableVertexAttribArray(i);
         size_thus_far += (num * sizeof_gl_type(type));
@@ -70,8 +70,8 @@ void Model::bind() const
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
-    for (auto [i, tex] : std::views::enumerate(textures))
-        shader->set_texture(i, tex);
+    for (int i = 0; i < textures.size(); i++)
+        shader->set_texture(i, textures[i]);
 }
 
 void Model::render() const

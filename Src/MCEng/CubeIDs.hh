@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <unordered_map>
+
 #include "../Core.hh"
 #include "../Texture.hh"
 

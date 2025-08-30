@@ -9,16 +9,16 @@
 
 void load_cube_txts()
 {
-    Texture test1("Textures/test/test1.png", GL_RGBA);
-    Texture test2("Textures/test/test2.png", GL_RGBA);
-    Texture test3("Textures/test/test3.png", GL_RGBA);
-    Texture test4("Textures/test/test4.png", GL_RGBA);
-    Texture test5("Textures/test/test5.png", GL_RGBA);
-    Texture test6("Textures/test/test6.png", GL_RGBA);
+    Texture test1("Textures/test/test1.png");
+    Texture test2("Textures/test/test2.png");
+    Texture test3("Textures/test/test3.png");
+    Texture test4("Textures/test/test4.png");
+    Texture test5("Textures/test/test5.png");
+    Texture test6("Textures/test/test6.png");
     
-    Texture grass_top("Textures/grass_top.png", GL_RGBA);
-    Texture grass_side("Textures/grass_side.png", GL_RGBA);
-    Texture grass_bottom("Textures/grass_bottom.png", GL_RGBA);
+    Texture grass_top("Textures/grass_top.png");
+    Texture grass_side("Textures/grass_side.png");
+    Texture grass_bottom("Textures/grass_bottom.png");
 
     cube_txts = {
         //0 or Undefined value -> "Air" / Empty

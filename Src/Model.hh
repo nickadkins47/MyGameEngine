@@ -7,6 +7,9 @@
 
 #pragma once
 
+#include <utility>
+    using std::pair;
+
 #include "Core.hh"
 #include "Shader.hh"
 #include "Texture.hh"

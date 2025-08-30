@@ -28,11 +28,8 @@ class MyGrid
     //load/render chunk; also generates Cube IDs for neighboring chunks
     void load(int cx, int cy);
 
-    //load just one block in one chunk
-    void test();
-
-    inline static const size_t sz_x = 4; // # of chunks wide the world is; x direction
-    inline static const size_t sz_y = 4; // # of chunks wide the world is; y direction
+    size_t inline static const sz_x = 8; //num of chunks wide the world is; x direction
+    size_t inline static const sz_y = 8; //num of chunks wide the world is; y direction
 
     private:
 

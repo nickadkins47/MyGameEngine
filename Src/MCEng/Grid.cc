@@ -54,20 +54,10 @@ void MyGrid::load(int cx, int cy)
                     is_open(x,y,z-1),
                     is_open(x,y,z+1),
                 };
-                chk.register_cube(x, y, z, cube_txts[chk.at(lx,ly,z)], open_sides);
+                chk.register_cube(lx, x, ly, y, z, open_sides);
             }
         }
     }
-    chk.make_model();
-}
-
-void MyGrid::test()
-{
-    MyChunk ref chk = this->chunk(0,0);
-    //chk.generate(0,0);
-    six<bool> const open_sides = { true,true,true,true,true,true };
-    chk.register_cube(1,1,1, cube_txts[CubeID::TEST], open_sides);
-    chk.make_model();
 }
 
 bool MyGrid::is_open(int x, int y, int z)

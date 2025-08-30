@@ -5,6 +5,7 @@
  *  @brief: 
  */
 
+#include <fstream>
 #include <sstream>
 
 #include "Shader.hh"

@@ -11,17 +11,12 @@
     using std::array;
 #include <format>
     using std::format;
-#include <fstream>
 #include <functional>
     using std::function;
 #include <print>
     using std::print;
-#include <ranges>
 #include <string>
     using std::string;
-#include <unordered_map>
-#include <utility>
-    using std::pair;
 #include <vector>
     using std::vector;
 
@@ -32,13 +27,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-//#include <glm/gtx/matrix_decompose.hpp>
-
-#include <imgui.h>
-#include <backends/imgui_impl_glfw.h>
-#include <backends/imgui_impl_opengl3.h>
-
-#include <stb/stb_image.h>
 
 #define ptr *
 #define ref &

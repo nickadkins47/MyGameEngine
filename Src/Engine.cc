@@ -5,6 +5,10 @@
  *  @brief: 
  */
 
+#include <imgui.h>
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
+
 #include "Engine.hh"
 
 Engine::Engine() { initialize(); }
@@ -33,16 +37,16 @@ void Engine::run()
         frame_count++;
         if (current_time - prev_time >= 1.0)
         {
-            //print("{} fps, {} ms/frame\n", frame_count, 1000.0 / cast<double>(frame_count));
             display_fps = frame_count;
             display_ms_frame = 1000.0 / cast<double>(frame_count);
+            //print("{} FPS, {} ms/frame\n", display_fps, display_ms_frame);
             
             prev_time += 1.0;
             frame_count = 0;
         }
         ImGui::Begin("FPS Counter");
         ImGui::Text("%i FPS", display_fps);
-        ImGui::Text("%4.2lf ms/frame", display_ms_frame);
+        ImGui::Text("%4.3lf ms/frame", display_ms_frame);
         ImGui::End();
 
         //General Calculations
@@ -79,7 +83,7 @@ void Engine::run()
         }
 
         //MCEng Rendering (temp?)
-        static const int offset = -15;
+        /* static const int offset = -15;
         if (grid != nullptr)
         {
             for (int cx = 0; cx < grid->sz_x; cx++)
@@ -91,7 +95,7 @@ void Engine::run()
                     chunk.render(vp_mat);
                 }
             }
-        }
+        } */
 
         //ImGui Rendering
         ImGui::Render();
