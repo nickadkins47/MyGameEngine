@@ -28,9 +28,9 @@ void Camera::update()
 
     InputHandler ref kbd = engine_ptr->keyboard;
     bool movements[6] {
-        kbd.is_pressed(GLFW_KEY_W), kbd.is_pressed(GLFW_KEY_S), // +/- Forward
-        kbd.is_pressed(GLFW_KEY_A), kbd.is_pressed(GLFW_KEY_D), // +/- Left
-        kbd.is_pressed(GLFW_KEY_Q), kbd.is_pressed(GLFW_KEY_E), // +/- Up
+        kbd[GLFW_KEY_W].is_pressed, kbd[GLFW_KEY_S].is_pressed, // +/- Forward
+        kbd[GLFW_KEY_A].is_pressed, kbd[GLFW_KEY_D].is_pressed, // +/- Left
+        kbd[GLFW_KEY_Q].is_pressed, kbd[GLFW_KEY_E].is_pressed, // +/- Up
     };
     
     pos += (

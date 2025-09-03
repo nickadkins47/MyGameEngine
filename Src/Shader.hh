@@ -30,7 +30,7 @@ class Shader
     public:
     
     //Reads & Builds the Shader
-    Shader(string const ref vert_path, string const ref frag_path, int tex_units);
+    Shader(string cref vert_path, string cref frag_path, int tex_units);
     
     deleteOtherOps(Shader)
 
@@ -41,7 +41,7 @@ class Shader
     void use() const;
 
     //Sets Shader's Sampler2D tex #_ to the ID of the given Texture
-    void set_texture(int tex_unit, Texture const ref texture) const;
+    void set_texture(int tex_unit, Texture cref texture) const;
 
     protected:
 

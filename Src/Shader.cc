@@ -6,25 +6,21 @@
  */
 
 #include <fstream>
-#include <sstream>
 
 #include "Shader.hh"
 
-Shader::Shader(string const ref vert_path, string const ref frag_path, int tex_units)
+Shader::Shader(string cref vert_path, string cref frag_path, int tex_units)
 {
     int success;
     char info_log[512];
 
-    std::ifstream vert_file(get_file(vert_path));
-    if (vert_file.fail())
+    optional<string> vert_code_str = get_file_contents(vert_path);
+    if (vert_code_str == std::nullopt)
     {
-        print("Wrong file dude (vert)\n");
         glfwTerminate();
         return;
     }
-    std::string vert_code_str = (std::stringstream() << vert_file.rdbuf()).str();
-    char const* vert_code = vert_code_str.c_str();
-    vert_file.close();
+    char const* vert_code = (*vert_code_str).c_str();
 
     GLuint vert_shader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vert_shader, 1, &vert_code, NULL);
@@ -38,16 +34,13 @@ Shader::Shader(string const ref vert_path, string const ref frag_path, int tex_u
         return;
     };
 
-    std::ifstream frag_file(get_file(frag_path));
-    if (frag_file.fail())
+    optional<string> frag_code_str = get_file_contents(frag_path);
+    if (frag_code_str == std::nullopt)
     {
-        print("Wrong file dude (frag)\n");
         glfwTerminate();
         return;
     }
-    std::string frag_code_str = (std::stringstream() << frag_file.rdbuf()).str();
-    char const* frag_code = frag_code_str.c_str();
-    frag_file.close();
+    char const* frag_code = (*frag_code_str).c_str();
 
     GLuint frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(frag_shader, 1, &frag_code, NULL);
@@ -88,7 +81,7 @@ void Shader::use() const
     glUseProgram(ID);
 }
 
-void Shader::set_texture(int tex_unit, Texture const ref texture) const
+void Shader::set_texture(int tex_unit, Texture cref texture) const
 {
     glActiveTexture(GL_TEXTURE0 + tex_unit);
     glBindTexture(GL_TEXTURE_2D, texture.ID);

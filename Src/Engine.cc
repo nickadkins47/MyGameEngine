@@ -9,6 +9,8 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
+#include <angelscript.h>
+
 #include "Engine.hh"
 
 Engine::Engine() { initialize(); }
@@ -142,6 +144,11 @@ void Engine::initialize()
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
+
+    //Script Engine Init
+
+    script_engine.engine = this;
+    script_engine.run();
 
     //Other callbacks Init
 

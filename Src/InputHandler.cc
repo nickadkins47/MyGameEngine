@@ -12,12 +12,12 @@ InputHandler::InputHandler(std::function<int(GLFWwindow ptr, GLFWInputCode)> inp
     this->input_func = input_func;
 }
 
-InputHandler::Input const ref InputHandler::at(GLFWInputCode const ref input_code)
+InputHandler::Input cref InputHandler::at(GLFWInputCode cref input_code)
 {
     return inputs[input_code];
 }
 
-InputHandler::Input ref InputHandler::operator[](GLFWInputCode const ref input_code)
+InputHandler::Input ref InputHandler::operator[](GLFWInputCode cref input_code)
 {
     return inputs[input_code];
 }
@@ -37,14 +37,4 @@ void InputHandler::update(GLFWwindow ptr window)
             input.is_pressed = false;
         }
     }
-}
-
-bool InputHandler::is_pressed(GLFWInputCode const ref input_code)
-{
-    return inputs[input_code].is_pressed;
-}
-
-bool InputHandler::is_not_pressed(GLFWInputCode const ref input_code)
-{
-    return !inputs[input_code].is_pressed;
 }

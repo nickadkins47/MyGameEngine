@@ -5,48 +5,28 @@
  *  @brief: 
  */
 
-//#include <angelscript.h>
+#include <fstream>
+#include <sstream>
 
 #include "Core.hh"
 #include "Engine.hh"
+#include "ScriptEng.hh"
 
 int main(int argc, char const *argv[])
 {
     Engine engine;
 
-    //Mouse Init
-
-    bool is_left_mouse_down = false;
-
-    engine.mouse_buttons[GLFW_MOUSE_BUTTON_LEFT].on_press = [&is_left_mouse_down](){
-        is_left_mouse_down = true;
-    };
-    engine.mouse_buttons[GLFW_MOUSE_BUTTON_LEFT].on_release = [&is_left_mouse_down](){
-        is_left_mouse_down = false;
-    };
-
-    //Keyboard Init
+    //Mouse & Keyboard Init
 
     engine.keyboard[GLFW_KEY_ESCAPE].on_press = [&engine](){
         glfwSetWindowShouldClose(engine.window, true);
     };
 
-    engine.keyboard[GLFW_KEY_1].on_press = [](){
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    };
+    /* engine.keyboard[GLFW_KEY_1].on_press = [](){
+        option_draw_lines();
+    }; */
     engine.keyboard[GLFW_KEY_2].on_press = [](){
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    };
-
-    bool is_tab_mode = false, tab_available = true;
-
-    engine.keyboard[GLFW_KEY_TAB].on_press = [&is_tab_mode, &tab_available](){
-        if (!tab_available) return;
-        is_tab_mode = !is_tab_mode;
-        tab_available = false;
-    };
-    engine.keyboard[GLFW_KEY_TAB].on_release = [&tab_available](){
-        tab_available = true;
+        option_draw_polygons();
     };
 
     //Camera Init
@@ -55,17 +35,29 @@ int main(int argc, char const *argv[])
     engine.camera.pos = {0.0f, 0.0f, -3.0f};
 
     engine.camera.move_speed_func = [&engine](){
-        return (engine.keyboard.is_pressed(GLFW_KEY_LEFT_SHIFT))
+        return (engine.keyboard[GLFW_KEY_LEFT_SHIFT].is_pressed)
             ? 0.5f
-        : (engine.keyboard.is_pressed(GLFW_KEY_LEFT_CONTROL))
+        : (engine.keyboard[GLFW_KEY_LEFT_CONTROL].is_pressed)
             ? 0.03125f
         //Else, Default to
             : 0.125f
         ;
     };
 
-    engine.is_selected_func = [&is_left_mouse_down, &is_tab_mode](){
-        return is_left_mouse_down | is_tab_mode;
+    engine.is_selected_func = [&engine](){
+        static bool is_tab_mode = false, tab_available = true;
+        
+        if (engine.keyboard[GLFW_KEY_TAB].is_pressed)
+        {
+            if (tab_available)
+            {
+                is_tab_mode = !is_tab_mode;
+                tab_available = false;
+            }
+        }
+        else tab_available = true;
+
+        return is_tab_mode | engine.mouse_buttons[GLFW_MOUSE_BUTTON_LEFT].is_pressed;
     };
 
     //Tutorial Cubes
@@ -270,3 +262,20 @@ int main(int argc, char const *argv[])
 
     return 0;
 }  /// main
+
+constexpr string get_file_path(string cref path)
+{
+    return "../../../../" + path;
+}
+
+optional<string> get_file_contents(string cref path)
+{
+    std::ifstream in_file(get_file_path(path));
+    if (in_file.fail())
+    {
+        print("get_file_contents error: cannot find {}\n", path);
+        return std::nullopt;
+    }
+    return (std::stringstream() << in_file.rdbuf()).str();
+    //in_file goes out of scope -> close()
+}

@@ -13,6 +13,7 @@
 #include "InputHandler.hh"
 #include "Model.hh"
 #include "Obj.hh"
+#include "ScriptEng.hh"
 #include "Shader.hh"
 #include "Texture.hh"
 
@@ -43,6 +44,7 @@ class Engine
     InputHandler keyboard {glfwGetKey};
     InputHandler mouse_buttons {glfwGetMouseButton};
     Camera camera;
+    ScriptEng script_engine;
 
     vector<Obj> objs;
     //TODO: have a more efficient way to store objs/models (multimap?)

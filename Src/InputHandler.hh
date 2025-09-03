@@ -29,17 +29,14 @@ class InputHandler
     };
 
     //return const reference to key 
-    Input const ref at(GLFWInputCode const ref input_code);
+    Input cref at(GLFWInputCode cref input_code);
 
     //return reference to key
-    Input ref operator[](GLFWInputCode const ref input_code);
+    Input ref operator[](GLFWInputCode cref input_code);
 
     //handles checking keyboard input for a given window
     //if any given key is pressed, it triggers corresponding actions
     void update(GLFWwindow ptr window);
-
-    bool is_pressed(GLFWInputCode const ref input_code);
-    bool is_not_pressed(GLFWInputCode const ref input_code);
 
     protected:
 

@@ -13,6 +13,8 @@
     using std::format;
 #include <functional>
     using std::function;
+#include <optional>
+    using std::optional;
 #include <print>
     using std::print;
 #include <string>
@@ -53,7 +55,9 @@ using GLFWInputCode = int;
 //from relative-to-project-directory
 //to relative-to-executable-directory.
 //Ex: ${project dir}/Src/Main.cc ==> ${executable dir}/../../../../Src/Main.cc
-inline constexpr string get_file(string cref path)
-{
-    return "../../../../" + path;
-}
+constexpr string get_file_path(string cref path);
+
+//Reads contents of a file from the given path
+//returns a string full of the file's contents if successful
+//otherwise returns std::nullopt if it fails
+optional<string> get_file_contents(string cref path);

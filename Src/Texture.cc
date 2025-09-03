@@ -15,7 +15,7 @@ Texture::Texture(string cref tex_path)
 {
     stbi_set_flip_vertically_on_load(true);
 
-    unsigned char* data = stbi_load(get_file(tex_path).c_str(), &width, &height, &num_channels, 0);
+    unsigned char* data = stbi_load(get_file_path(tex_path).c_str(), &width, &height, &num_channels, 0);
     if (!data) {
         print("ERROR: Texture failed to load ({})\n", tex_path); //TODO?
         return;
