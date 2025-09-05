@@ -14,6 +14,7 @@
 #include <functional>
     using std::function;
 #include <optional>
+    using std::nullopt;
     using std::optional;
 #include <print>
     using std::print;
@@ -40,8 +41,6 @@
 
 #define cast static_cast
 #define r_cast reinterpret_cast
-
-using GLFWInputCode = int;
 
 //put this macro in a class (with the provided className) to delete the
 //auto-generated copy/move constructor/assignment operators for this class

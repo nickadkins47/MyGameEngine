@@ -22,6 +22,8 @@ Engine::~Engine() { shutdown(); }
 
 void Engine::run()
 {
+    script_engine.run();
+
     double prev_time = glfwGetTime();
     int frame_count = 0;
     int display_fps = 0;
@@ -145,11 +147,6 @@ void Engine::initialize()
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
 
-    //Script Engine Init
-
-    script_engine.engine = this;
-    script_engine.run();
-
     //Other callbacks Init
 
     glfwSetFramebufferSizeCallback(window, [](GLFWwindow ptr window, int width, int height)
@@ -159,9 +156,10 @@ void Engine::initialize()
         //window_height = height;
     });
 
-    //Subcomponents init
+    //Extra
 
     camera.engine_ptr = this;
+    script_engine.engine = this;
 }
 
 void Engine::shutdown()

@@ -5,29 +5,37 @@
  *  @brief: 
  */
 
+#include <fstream>
+
 #include <angelscript.h>
 
 #include "Engine.hh"
 #include "ScriptEng.hh"
 
-#define SE_GlobalFunc(text, func, callc) r = \
-    s_engine->RegisterGlobalFunction(text, func, callc); \
-    assert(r >= 0);
+//Helper macro; stringifies the input (s -> "s")
+#define m_str(s) #s
 
-#define SE_Funcdef(text) r = \
-    s_engine->RegisterFuncdef("void VoidCallback()"); \
-    assert(r >= 0);
+//Same as global_func, but with seperate parameter lists for C++ & AS
+#define global_func_sp(ret, name, cc_params, as_params, cap, body) \
+    typedef ret (*_t_##name)##cc_params; \
+    _t_##name static _f_##name = cap##cc_params##body; \
+    r = s_engine->RegisterGlobalFunction(m_str(ret name##as_params), \
+        asFUNCTION(_f_##name), asCALL_CDECL); \
+    assert(r >= 0); \
+    predefs << m_str(ret name##as_params) << ";\n";
 
-asIScriptFunction ptr callback = nullptr; //TEMP test
+//Macro for defining a function in the Scripts that interfaces with the C++ code
+#define global_func(ret, name, params, cap, body) \
+    global_func_sp(ret, name, params, params, cap, body)
 
-/* #define SE_GlobalFunc(text, func) assert ( \
-    s_engine->RegisterGlobalFunction(text, asFUNCTION(func), asCALL_CDECL) >= 0);
+//Macro for creating function definitions
+#define funcdef(ret, name, params) \
+    r = s_engine->RegisterFuncdef(m_str(ret name##params)); \
+    assert(r >= 0); \
+    predefs << "funcdef " << m_str(ret name##params) << ";\n";
 
-#define SE_Funcdef(text) assert ( \
-    s_engine->RegisterFuncdef("void VoidCallback()") >= 0); */
-
-// Implement a simple message callback function
-void message_cb(const asSMessageInfo *msg, void *param)
+//Info/Warn/Err Message Callback for Script Engine
+void message_cb(asSMessageInfo cptr msg, void ptr param)
 {
     string type = (msg->type == asMSGTYPE_WARNING) ?
         "WARN"
@@ -41,137 +49,94 @@ void message_cb(const asSMessageInfo *msg, void *param)
     );
 }
 
-void option_draw_lines()
-{
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-}
-
-void option_draw_polygons()
-{
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-}
-
-void global_func()
-{
-    print("Hello from global_func!\n");
-}
-
-void print_num(int num)
-{
-    print("print_num: {}\n", num);
-}
-
-void set_callback(asIScriptFunction *cb)
-{
-    if (callback)
-        callback->Release();
-    callback = cb;
-}
-
-void kbd_on_press(int token, asIScriptFunction *cb)
-{
-    /* engine->keyboard[token].on_press = [&cb](){
-        asIScriptContext ptr ctx = s_engine->CreateContext();
-        int r = 0;
-        print("start...\n");
-
-        r = ctx->Prepare(cb);
-        print("done\n");
-        assert(r >= 0);
-        r = ctx->Execute();
-        assert(r >= 0);
-
-        ctx->Release();
-    }; */
-}
-
 ScriptEng::ScriptEng()
 {
-    //Script Init
-
-    //TODO: auto-generate as.predefined?
+    std::ofstream predefs(get_file_path("as.predefined"));
+    if (predefs.fail())
+    {
+        print("ERROR: couldn't open as.predefined\n");
+        return;
+    }
 
     s_engine = asCreateScriptEngine();
-    s_engine->SetMessageCallback(asFUNCTION(message_cb), 0, asCALL_CDECL);
-    s_module = s_engine->GetModule("main", asGM_CREATE_IF_NOT_EXISTS);
+    int r = s_engine->SetMessageCallback(asFUNCTION(message_cb), 0, asCALL_CDECL);
+    assert(r >= 0);
 
-    SE_GlobalFunc("void global_func()",
-        asFUNCTION(global_func), asCALL_CDECL);
-    SE_GlobalFunc("void print_num(int num)",
-        asFUNCTION(print_num), asCALL_CDECL);
+    //Core Functionality
+
+    funcdef(void, VoidCallback, ());
+
+    global_func_sp(
+        void, kbd_on_press, (int token, asIScriptFunction ptr cb),
+        (int token, VoidCallback @cb), [],
+    {
+        def_engine->script_engine.s_funcs.push_back(cb);
+        def_engine->keyboard[token].on_press = [cb](){
+            asIScriptContext ptr ctx = def_engine->script_engine.s_engine->CreateContext();
+            int r = 0;
+
+            r = ctx->Prepare(cb);
+            assert(r >= 0);
+            r = ctx->Execute();
+            assert(r >= 0);
+
+            r = ctx->Release();
+            assert(r >= 0);
+        };
+    });
+
+    global_func(
+        void, camera_proj_mat, (float fov_degrees, float near_z, float far_z), [],
+    {
+        def_engine->camera.set_proj_mat(fov_degrees, near_z, far_z);
+    });
+
+    global_func(void, camera_pos, (float x, float y, float z), [], {
+        def_engine->camera.pos = glm::vec3(x,y,z);
+    });
+
+    //General Functions
+
+    global_func(void, exit, (), [], {
+        glfwSetWindowShouldClose(def_engine->window, true);
+    });
+
+    global_func(void, option_draw_lines, (), [], {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    });
+
+    global_func(void, option_draw_polygons, (), [], {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    });
     
-    SE_GlobalFunc("void option_draw_lines()",
-        asFUNCTION(option_draw_lines), asCALL_CDECL);
-    SE_GlobalFunc("void option_draw_polygons()",
-        asFUNCTION(option_draw_polygons), asCALL_CDECL);
-
-    SE_Funcdef("void VoidCallback()");
-
-    SE_GlobalFunc("void set_callback(VoidCallback @cb)",
-        asFUNCTION(set_callback), asCALL_CDECL);
-    /* SE_GlobalFunc("void kbd_on_press(int token, VoidCallback @cb)",
-        asFUNCTION(kbd_on_press), asCALL_CDECL); */
-
-    /* r = s_engine->RegisterGlobalFunction(
-        "void global_func()", asFUNCTION(global_func), asCALL_CDECL
-    );
-    assert(r >= 0);
-
-    r = s_engine->RegisterGlobalFunction(
-        "void print_num(int)", asFUNCTION(print_num), asCALL_CDECL
-    );
-    assert(r >= 0);
-
-    r = s_engine->RegisterFuncdef("void VoidCallback()");
-    assert(r >= 0);
-
-    r = s_engine->RegisterGlobalFunction(
-        "void set_callback(VoidCallback @cb)", asFUNCTION(set_callback), asCALL_CDECL
-    );
-    assert(r >= 0);
-
-    r = s_engine->RegisterGlobalFunction(
-        "void kbd_on_press(int token, VoidCallback @cb)",
-        asFUNCTION(kbd_on_press), asCALL_CDECL
-    );
-    assert(r >= 0);
-
-    r = s_engine->RegisterGlobalFunction(
-        "void option_draw_lines()", asFUNCTION(option_draw_lines), asCALL_CDECL
-    );
-    assert(r >= 0);
-    r = s_engine->RegisterGlobalFunction(
-        "void option_draw_polygons()", asFUNCTION(option_draw_polygons), asCALL_CDECL
-    );
-    assert(r >= 0); */
-
+    predefs.close();
 }
 
 ScriptEng::~ScriptEng()
 {
-    s_engine->ShutDownAndRelease();
+    for (asIScriptFunction ptr func : s_funcs)
+        if (func != nullptr) assert(func->Release() >= 0);
+    assert(s_engine->ShutDownAndRelease() >= 0);
 }
 
 void ScriptEng::run()
 {
-    string script_code = *get_file_contents("Scripts/Main.as");
-    
-    r = s_module->AddScriptSection("Main.as", script_code.c_str());
+    asIScriptModule ptr s_module = s_engine->GetModule("main", asGM_CREATE_IF_NOT_EXISTS);
+    string const script_code = get_file_contents("Scripts/Main.as").value();
+    int r = 0;
+
+    r = s_module->AddScriptSection("Main.as", script_code.c_str(), script_code.length());
     assert(r >= 0);
     r = s_module->Build();
     assert(r >= 0);
 
     asIScriptContext ptr s_ctx = s_engine->CreateContext();
-    
+
     r = s_ctx->Prepare(s_module->GetFunctionByDecl("void main()"));
     assert(r >= 0);
     r = s_ctx->Execute();
     assert(r >= 0);
 
-    r = s_ctx->Prepare(callback);
+    r = s_ctx->Release();
     assert(r >= 0);
-    r = s_ctx->Execute();
-    assert(r >= 0);
-
-    s_ctx->Release();
 }

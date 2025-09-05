@@ -8,3 +8,6 @@ build/
 # IDE Stuff
 .vscode
 .vs
+
+# Angelscript predefines (now auto-generated)
+as.predefined

@@ -60,3 +60,5 @@ class Engine
     void error(string cref error_message);
 
 };
+
+Engine inline ptr def_engine = nullptr; //TEMP(?) pointer to current/primary engine

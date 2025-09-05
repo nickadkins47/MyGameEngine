@@ -15,24 +15,23 @@
 int main(int argc, char const *argv[])
 {
     Engine engine;
+    def_engine = &engine;
 
-    //Mouse & Keyboard Init
-
-    engine.keyboard[GLFW_KEY_ESCAPE].on_press = [&engine](){
+    /* engine.keyboard[GLFW_KEY_ESCAPE].on_press = [&engine](){
         glfwSetWindowShouldClose(engine.window, true);
-    };
+    }; */
 
     /* engine.keyboard[GLFW_KEY_1].on_press = [](){
         option_draw_lines();
-    }; */
+    };
     engine.keyboard[GLFW_KEY_2].on_press = [](){
         option_draw_polygons();
-    };
+    }; */
 
     //Camera Init
 
-    engine.camera.set_proj_mat(90.0f, 0.1f, 100.0f);
-    engine.camera.pos = {0.0f, 0.0f, -3.0f};
+    /* engine.camera.set_proj_mat(90.0f, 0.1f, 100.0f);
+    engine.camera.pos = {0.0f, 0.0f, -3.0f}; */
 
     engine.camera.move_speed_func = [&engine](){
         return (engine.keyboard[GLFW_KEY_LEFT_SHIFT].is_pressed)
@@ -274,7 +273,7 @@ optional<string> get_file_contents(string cref path)
     if (in_file.fail())
     {
         print("get_file_contents error: cannot find {}\n", path);
-        return std::nullopt;
+        return nullopt;
     }
     return (std::stringstream() << in_file.rdbuf()).str();
     //in_file goes out of scope -> close()

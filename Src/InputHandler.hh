@@ -9,6 +9,8 @@
 
 #include "Core.hh"
 
+using GLFWInputCode = int;
+
 //Keeps track of external inputs for any given type of GLFW Input
 //Ex: Keyboard keys, Mouse buttons, Joystick movements, etc.
 //Can be given functions to execute when an input is pressed or released,

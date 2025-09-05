@@ -1,21 +1,174 @@
+//1-to-1 copy of the GLFW keyboard tokens
+enum KeyboardTokens
+{
+    //Printable Keys
+
+    //
+    k_space = 32, //no seq
+    k_apostrophe = 39, //no seq
+    k_comma = 44, //in seq
+    k_minus = 45,
+    k_period = 46,
+    k_slash = 47,
+    k_n0 = 48,
+    k_n1 = 49,
+    k_n2 = 50,
+    k_n3 = 51,
+    k_n4 = 52,
+    k_n5 = 53,
+    k_n6 = 54,
+    k_n7 = 55,
+    k_n8 = 56,
+    k_n9 = 57,
+    k_semicolon = 59, //no seq
+    k_equal = 61, //no seq
+    k_a = 65, //in seq
+    k_b = 66,
+    k_c = 67,
+    k_d = 68,
+    k_e = 69,
+    k_f = 70,
+    k_g = 71,
+    k_h = 72,
+    k_i = 73,
+    k_j = 74,
+    k_k = 75,
+    k_l = 76,
+    k_m = 77,
+    k_n = 78,
+    k_o = 79,
+    k_p = 80,
+    k_q = 81,
+    k_r = 82,
+    k_s = 83,
+    k_t = 84,
+    k_u = 85,
+    k_v = 86,
+    k_w = 87,
+    k_x = 88,
+    k_y = 89,
+    k_z = 90,
+    k_left_bracket = 91,
+    k_backslash = 92,
+    k_right_bracket = 93,
+    k_grave_accent = 96, //no seq
+    k_world_1 = 161, //no seq
+    k_world_2 = 162, //no seq
+
+    //Function Keys
+
+    //
+    k_escape = 256, //in seq
+    k_enter = 257,
+    k_tab = 258,
+    k_backspace = 259,
+    k_insert = 260,
+    k_delete = 261,
+    k_right = 262,
+    k_left = 263,
+    k_down = 264,
+    k_up = 265,
+    k_page_up = 266,
+    k_page_down = 267,
+    k_home = 268,
+    k_end = 269,
+    k_caps_lock = 280, //in seq
+    k_scroll_lock = 281,
+    k_num_lock = 282,
+    k_print_screen = 283,
+    k_pause = 284,
+
+    k_f1 = 290, //in seq
+    k_f2 = 291,
+    k_f3 = 292,
+    k_f4 = 293,
+    k_f5 = 294,
+    k_f6 = 295,
+    k_f7 = 296,
+    k_f8 = 297,
+    k_f9 = 298,
+    k_f10 = 299,
+    k_f11 = 300,
+    k_f12 = 301,
+    k_f13 = 302,
+    k_f14 = 303,
+    k_f15 = 304,
+    k_f16 = 305,
+    k_f17 = 306,
+    k_f18 = 307,
+    k_f19 = 308,
+    k_f20 = 309,
+    k_f21 = 310,
+    k_f22 = 311,
+    k_f23 = 312,
+    k_f24 = 313,
+    k_f25 = 314,
+
+    k_kp0 = 320, //in seq
+    k_kp1 = 321,
+    k_kp2 = 322,
+    k_kp3 = 323,
+    k_kp4 = 324,
+    k_kp5 = 325,
+    k_kp6 = 326,
+    k_kp7 = 327,
+    k_kp8 = 328,
+    k_kp9 = 329,
+    k_kp_decimal = 330,
+    k_kp_divide = 331,
+    k_kp_multiply = 332,
+    k_kp_subtract = 333,
+    k_kp_add = 334,
+    k_kp_enter = 335,
+    k_kp_equal = 336,
+
+    k_left_shift = 340, //in seq
+    k_left_control = 341,
+    k_left_alt = 342,
+    k_left_super = 343,
+    k_right_shift = 344,
+    k_right_control = 345,
+    k_right_alt = 346,
+    k_right_super = 347,
+    k_menu = 348,
+    k_last = 348
+}
+
+//1-to-1 copy of the GLFW mouse tokens
+enum MouseTokens
+{
+    m_b1 = 0,
+    m_b2 = 1,
+    m_b3 = 2,
+    m_b4 = 3,
+    m_b5 = 4,
+    m_b6 = 5,
+    m_b7 = 6,
+    m_b8 = 7,
+    m_last = m_b8,
+    m_left = m_b1,
+    m_right = m_b2,
+    m_middle = m_b3
+}
+
 void main()
 {
-    global_func();
-    global_func();
-    print_num(3);
-    print_num(4);
-    print_num(2025);
 
-    set_callback(function(){
-        global_func();
-        print_num(40);
+    camera_proj_mat(90.0f, 0.1f, 100.0f);
+    camera_pos(0.0f, 0.0f, 10.0f);
+
+    kbd_on_press(k_escape, function(){
+        exit();
+    });
+    kbd_on_press(k_n1, function(){
+        option_draw_lines();
+    });
+    kbd_on_press(k_n2, function(){
+        option_draw_polygons();
     });
 
-    /* kbd_on_press(49, 
-        function(){
-            option_draw_lines();
-        }
-    ); */
+
+
 
 
 }
