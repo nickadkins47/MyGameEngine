@@ -23,7 +23,9 @@ class ScriptEng
 
     deleteOtherOps(ScriptEng)
 
-    void run(); //Run ScriptEng (after main Engine is done initializing)
+    //Run ScriptEng with the given Script File (Defaults to "Main.as")
+    //Must be done after main Engine is done initializing
+    void run(string cref file_name = "Main.as");
 
     //protected:
 

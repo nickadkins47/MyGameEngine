@@ -9,6 +9,7 @@
 
 #include <angelscript.h>
 
+#include "Ext/ScriptBuilder.hh"
 #include "Engine.hh"
 #include "ScriptEng.hh"
 
@@ -47,6 +48,22 @@ void message_cb(asSMessageInfo cptr msg, void ptr param)
     print("{} ({}, {}) : {} : {}\n",
         msg->section, msg->row, msg->col, type, msg->message
     );
+}
+
+// This callback will be called for each #include directive encountered by the
+// builder. The callback should call the AddSectionFromFile or AddSectionFromMemory
+// to add the included section to the script. If the include cannot be resolved
+// then the function should return a negative value to abort the compilation.
+int include_cb(
+    const char *include, const char *from, CScriptBuilder *builder, void *userParam
+) {
+    //print("({}) from ({})\n", include, from);
+    optional<string> s_code = get_file_contents(format("Scripts/{}", include));
+    if (s_code == nullopt) return -1;
+
+    int r = builder->AddSectionFromMemory(include, (*s_code).c_str(), (*s_code).length());
+    if (r < 0) return -2;
+    return 0;
 }
 
 ScriptEng::ScriptEng()
@@ -119,24 +136,27 @@ ScriptEng::~ScriptEng()
     assert(s_engine->ShutDownAndRelease() >= 0);
 }
 
-void ScriptEng::run()
+void ScriptEng::run(string cref file_name)
 {
-    asIScriptModule ptr s_module = s_engine->GetModule("main", asGM_CREATE_IF_NOT_EXISTS);
-    string const script_code = get_file_contents("Scripts/Main.as").value();
     int r = 0;
-
-    r = s_module->AddScriptSection("Main.as", script_code.c_str(), script_code.length());
+    CScriptBuilder s_builder;
+    s_builder.SetIncludeCallback(include_cb, 0);
+    r = s_builder.StartNewModule(s_engine, 0);
     assert(r >= 0);
-    r = s_module->Build();
+
+    string const s_code = get_file_contents(format("Scripts/{}", file_name)).value();
+
+    r = s_builder.AddSectionFromMemory(file_name.c_str(), s_code.c_str(), s_code.length());
+    assert(r >= 0);
+    r = s_builder.BuildModule();
     assert(r >= 0);
 
     asIScriptContext ptr s_ctx = s_engine->CreateContext();
 
-    r = s_ctx->Prepare(s_module->GetFunctionByDecl("void main()"));
+    r = s_ctx->Prepare(s_engine->GetModule(0)->GetFunctionByDecl("void main()"));
     assert(r >= 0);
     r = s_ctx->Execute();
     assert(r >= 0);
-
     r = s_ctx->Release();
     assert(r >= 0);
 }
