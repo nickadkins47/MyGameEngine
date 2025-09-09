@@ -26,7 +26,7 @@ void Camera::update()
 
     float move_speed = move_speed_func();
 
-    InputHandler ref kbd = engine_ptr->keyboard;
+    InputHandler ref kbd = engine->keyboard;
     bool movements[6] {
         kbd[GLFW_KEY_W].is_pressed, kbd[GLFW_KEY_S].is_pressed, // +/- Forward
         kbd[GLFW_KEY_A].is_pressed, kbd[GLFW_KEY_D].is_pressed, // +/- Left
@@ -43,10 +43,10 @@ void Camera::update()
 void Camera::update_angle()
 {
     double xpos, ypos;
-    glfwGetCursorPos(engine_ptr->window, &xpos, &ypos);
+    glfwGetCursorPos(engine->window, &xpos, &ypos);
 
-    float static old_xpos = cast<float>(engine_ptr->window_width) / 2.0f;
-    float static old_ypos = cast<float>(engine_ptr->window_height) / 2.0f;
+    float static old_xpos = cast<float>(engine->window_width) / 2.0f;
+    float static old_ypos = cast<float>(engine->window_height) / 2.0f;
     float static const sensitivity = 0.125f;
 
     if (first_mouse)
@@ -80,8 +80,8 @@ glm::mat4 Camera::get_vp_mat() const {
 
 void Camera::set_proj_mat(float fov_degrees, float near_z, float far_z) {
     float const aspect_ratio = 
-        cast<float>(engine_ptr->window_width) / 
-        cast<float>(engine_ptr->window_height);
+        cast<float>(engine->window_width) / 
+        cast<float>(engine->window_height);
     proj_mat = glm::perspective(
         glm::radians(fov_degrees), aspect_ratio, near_z, far_z
     );

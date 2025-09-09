@@ -10,43 +10,28 @@
 
 #include "Core.hh"
 #include "Engine.hh"
-#include "ScriptEng.hh"
 
 int main(int argc, char const *argv[])
 {
-    Engine engine;
-    def_engine = &engine;
-
-    /* engine.keyboard[GLFW_KEY_ESCAPE].on_press = [&engine](){
-        glfwSetWindowShouldClose(engine.window, true);
-    }; */
-
-    /* engine.keyboard[GLFW_KEY_1].on_press = [](){
-        option_draw_lines();
-    };
-    engine.keyboard[GLFW_KEY_2].on_press = [](){
-        option_draw_polygons();
-    }; */
+    engine = new Engine();
+    engine->initialize();
 
     //Camera Init
 
-    /* engine.camera.set_proj_mat(90.0f, 0.1f, 100.0f);
-    engine.camera.pos = {0.0f, 0.0f, -3.0f}; */
-
-    engine.camera.move_speed_func = [&engine](){
-        return (engine.keyboard[GLFW_KEY_LEFT_SHIFT].is_pressed)
+    engine->camera.move_speed_func = [](){
+        return (engine->keyboard[GLFW_KEY_LEFT_SHIFT].is_pressed)
             ? 0.5f
-        : (engine.keyboard[GLFW_KEY_LEFT_CONTROL].is_pressed)
+        : (engine->keyboard[GLFW_KEY_LEFT_CONTROL].is_pressed)
             ? 0.03125f
         //Else, Default to
             : 0.125f
         ;
     };
 
-    engine.is_selected_func = [&engine](){
+    engine->is_selected_func = [](){
         static bool is_tab_mode = false, tab_available = true;
         
-        if (engine.keyboard[GLFW_KEY_TAB].is_pressed)
+        if (engine->keyboard[GLFW_KEY_TAB].is_pressed)
         {
             if (tab_available)
             {
@@ -56,45 +41,45 @@ int main(int argc, char const *argv[])
         }
         else tab_available = true;
 
-        return is_tab_mode | engine.mouse_buttons[GLFW_MOUSE_BUTTON_LEFT].is_pressed;
+        return is_tab_mode | engine->mouse_buttons[GLFW_MOUSE_BUTTON_LEFT].is_pressed;
     };
 
     //Tutorial Cubes
 
-    /* Model tutorial_cube {
+    Model tutorial_cube {
         {
-            //positions            //rgb colors        //texture coords
-            {3, GL_FLOAT},         {3, GL_FLOAT},      {2, GL_FLOAT}
+            //positions            //normals              //texture coords
+            {3, GL_FLOAT},         {3, GL_FLOAT},         {2, GL_FLOAT}
         }, {
-            -0.5f,  0.5f, -0.5f,   1.0f, 1.0f, 0.0f,   0.0f, 0.0f,   // top left (down)
-            -0.5f,  0.5f,  0.5f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f,   // top left (up)
-            -0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 1.0f,   1.0f, 1.0f,   // bottom left (up)
-            -0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 1.0f,   1.0f, 0.0f,   // bottom left (down)
+            -0.5f,  0.5f, -0.5f,   -1.0f,  0.0f,  0.0f,   0.0f, 0.0f,   // top left (down)
+            -0.5f,  0.5f,  0.5f,   -1.0f,  0.0f,  0.0f,   0.0f, 1.0f,   // top left (up)
+            -0.5f, -0.5f,  0.5f,   -1.0f,  0.0f,  0.0f,   1.0f, 1.0f,   // bottom left (up)
+            -0.5f, -0.5f, -0.5f,   -1.0f,  0.0f,  0.0f,   1.0f, 0.0f,   // bottom left (down)
 
-             0.5f, -0.5f, -0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,   // bottom right (down)
-             0.5f, -0.5f,  0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 1.0f,   // bottom right (up)
-             0.5f,  0.5f,  0.5f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right (up)
-             0.5f,  0.5f, -0.5f,   1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   // top right (down)
+             0.5f, -0.5f, -0.5f,    1.0f,  0.0f,  0.0f,   0.0f, 0.0f,   // bottom right (down)
+             0.5f, -0.5f,  0.5f,    1.0f,  0.0f,  0.0f,   0.0f, 1.0f,   // bottom right (up)
+             0.5f,  0.5f,  0.5f,    1.0f,  0.0f,  0.0f,   1.0f, 1.0f,   // top right (up)
+             0.5f,  0.5f, -0.5f,    1.0f,  0.0f,  0.0f,   1.0f, 0.0f,   // top right (down)
 
-            -0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left (down)
-            -0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f,   // bottom left (up)
-             0.5f, -0.5f,  0.5f,   0.0f, 1.0f, 0.0f,   1.0f, 1.0f,   // bottom right (up)
-             0.5f, -0.5f, -0.5f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right (down)
+            -0.5f, -0.5f, -0.5f,    0.0f, -1.0f,  0.0f,   0.0f, 0.0f,   // bottom left (down)
+            -0.5f, -0.5f,  0.5f,    0.0f, -1.0f,  0.0f,   0.0f, 1.0f,   // bottom left (up)
+             0.5f, -0.5f,  0.5f,    0.0f, -1.0f,  0.0f,   1.0f, 1.0f,   // bottom right (up)
+             0.5f, -0.5f, -0.5f,    0.0f, -1.0f,  0.0f,   1.0f, 0.0f,   // bottom right (down)
 
-             0.5f,  0.5f, -0.5f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f,   // top right (down)
-             0.5f,  0.5f,  0.5f,   1.0f, 0.0f, 0.0f,   0.0f, 1.0f,   // top right (up)
-            -0.5f,  0.5f,  0.5f,   1.0f, 1.0f, 0.0f,   1.0f, 1.0f,   // top left (up)
-            -0.5f,  0.5f, -0.5f,   1.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // top left (down)
+             0.5f,  0.5f, -0.5f,    0.0f,  1.0f,  0.0f,   0.0f, 0.0f,   // top right (down)
+             0.5f,  0.5f,  0.5f,    0.0f,  1.0f,  0.0f,   0.0f, 1.0f,   // top right (up)
+            -0.5f,  0.5f,  0.5f,    0.0f,  1.0f,  0.0f,   1.0f, 1.0f,   // top left (up)
+            -0.5f,  0.5f, -0.5f,    0.0f,  1.0f,  0.0f,   1.0f, 0.0f,   // top left (down)
 
-             0.5f, -0.5f, -0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,   // bottom right (down)
-             0.5f,  0.5f, -0.5f,   1.0f, 0.0f, 0.0f,   0.0f, 1.0f,   // top right (down)
-            -0.5f,  0.5f, -0.5f,   1.0f, 1.0f, 0.0f,   1.0f, 1.0f,   // top left (down)
-            -0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 1.0f,   1.0f, 0.0f,   // bottom left (down)
+             0.5f, -0.5f, -0.5f,    0.0f,  0.0f, -1.0f,   0.0f, 0.0f,   // bottom right (down)
+             0.5f,  0.5f, -0.5f,    0.0f,  0.0f, -1.0f,   0.0f, 1.0f,   // top right (down)
+            -0.5f,  0.5f, -0.5f,    0.0f,  0.0f, -1.0f,   1.0f, 1.0f,   // top left (down)
+            -0.5f, -0.5f, -0.5f,    0.0f,  0.0f, -1.0f,   1.0f, 0.0f,   // bottom left (down)
             
-            -0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left (up)
-            -0.5f,  0.5f,  0.5f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f,   // top left (up)
-             0.5f,  0.5f,  0.5f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right (up)
-             0.5f, -0.5f,  0.5f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right (up)
+            -0.5f, -0.5f,  0.5f,    0.0f,  0.0f,  1.0f,   0.0f, 0.0f,   // bottom left (up)
+            -0.5f,  0.5f,  0.5f,    0.0f,  0.0f,  1.0f,   0.0f, 1.0f,   // top left (up)
+             0.5f,  0.5f,  0.5f,    0.0f,  0.0f,  1.0f,   1.0f, 1.0f,   // top right (up)
+             0.5f, -0.5f,  0.5f,    0.0f,  0.0f,  1.0f,   1.0f, 0.0f,   // bottom right (up)
         }, {
              0,  1,  2,   2,  3,  0, //-x
              4,  5,  6,   6,  7,  4, //+x
@@ -105,8 +90,8 @@ int main(int argc, char const *argv[])
         }
     };
     
-    tutorial_cube.shader = new Shader("Shaders/TutorialCube.vert", "Shaders/TutorialCube.frag", 2);
     tutorial_cube.process();
+    tutorial_cube.shader = new Shader("Shaders/TutorialCube.vert", "Shaders/TutorialCube.frag", 2);
     tutorial_cube.textures.emplace_back("Textures/container.jpg");
     tutorial_cube.textures.emplace_back("Textures/awesomeface.png");
 
@@ -125,104 +110,140 @@ int main(int argc, char const *argv[])
         glm::vec3(-1.3f,  6.0f, -1.5f ),
     };
 
-    for (size_t i = 0; i < cube_positions.size(); i++)
     {
-        Obj obj;
-        obj.model = &tutorial_cube;
-        obj.model_mat = glm::translate(obj.model_mat, cube_positions[i]);
-        obj.model_mat = glm::rotate(obj.model_mat, glm::radians(20.0f * i), axis1);
-        engine.objs.push_back(obj);
+        Obj obj (new Model(tutorial_cube));
+        obj.move_position(cube_positions[0]);
+        engine->objs.push_back(obj);
     }
 
-    engine.keyboard[GLFW_KEY_3].on_press = [&engine](){
-        engine.objs[0].move_position(glm::vec3{0.1f, 0.1f, 0.1f});
+    engine->keyboard[GLFW_KEY_3].on_press = [](){
+        engine->objs[0].move_position(glm::vec3{0.1f, 0.1f, 0.0f});
     };
-    engine.keyboard[GLFW_KEY_4].on_press = [&engine](){
-        engine.objs[0].move_position(glm::vec3{-0.1f, -0.1f, -0.1f});
+    engine->keyboard[GLFW_KEY_4].on_press = [](){
+        engine->objs[0].move_position(glm::vec3{-0.1f, -0.1f, 0.0f});
+    };
+    engine->keyboard[GLFW_KEY_5].on_press = [](){
+        engine->objs[0].move_position(glm::vec3{0.0f, 0.0f, 0.1f});
+    };
+    engine->keyboard[GLFW_KEY_6].on_press = [](){
+        engine->objs[0].move_position(glm::vec3{0.0f, 0.0f, -0.1f});
     };
 
-    engine.keyboard[GLFW_KEY_5].on_press = [&engine, &tutorial_cube, &axis1](){
-        static float asdf = 1.0f;
-        Obj new_obj;
-        new_obj.model = &tutorial_cube;
-        new_obj.model_mat = glm::translate(new_obj.model_mat, glm::vec3{-0.1f, 3.0f, asdf});
-        new_obj.model_mat = glm::rotate(new_obj.model_mat, glm::radians(20.0f), axis1);
-        engine.objs.push_back(new_obj);
-        asdf += 2.0f;
-    }; */
+    //light.position is in engine.cc
 
-    //Quads
+    tutorial_cube.shader->uniform_fv("light.ambient", 3, ivec3(0.2f));
+    tutorial_cube.shader->uniform_fv("light.diffuse", 3, ivec3(0.5f));
+    tutorial_cube.shader->uniform_fv("light.specular", 3, ivec3(1.0f));
 
+    tutorial_cube.shader->uniform_fv("material.ambient", 3, ivec3(1.0f, 0.5f, 0.31f));
+    tutorial_cube.shader->uniform_fv("material.diffuse", 3, ivec3(1.0f, 0.5f, 0.31f));
+    tutorial_cube.shader->uniform_fv("material.specular", 3, ivec3(0.5f, 0.5f, 0.5f));
+    tutorial_cube.shader->uniform_f("material.shininess", 32.0f);
+
+    /* for (size_t i = 1; i < cube_positions.size(); i++)
+    {
+        Obj obj (new Model(tutorial_cube));
+        obj.move_position(cube_positions[i]);
+        obj.rotate(20.0f * i, axis1);
+        engine->objs.push_back(obj);
+    } */
+
+    Model flat_ground {
+        {
+            //positions           //normals              //texture coords
+            {3, GL_FLOAT},        {3, GL_FLOAT},         {2, GL_FLOAT}
+        }, {
+            -0.5f, -0.5f, 0.0f,   0.0f,  0.0f,  1.0f,   0.0f, 0.0f,   // bottom left
+            -0.5f,  0.5f, 0.0f,   0.0f,  0.0f,  1.0f,   0.0f, 1.0f,   // top left
+             0.5f,  0.5f, 0.0f,   0.0f,  0.0f,  1.0f,   1.0f, 1.0f,   // top right
+             0.5f, -0.5f, 0.0f,   0.0f,  0.0f,  1.0f,   1.0f, 0.0f,   // bottom right
+        }, {
+            0,1,2, 2,3,0,
+        }
+    };
+
+    flat_ground.process();
+    flat_ground.shader = tutorial_cube.shader;
+    
+    {
+        Obj obj (&flat_ground);
+        obj.move_position(glm::vec3{0.0f, 0.0f, -3.0f});
+        obj.scale(glm::vec3{128.0f});
+        engine->objs.push_back(obj);
+    }
+
+    /* //Quads
+    
     MyChunk::quad_models = {
            new Model{ //-x
             {
-                //positions           //texture coords
-                {3, GL_FLOAT},        {2, GL_FLOAT}
+                //positions           //colors              //texture coords
+                {3, GL_FLOAT},        {3, GL_FLOAT},        {2, GL_FLOAT}
             },{
-                0.0f,  1.0f,  0.0f,   0.0f,  0.0f,
-                0.0f,  1.0f,  1.0f,   0.0f,  1.0f,
-                0.0f,  0.0f,  1.0f,   1.0f,  1.0f,
-                0.0f,  0.0f,  0.0f,   1.0f,  0.0f,
+                0.0f,  1.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
+                0.0f,  1.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
+                0.0f,  0.0f,  1.0f,   1.0f,  1.0f,  1.0f,   1.0f,  1.0f,
+                0.0f,  0.0f,  0.0f,   1.0f,  1.0f,  1.0f,   1.0f,  0.0f,
             },{
                 0,1,2, 2,3,0
             }
         }, new Model{ //+x
             {
-                //positions           //texture coords
-                {3, GL_FLOAT},        {2, GL_FLOAT}
+                //positions           //colors              //texture coords
+                {3, GL_FLOAT},        {3, GL_FLOAT},        {2, GL_FLOAT}
             },{
-                1.0f,  0.0f,  0.0f,   0.0f,  0.0f,
-                1.0f,  0.0f,  1.0f,   0.0f,  1.0f,
-                1.0f,  1.0f,  1.0f,   1.0f,  1.0f,
-                1.0f,  1.0f,  0.0f,   1.0f,  0.0f,
+                1.0f,  0.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
+                1.0f,  0.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
+                1.0f,  1.0f,  1.0f,   1.0f,  1.0f,  1.0f,   1.0f,  1.0f,
+                1.0f,  1.0f,  0.0f,   1.0f,  1.0f,  1.0f,   1.0f,  0.0f,
             },{
                 0,1,2, 2,3,0
             }
         }, new Model{ //-y
             {
-                //positions           //texture coords
-                {3, GL_FLOAT},        {2, GL_FLOAT}
+                //positions           //colors              //texture coords
+                {3, GL_FLOAT},        {3, GL_FLOAT},        {2, GL_FLOAT}
             },{
-                0.0f,  0.0f,  0.0f,   0.0f,  0.0f,
-                0.0f,  0.0f,  1.0f,   0.0f,  1.0f,
-                1.0f,  0.0f,  1.0f,   1.0f,  1.0f,
-                1.0f,  0.0f,  0.0f,   1.0f,  0.0f,
+                0.0f,  0.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
+                0.0f,  0.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
+                1.0f,  0.0f,  1.0f,   1.0f,  1.0f,  1.0f,   1.0f,  1.0f,
+                1.0f,  0.0f,  0.0f,   1.0f,  1.0f,  1.0f,   1.0f,  0.0f,
             },{
                 0,1,2, 2,3,0
             }
         }, new Model{ //+y
             {
-                //positions           //texture coords
-                {3, GL_FLOAT},        {2, GL_FLOAT}
+                //positions           //colors              //texture coords
+                {3, GL_FLOAT},        {3, GL_FLOAT},        {2, GL_FLOAT}
             },{
-                1.0f,  1.0f,  0.0f,   0.0f,  0.0f,
-                1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
-                0.0f,  1.0f,  1.0f,   1.0f,  1.0f,
-                0.0f,  1.0f,  0.0f,   1.0f,  0.0f,
+                1.0f,  1.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
+                1.0f,  1.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
+                0.0f,  1.0f,  1.0f,   1.0f,  1.0f,  1.0f,   1.0f,  1.0f,
+                0.0f,  1.0f,  0.0f,   1.0f,  1.0f,  1.0f,   1.0f,  0.0f,
             },{
                 0,1,2, 2,3,0
             }
         }, new Model{ //-z
             {
-                //positions           //texture coords
-                {3, GL_FLOAT},        {2, GL_FLOAT}
+                //positions           //colors              //texture coords
+                {3, GL_FLOAT},        {3, GL_FLOAT},        {2, GL_FLOAT}
             },{
-                0.0f,  1.0f,  0.0f,   0.0f,  0.0f,
-                0.0f,  0.0f,  0.0f,   0.0f,  1.0f,
-                1.0f,  0.0f,  0.0f,   1.0f,  1.0f,
-                1.0f,  1.0f,  0.0f,   1.0f,  0.0f,
+                0.0f,  1.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
+                0.0f,  0.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
+                1.0f,  0.0f,  0.0f,   1.0f,  1.0f,  1.0f,   1.0f,  1.0f,
+                1.0f,  1.0f,  0.0f,   1.0f,  1.0f,  1.0f,   1.0f,  0.0f,
             },{
                 0,1,2, 2,3,0
             }
         }, new Model{ //+z
             {
-                //positions           //texture coords
-                {3, GL_FLOAT},        {2, GL_FLOAT}
+                //positions           //colors              //texture coords
+                {3, GL_FLOAT},        {3, GL_FLOAT},        {2, GL_FLOAT}
             },{
-                0.0f,  0.0f,  1.0f,   0.0f,  0.0f,
-                0.0f,  1.0f,  1.0f,   0.0f,  1.0f,
-                1.0f,  1.0f,  1.0f,   1.0f,  1.0f,
-                1.0f,  0.0f,  1.0f,   1.0f,  0.0f,
+                0.0f,  0.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
+                0.0f,  1.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
+                1.0f,  1.0f,  1.0f,   1.0f,  1.0f,  1.0f,   1.0f,  1.0f,
+                1.0f,  0.0f,  1.0f,   1.0f,  1.0f,  1.0f,   1.0f,  0.0f,
             },{
                 0,1,2, 2,3,0
             }
@@ -235,12 +256,9 @@ int main(int argc, char const *argv[])
 
     //MCEng stuff
 
-    load_cube_txts();
-
-    MyChunk::engine = &engine;
+     load_cube_txts();
 
     MyGrid grid;
-    engine.grid = &grid;
 
     int const h_sz_x = MyGrid::sz_x / 2; //half of sz_x
     int const h_sz_y = MyGrid::sz_y / 2; //half of sz_y
@@ -251,14 +269,19 @@ int main(int argc, char const *argv[])
         {
             grid.load(cx,cy);
         }
-    }
+    } */
+
+    //Extra Startup
+
+    
 
     //Run Engine (Loop)
 
-    engine.run();
+    engine->run();
 
-    //Extra
+    //Shutdown
 
+    engine->shutdown();
     return 0;
 }  /// main
 

@@ -14,13 +14,17 @@ class Obj
 {
     public:
 
-    Obj();
+    Obj(Model ptr model = nullptr);
 
-    Model ptr model = nullptr;
+    Model ptr model;
 
     glm::vec3 get_position() const;
     void set_position(glm::vec3 cref position);
     void move_position(glm::vec3 cref position);
+
+    void rotate(float deg, glm::vec3 cref axis);
+
+    void scale(glm::vec3 cref factor);
 
     void render(glm::mat4 cref vp_mat) const;
 

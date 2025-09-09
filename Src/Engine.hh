@@ -21,8 +21,7 @@ class Engine
 {
     public:
 
-    Engine();
-    Engine(string cref window_name);
+    Engine(string cref window_name = "MyGameEngine");
 
     ~Engine();
 
@@ -32,7 +31,7 @@ class Engine
 
     //protected:
 
-    string window_name = "My Game Engine";
+    string window_name;
     bool valid = true;
 
     int window_width  = 1200;
@@ -50,8 +49,6 @@ class Engine
     //TODO: have a more efficient way to store objs/models (multimap?)
     //s.t. it minimizes the use of model::bind()
 
-    MyGrid* grid = nullptr; //TEMP MCEng stuff
-
     glm::vec3 skybox_color = {0.2f, 0.3f, 0.3f};
 
     void initialize();
@@ -61,4 +58,4 @@ class Engine
 
 };
 
-Engine inline ptr def_engine = nullptr; //TEMP(?) pointer to current/primary engine
+Engine inline ptr engine = nullptr; //static pointer to current/primary engine

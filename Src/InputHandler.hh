@@ -19,19 +19,19 @@ class InputHandler
 {
     public:
     
-    InputHandler(std::function<int(GLFWwindow ptr, GLFWInputCode)> input_func);
+    InputHandler(function<int(GLFWwindow ptr, GLFWInputCode)> input_func);
     
     deleteOtherOps(InputHandler)
 
     //stores things to do upon pressing a given key
     struct Input {
-        std::function<void(void)> on_press   = [](){return;};
-        std::function<void(void)> on_release = [](){return;};
+        function<void(void)> on_press   = [](){return;};
+        function<void(void)> on_release = [](){return;};
         bool is_pressed = false;
     };
 
     //return const reference to key 
-    Input cref at(GLFWInputCode cref input_code);
+    Input cref at(GLFWInputCode cref input_code) const;
 
     //return reference to key
     Input ref operator[](GLFWInputCode cref input_code);
@@ -42,7 +42,7 @@ class InputHandler
 
     protected:
 
-    std::function<int(GLFWwindow ptr, GLFWInputCode)> input_func;
+    function<int(GLFWwindow ptr, GLFWInputCode)> input_func;
 
     std::unordered_map<GLFWInputCode, Input> inputs;
 };

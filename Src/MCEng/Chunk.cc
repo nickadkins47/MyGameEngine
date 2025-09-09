@@ -43,15 +43,13 @@ void MyChunk::register_cube(int lx, int x, int ly, int y, int z, six<bool> cref 
 
     for (size_t i = 0; i < 6; i++)
     {
-        if (open_sides[i])
-        {
-            Obj obj;
-            obj.model = new Model(*quad_models[i]);
-            obj.model->process();
-            obj.model->textures.push_back(textures[i]);
-            obj.move_position(gpos);
-            engine->objs.push_back(obj);
-        }
+        if (!open_sides[i]) continue; //dont make this face
+
+        Obj obj (new Model(*quad_models[i]));
+        obj.model->process();
+        obj.model->textures.push_back(textures[i]);
+        obj.move_position(gpos);
+        engine->objs.push_back(obj);
     }
 
     /* array<glm::vec3, 8> const v {

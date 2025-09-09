@@ -9,16 +9,12 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
-#include <angelscript.h>
-
 #include "Engine.hh"
 
-Engine::Engine() { initialize(); }
-
 Engine::Engine(string cref window_name)
-: window_name(window_name) { initialize(); }
+: window_name(window_name) {}
 
-Engine::~Engine() { shutdown(); }
+Engine::~Engine() {}
 
 void Engine::run()
 {
@@ -55,9 +51,7 @@ void Engine::run()
 
         //General Calculations
 
-        bool is_selected = is_selected_func();
-
-        if (is_selected)
+        if (is_selected_func())
         {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             camera.update_angle();
@@ -70,10 +64,16 @@ void Engine::run()
 
         mouse_buttons.update(window);
         keyboard.update(window);
-
         camera.update();
 
-        glm::mat4 vp_mat = camera.get_vp_mat();
+        glm::mat4 const vp_mat = camera.get_vp_mat();
+
+        //TEMP: light source at objs[0];
+        Obj ref o = objs[0];
+        o.model->shader->uniform_fv("light.position", 3, glm::value_ptr(o.get_position()));
+
+        //TEMP: send camera's position to gpu
+        o.model->shader->uniform_fv("view_pos", 3, glm::value_ptr(camera.pos));
 
         //General Rendering
 
@@ -137,6 +137,9 @@ void Engine::initialize()
 
     glEnable(GL_DEPTH_TEST);
 
+    glFrontFace(GL_CW);
+    glEnable(GL_CULL_FACE);
+
     //ImGUI Init
 
     IMGUI_CHECKVERSION();
@@ -152,14 +155,10 @@ void Engine::initialize()
     glfwSetFramebufferSizeCallback(window, [](GLFWwindow ptr window, int width, int height)
     {
         glViewport(0, 0, width, height);
-        //window_width = width;
-        //window_height = height;
+        engine->window_width = width;
+        engine->window_height = height;
     });
 
-    //Extra
-
-    camera.engine_ptr = this;
-    script_engine.engine = this;
 }
 
 void Engine::shutdown()

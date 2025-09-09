@@ -43,9 +43,6 @@ class MyChunk //: public Obj
 
     int inline static seed = 0;
 
-    //Shader inline static ptr shader = nullptr;
-    Engine inline static ptr engine = nullptr;
-
     array<Model ptr, 6> inline static quad_models;
 
     size_t inline static const x_dim = 8;

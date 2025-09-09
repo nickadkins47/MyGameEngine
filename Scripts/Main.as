@@ -4,7 +4,7 @@
 void main()
 {
     camera_proj_mat(90.0f, 0.1f, 100.0f);
-    camera_pos(0.0f, 0.0f, 10.0f);
+    camera_pos(0.0f, 0.0f, 1.0f);
 
     kbd_on_press(k_escape, function(){
         exit();
@@ -13,7 +13,7 @@ void main()
         option_draw_lines();
     });
     kbd_on_press(k_n2, function(){
-        option_draw_polygons();
+        option_draw_fill();
     });
 
 }

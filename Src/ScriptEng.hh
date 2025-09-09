@@ -29,7 +29,6 @@ class ScriptEng
 
     //protected:
 
-    Engine ptr engine = nullptr; //pointer to main engine
     asIScriptEngine ptr s_engine = nullptr;
 
     vector<asIScriptFunction ptr> s_funcs;

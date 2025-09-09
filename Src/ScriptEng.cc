@@ -87,9 +87,9 @@ ScriptEng::ScriptEng()
         void, kbd_on_press, (int token, asIScriptFunction ptr cb),
         (int token, VoidCallback @cb), [],
     {
-        def_engine->script_engine.s_funcs.push_back(cb);
-        def_engine->keyboard[token].on_press = [cb](){
-            asIScriptContext ptr ctx = def_engine->script_engine.s_engine->CreateContext();
+        engine->script_engine.s_funcs.push_back(cb);
+        engine->keyboard[token].on_press = [cb](){
+            asIScriptContext ptr ctx = engine->script_engine.s_engine->CreateContext();
             int r = 0;
 
             r = ctx->Prepare(cb);
@@ -102,27 +102,25 @@ ScriptEng::ScriptEng()
         };
     });
 
-    global_func(
-        void, camera_proj_mat, (float fov_degrees, float near_z, float far_z), [],
-    {
-        def_engine->camera.set_proj_mat(fov_degrees, near_z, far_z);
+    global_func(void, camera_proj_mat, (float fov_degrees, float near_z, float far_z), [], {
+        engine->camera.set_proj_mat(fov_degrees, near_z, far_z);
     });
 
     global_func(void, camera_pos, (float x, float y, float z), [], {
-        def_engine->camera.pos = glm::vec3(x,y,z);
+        engine->camera.pos = glm::vec3(x,y,z);
     });
 
     //General Functions
 
     global_func(void, exit, (), [], {
-        glfwSetWindowShouldClose(def_engine->window, true);
+        glfwSetWindowShouldClose(engine->window, true);
     });
 
     global_func(void, option_draw_lines, (), [], {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     });
 
-    global_func(void, option_draw_polygons, (), [], {
+    global_func(void, option_draw_fill, (), [], {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     });
     

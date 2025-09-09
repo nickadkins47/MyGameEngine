@@ -9,8 +9,6 @@
 
 #include "Core.hh"
 
-class Engine;
-
 class Camera
 {
     public:
@@ -30,7 +28,7 @@ class Camera
     void set_proj_mat(float fov_degrees, float near_z, float far_z);
 
     //Pointer to parent game engine
-    Engine ptr engine_ptr = nullptr;
+    //Engine ptr engine_ptr = nullptr;
 
     bool first_mouse = false;
 

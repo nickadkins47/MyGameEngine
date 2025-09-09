@@ -14,8 +14,6 @@
 #include "Shader.hh"
 #include "Texture.hh"
 
-class Obj;
-
 class Model
 {
     public:
