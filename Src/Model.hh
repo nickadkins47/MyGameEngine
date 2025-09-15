@@ -7,9 +7,6 @@
 
 #pragma once
 
-#include <utility>
-    using std::pair;
-
 #include "Core.hh"
 #include "Shader.hh"
 #include "Texture.hh"
@@ -19,15 +16,13 @@ class Model
     public:
 
     Model();
-    Model(vector<pair<int, GLenum>> cref attributes, vector<float> cref vertices, vector<uint> cref indices);
+    Model(GLenum val_type, vector<GLenum> cref attributes, vector<float> cref vertices, vector<uint> cref indices);
 
     ~Model();
 
     GLuint VAO, VBO, EBO;
     
     //bool use_EBO; //TODO
-
-    Shader ptr shader = nullptr;
 
     //given vertices, generate optimal vertices & indices vectors for this model
     void gen_optimal_v_i(vector<float> cref base_verts);
@@ -36,20 +31,17 @@ class Model
     //the vertices, indices, and attributes;
     void process();
 
-    //Binds the model's VAO, VBO, and EBO
-    void bind() const;
-
     //Renders the model on screen, based on the model matrix
     //that is loaded into the shader beforehand
+    //(Also binds the model's VAO, VBO, and EBO)
     void render() const;
 
     //protected:
 
-    vector<pair<int, GLenum>> attributes;
-    vector<float> vertices;
+    GLenum val_type;
+    vector<GLenum> attributes;
+    vector<float> vertices; //TODO: template model class to allow for ints alongside floats
     vector<uint> indices;
-
-    vector<Texture> textures;
 
     static constexpr int sizeof_gl_type(GLenum type);
 

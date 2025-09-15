@@ -44,5 +44,5 @@ class InputHandler
 
     function<int(GLFWwindow ptr, GLFWInputCode)> input_func;
 
-    std::unordered_map<GLFWInputCode, Input> inputs;
+    unordered_map<GLFWInputCode, Input> inputs;
 };

@@ -68,12 +68,15 @@ void Engine::run()
 
         glm::mat4 const vp_mat = camera.get_vp_mat();
 
-        //TEMP: light source at objs[0];
-        Obj ref o = objs[0];
-        o.model->shader->uniform_fv("light.position", 3, glm::value_ptr(o.get_position()));
+        for (auto cref [_, shader] : shader_map)
+        {
+            shader.use();
+            shader.uniform_fv("view_pos", 3, glm::value_ptr(camera.pos));
+        }
 
-        //TEMP: send camera's position to gpu
-        o.model->shader->uniform_fv("view_pos", 3, glm::value_ptr(camera.pos));
+        Shader cref sh_m = get_shader("TutorialCube");
+        sh_m.use();
+        sh_m.uniform_fv("light.position", 3, glm::value_ptr(objs[0].get_position())); //TEMP: light source at objs[0];
 
         //General Rendering
 
@@ -81,10 +84,7 @@ void Engine::run()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         for (Obj cref obj : objs)
-        {
-            obj.model->bind();
             obj.render(vp_mat);
-        }
 
         //MCEng Rendering (temp?)
         /* static const int offset = -15;
@@ -107,6 +107,21 @@ void Engine::run()
 
         glfwSwapBuffers(window); //update screen
     }
+}
+
+/* Model ref Engine::get_model(string cref name)
+{
+    return (*model_map.try_emplace(name, name).first).second;
+} */
+
+Shader ref Engine::get_shader(string cref name)
+{
+    return (*shader_map.try_emplace(name, name).first).second;
+}
+
+Texture ref Engine::get_texture(string cref name)
+{
+    return (*texture_map.try_emplace(name, name).first).second;
 }
 
 void Engine::initialize()

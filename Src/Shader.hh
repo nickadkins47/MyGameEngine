@@ -17,8 +17,9 @@ class Shader
 {
     public:
     
-    //Reads & Builds the Shader
-    Shader(string cref vert_path, string cref frag_path, int tex_units);
+    //Reads & Builds the Shader based on the provided path
+    //given (path) has no extensions, it will look for (path).vert & (path).frag
+    Shader(string cref path);
     
     deleteOtherOps(Shader)
 
@@ -28,8 +29,12 @@ class Shader
     //Use/Activate the Shader; AKA glUseProgram(ID);
     void use() const;
 
-    //Sets Shader's Sampler2D tex #_ to the ID of the given Texture
-    void set_texture(int tex_unit, Texture cref texture) const;
+    //TODO? kinda conflicted on these functions, will keep them here for now
+    /* void set_diffuse(Texture cref texture) const;
+    void set_specular(Texture cref texture) const;
+    void set_texture(int tex_unit, Texture cref texture) const; */
+
+    void sampler2d(int tex_unit, Texture cref texture) const;
 
     void uniform_f(string cref name, float value) const;
 

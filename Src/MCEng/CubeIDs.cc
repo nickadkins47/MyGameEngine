@@ -9,6 +9,8 @@
 
 void load_cube_txts()
 {
+    //TODO: use engine->get_texture after reworking all of this
+
     Texture test1("Textures/test/test1.png");
     Texture test2("Textures/test/test2.png");
     Texture test3("Textures/test/test3.png");

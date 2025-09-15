@@ -39,15 +39,15 @@ void MyChunk::register_cube(int lx, int x, int ly, int y, int z, six<bool> cref 
     float const gz = qs * z; //etc
     glm::vec3 const gpos {gx,gy,gz};
 
-    six<Texture> cref textures = cube_txts[at(lx,ly,z)];
+    six<Texture> ref textures = cube_txts[at(lx,ly,z)];
 
     for (size_t i = 0; i < 6; i++)
     {
         if (!open_sides[i]) continue; //dont make this face
 
-        Obj obj (new Model(*quad_models[i]));
+        Obj obj (quad_models[i]);
         obj.model->process();
-        obj.model->textures.push_back(textures[i]);
+        obj.textures.push_back(&textures[i]);
         obj.move_position(gpos);
         engine->objs.push_back(obj);
     }

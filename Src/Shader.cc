@@ -9,12 +9,12 @@
 
 #include "Shader.hh"
 
-Shader::Shader(string cref vert_path, string cref frag_path, int tex_units)
+Shader::Shader(string cref path)
 {
     int success;
     char info_log[512];
 
-    optional<string> vert_code_str = get_file_contents(vert_path);
+    optional<string> vert_code_str = get_file_contents("Shaders/" + path + ".vert");
     if (vert_code_str == std::nullopt)
     {
         glfwTerminate();
@@ -34,7 +34,7 @@ Shader::Shader(string cref vert_path, string cref frag_path, int tex_units)
         return;
     };
 
-    optional<string> frag_code_str = get_file_contents(frag_path);
+    optional<string> frag_code_str = get_file_contents("Shaders/" + path + ".frag");
     if (frag_code_str == std::nullopt)
     {
         glfwTerminate();
@@ -70,10 +70,12 @@ Shader::Shader(string cref vert_path, string cref frag_path, int tex_units)
     glDeleteShader(vert_shader);
     glDeleteShader(frag_shader);
 
-    //set indices for Sampler2D to use
+    //set sampler 2d indices/slots whatever
     use();
-    for (int i = 0; i < tex_units; i++)
-        uniform_i(format("s_tex{}", i).c_str(), i);
+    uniform_i("material.diffuse", 0);  //Slot 0 = Diffuse
+    uniform_i("material.specular", 1); //Slot 1 = Specular
+    for (int i = 2; i < 16; i++) //Slots 2+ = Textures
+        uniform_i(format("s_tex{}", i-2).c_str(), i);
 }
 
 void Shader::use() const
@@ -81,7 +83,25 @@ void Shader::use() const
     glUseProgram(ID);
 }
 
+/* void Shader::set_diffuse(Texture cref texture) const
+{
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture.ID);
+}
+
+void Shader::set_specular(Texture cref texture) const
+{
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, texture.ID);
+}
+
 void Shader::set_texture(int tex_unit, Texture cref texture) const
+{
+    glActiveTexture(GL_TEXTURE2 + tex_unit); //GL_TEXTURE2 because first two slots reserved
+    glBindTexture(GL_TEXTURE_2D, texture.ID);
+} */
+
+void Shader::sampler2d(int tex_unit, Texture cref texture) const
 {
     glActiveTexture(GL_TEXTURE0 + tex_unit);
     glBindTexture(GL_TEXTURE_2D, texture.ID);
@@ -94,12 +114,12 @@ void Shader::uniform_f(string cref name, float value) const
 
 void Shader::uniform_i(string cref name, int value) const
 {
-    glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+    glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 }
 
 void Shader::uniform_u(string cref name, uint value) const
 {
-    glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+    glUniform1ui(glGetUniformLocation(ID, name.c_str()), value);
 }
 
 void Shader::uniform_fv(string cref name, int size, float cptr value) const

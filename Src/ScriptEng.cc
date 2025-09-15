@@ -142,7 +142,7 @@ void ScriptEng::run(string cref file_name)
     r = s_builder.StartNewModule(s_engine, 0);
     assert(r >= 0);
 
-    string const s_code = get_file_contents(format("Scripts/{}", file_name)).value();
+    string const s_code = get_file_contents("Scripts/" + file_name).value();
 
     r = s_builder.AddSectionFromMemory(file_name.c_str(), s_code.c_str(), s_code.length());
     assert(r >= 0);

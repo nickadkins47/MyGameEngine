@@ -46,10 +46,10 @@ int main(int argc, char const *argv[])
 
     //Tutorial Cubes
 
-    Model tutorial_cube {
+    Model tutorial_cube { GL_FLOAT,
         {
             //positions            //normals              //texture coords
-            {3, GL_FLOAT},         {3, GL_FLOAT},         {2, GL_FLOAT}
+            3,                     3,                     2,
         }, {
             -0.5f,  0.5f, -0.5f,   -1.0f,  0.0f,  0.0f,   0.0f, 0.0f,   // top left (down)
             -0.5f,  0.5f,  0.5f,   -1.0f,  0.0f,  0.0f,   0.0f, 1.0f,   // top left (up)
@@ -89,11 +89,7 @@ int main(int argc, char const *argv[])
             20, 21, 22,  22, 23, 20, //+z
         }
     };
-    
     tutorial_cube.process();
-    tutorial_cube.shader = new Shader("Shaders/TutorialCube.vert", "Shaders/TutorialCube.frag", 2);
-    tutorial_cube.textures.emplace_back("Textures/container.jpg");
-    tutorial_cube.textures.emplace_back("Textures/awesomeface.png");
 
     glm::vec3 const axis1 = glm::normalize(glm::vec3(1.0f, 0.3f, 0.5f));
 
@@ -111,8 +107,10 @@ int main(int argc, char const *argv[])
     };
 
     {
-        Obj obj (new Model(tutorial_cube));
+        Obj obj (&tutorial_cube, &engine->get_shader("Temp"));
         obj.move_position(cube_positions[0]);
+        obj.textures.push_back(&engine->get_texture("container.jpg"));
+        obj.textures.push_back(&engine->get_texture("awesomeface.png"));
         engine->objs.push_back(obj);
     }
 
@@ -129,17 +127,6 @@ int main(int argc, char const *argv[])
         engine->objs[0].move_position(glm::vec3{0.0f, 0.0f, -0.1f});
     };
 
-    //light.position is in engine.cc
-
-    tutorial_cube.shader->uniform_fv("light.ambient", 3, ivec3(0.2f));
-    tutorial_cube.shader->uniform_fv("light.diffuse", 3, ivec3(0.5f));
-    tutorial_cube.shader->uniform_fv("light.specular", 3, ivec3(1.0f));
-
-    tutorial_cube.shader->uniform_fv("material.ambient", 3, ivec3(1.0f, 0.5f, 0.31f));
-    tutorial_cube.shader->uniform_fv("material.diffuse", 3, ivec3(1.0f, 0.5f, 0.31f));
-    tutorial_cube.shader->uniform_fv("material.specular", 3, ivec3(0.5f, 0.5f, 0.5f));
-    tutorial_cube.shader->uniform_f("material.shininess", 32.0f);
-
     /* for (size_t i = 1; i < cube_positions.size(); i++)
     {
         Obj obj (new Model(tutorial_cube));
@@ -148,10 +135,10 @@ int main(int argc, char const *argv[])
         engine->objs.push_back(obj);
     } */
 
-    Model flat_ground {
+    Model flat_ground { GL_FLOAT,
         {
-            //positions           //normals              //texture coords
-            {3, GL_FLOAT},        {3, GL_FLOAT},         {2, GL_FLOAT}
+            //positions           //normals             //texture coords
+            3,                    3,                    2,
         }, {
             -0.5f, -0.5f, 0.0f,   0.0f,  0.0f,  1.0f,   0.0f, 0.0f,   // bottom left
             -0.5f,  0.5f, 0.0f,   0.0f,  0.0f,  1.0f,   0.0f, 1.0f,   // top left
@@ -161,24 +148,32 @@ int main(int argc, char const *argv[])
             0,1,2, 2,3,0,
         }
     };
-
     flat_ground.process();
-    flat_ground.shader = tutorial_cube.shader;
+
+    Shader ref sh = engine->get_shader("TutorialCube");
+
+    //TEMP
+    sh.uniform_fv("light.ambient", 3, ivec3(0.2f));
+    sh.uniform_fv("light.diffuse", 3, ivec3(0.5f));
+    sh.uniform_fv("light.specular", 3, ivec3(1.0f));
     
     {
-        Obj obj (&flat_ground);
+        Obj obj (&flat_ground, &sh);
         obj.move_position(glm::vec3{0.0f, 0.0f, -3.0f});
         obj.scale(glm::vec3{128.0f});
+        obj.diffuse  = &engine->get_texture("container2.png");
+        obj.specular = &engine->get_texture("container2_specular.png");
+        obj.shininess = 32.0f;
         engine->objs.push_back(obj);
     }
 
     /* //Quads
     
     MyChunk::quad_models = {
-           new Model{ //-x
+           new Model{ GL_FLOAT, //-x
             {
                 //positions           //colors              //texture coords
-                {3, GL_FLOAT},        {3, GL_FLOAT},        {2, GL_FLOAT}
+                3,                    3,                    2,
             },{
                 0.0f,  1.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
                 0.0f,  1.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
@@ -187,10 +182,10 @@ int main(int argc, char const *argv[])
             },{
                 0,1,2, 2,3,0
             }
-        }, new Model{ //+x
+        }, new Model{ GL_FLOAT, //+x
             {
                 //positions           //colors              //texture coords
-                {3, GL_FLOAT},        {3, GL_FLOAT},        {2, GL_FLOAT}
+                3,                    3,                    2,
             },{
                 1.0f,  0.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
                 1.0f,  0.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
@@ -199,10 +194,10 @@ int main(int argc, char const *argv[])
             },{
                 0,1,2, 2,3,0
             }
-        }, new Model{ //-y
+        }, new Model{ GL_FLOAT, //-y
             {
                 //positions           //colors              //texture coords
-                {3, GL_FLOAT},        {3, GL_FLOAT},        {2, GL_FLOAT}
+                3,                    3,                    2,
             },{
                 0.0f,  0.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
                 0.0f,  0.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
@@ -211,10 +206,10 @@ int main(int argc, char const *argv[])
             },{
                 0,1,2, 2,3,0
             }
-        }, new Model{ //+y
+        }, new Model{ GL_FLOAT, //+y
             {
                 //positions           //colors              //texture coords
-                {3, GL_FLOAT},        {3, GL_FLOAT},        {2, GL_FLOAT}
+                3,                    3,                    2,
             },{
                 1.0f,  1.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
                 1.0f,  1.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
@@ -223,10 +218,10 @@ int main(int argc, char const *argv[])
             },{
                 0,1,2, 2,3,0
             }
-        }, new Model{ //-z
+        }, new Model{ GL_FLOAT, //-z
             {
                 //positions           //colors              //texture coords
-                {3, GL_FLOAT},        {3, GL_FLOAT},        {2, GL_FLOAT}
+                3,                    3,                    2,
             },{
                 0.0f,  1.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
                 0.0f,  0.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
@@ -235,10 +230,10 @@ int main(int argc, char const *argv[])
             },{
                 0,1,2, 2,3,0
             }
-        }, new Model{ //+z
+        }, new Model{ GL_FLOAT, //+z
             {
                 //positions           //colors              //texture coords
-                {3, GL_FLOAT},        {3, GL_FLOAT},        {2, GL_FLOAT}
+                3,                    3,                    2,
             },{
                 0.0f,  0.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
                 0.0f,  1.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
@@ -250,7 +245,7 @@ int main(int argc, char const *argv[])
         },
     };
 
-    Shader quad_sh ("Shaders/Quad.vert", "Shaders/Quad.frag", 1);
+    Shader ref quad_sh = engine->get_shader("Shaders/Quad");
     for (Model ptr ref model : MyChunk::quad_models)
         model->shader = &quad_sh;
 
@@ -270,10 +265,6 @@ int main(int argc, char const *argv[])
             grid.load(cx,cy);
         }
     } */
-
-    //Extra Startup
-
-    
 
     //Run Engine (Loop)
 

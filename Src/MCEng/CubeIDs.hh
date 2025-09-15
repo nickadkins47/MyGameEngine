@@ -7,8 +7,6 @@
 
 #pragma once
 
-#include <unordered_map>
-
 #include "../Core.hh"
 #include "../Texture.hh"
 
@@ -23,6 +21,6 @@ enum class CubeID: size_t {
     DIRT
 };
 
-inline std::unordered_map<CubeID, six<Texture>> cube_txts;
+inline unordered_map<CubeID, six<Texture>> cube_txts;
 
 void load_cube_txts();

@@ -29,6 +29,12 @@ class Engine
 
     void run();
 
+    //TODO once i start working with assimp; DO NOT USE (yet)
+    //Model ref get_model(string cref name);
+
+    Shader ref get_shader(string cref name);
+    Texture ref get_texture(string cref name);
+
     //protected:
 
     string window_name;
@@ -40,10 +46,15 @@ class Engine
     function<bool(void)> is_selected_func = [](){return false;};
 
     GLFWwindow ptr window = nullptr;
-    InputHandler keyboard {glfwGetKey};
-    InputHandler mouse_buttons {glfwGetMouseButton};
     Camera camera;
     ScriptEng script_engine;
+
+    InputHandler keyboard {glfwGetKey};
+    InputHandler mouse_buttons {glfwGetMouseButton};
+
+    unordered_map<string, Model> model_map;
+    unordered_map<string, Shader> shader_map;
+    unordered_map<string, Texture> texture_map;
 
     vector<Obj> objs;
     //TODO: have a more efficient way to store objs/models (multimap?)

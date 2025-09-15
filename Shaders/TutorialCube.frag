@@ -18,35 +18,35 @@ struct Light
     vec3 diffuse;
     vec3 specular;
 };
-
 uniform Light light;
 
 struct Material
 {
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
+    sampler2D diffuse;
+    sampler2D specular;
     float shininess;
 };
-
 uniform Material material;
 
 void main()
 {
-    vec3 ambient = light.ambient * (material.ambient);
+    vec3 s2d_diff = vec3(texture(material.diffuse, f_tex));
+    vec3 s2d_spec = vec3(texture(material.specular, f_tex));
+
+    vec3 ambient = light.ambient * s2d_diff;
 
     vec3 norm = normalize(f_nor);
     vec3 light_dir = normalize(light.position - f_pos);
     float diff = max(dot(norm, light_dir), 0.0);
 
-    vec3 diffuse = light.diffuse * (diff * material.diffuse);
+    vec3 diffuse = light.diffuse * diff * s2d_diff;
 
     vec3 view_dir = normalize(view_pos - f_pos);
     vec3 reflect_dir = reflect(-light_dir, norm);
     float ispec = max(dot(view_dir, reflect_dir), 0.0);
     float spec = pow(ispec, material.shininess);
 
-    vec3 specular = light.specular * (spec * material.specular);
+    vec3 specular = light.specular * spec * s2d_spec;
 
     vec3 light_result = ambient + diffuse + specular;
 

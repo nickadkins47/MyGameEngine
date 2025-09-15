@@ -20,6 +20,8 @@
     using std::print;
 #include <string>
     using std::string;
+#include <unordered_map>
+    using std::unordered_map;
 #include <vector>
     using std::vector;
 
@@ -41,6 +43,8 @@
 
 #define cast static_cast
 #define r_cast reinterpret_cast
+
+#define iprint(arg) print("{}\n", arg)
 
 //put this macro in a class (with the provided className) to delete the
 //auto-generated copy/move constructor/assignment operators for this class
