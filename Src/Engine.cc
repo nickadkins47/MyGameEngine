@@ -76,7 +76,7 @@ void Engine::run()
 
         Shader cref sh_m = get_shader("TutorialCube");
         sh_m.use();
-        sh_m.uniform_fv("light.position", 3, glm::value_ptr(objs[0].get_position())); //TEMP: light source at objs[0];
+        sh_m.uniform_fv("lights[0].position", 3, glm::value_ptr(objs[0].get_position())); //TEMP: light source at objs[0];
 
         //General Rendering
 

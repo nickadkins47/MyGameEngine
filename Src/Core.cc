@@ -93,7 +93,7 @@ int main(int argc, char const *argv[])
 
     glm::vec3 const axis1 = glm::normalize(glm::vec3(1.0f, 0.3f, 0.5f));
 
-    array<glm::vec3, 10> const cube_positions {
+    /* array<glm::vec3, 10> const cube_positions {
         glm::vec3( 3.0f,  3.0f,  3.0f ),
         glm::vec3( 2.0f,  5.0f, -15.0f),
         glm::vec3(-1.5f, -2.2f,  12.5f),
@@ -104,11 +104,19 @@ int main(int argc, char const *argv[])
         glm::vec3( 1.5f, 11.0f, -5.5f ),
         glm::vec3(10.5f,  0.2f, -1.5f ),
         glm::vec3(-1.3f,  6.0f, -1.5f ),
-    };
+    }; */
 
+    array<glm::vec3, 4> const light_cube_positions {
+        glm::vec3( 3.0f,  3.0f,  3.0f),
+        glm::vec3( 12.3f, -3.3f,  3.0f),
+        glm::vec3(-4.0f,  20.0f,  3.0f),
+        glm::vec3( 0.0f,  -10.0f,  3.0f)
+    }; 
+
+    for (auto ref pos : light_cube_positions)
     {
         Obj obj (&tutorial_cube, &engine->get_shader("Temp"));
-        obj.move_position(cube_positions[0]);
+        obj.move_position(pos);
         obj.textures.push_back(&engine->get_texture("container.jpg"));
         obj.textures.push_back(&engine->get_texture("awesomeface.png"));
         engine->objs.push_back(obj);
@@ -150,12 +158,34 @@ int main(int argc, char const *argv[])
     };
     flat_ground.process();
 
-    Shader ref sh = engine->get_shader("TutorialCube");
+    Shader ref sh = engine->get_shader("TutorialCube"); 
 
-    //TEMP
-    sh.uniform_fv("light.ambient", 3, ivec3(0.2f));
-    sh.uniform_fv("light.diffuse", 3, ivec3(0.5f));
-    sh.uniform_fv("light.specular", 3, ivec3(1.0f));
+    //TEMP: position of lights[0] is handled in engine.run()
+    
+    sh.uniform_fv("dir_light.direction", 3, ivec3(-1.0f));
+    sh.uniform_fv("dir_light.ambient", 3, ivec3(0.05f));
+    sh.uniform_fv("dir_light.diffuse", 3, ivec3(0.05f));
+    sh.uniform_fv("dir_light.specular", 3, ivec3(0.05f));
+
+    for (int i = 0; i < 4; i++)
+    {
+        string const light = format("lights[{}].", i);
+
+        sh.uniform_fv(light+"position", 3, glm::value_ptr(light_cube_positions[i]));
+
+        sh.uniform_fv(light+"ambient", 3, ivec3(0.0f));
+        sh.uniform_fv(light+"diffuse", 3, ivec3(0.5f));
+        sh.uniform_fv(light+"specular", 3, ivec3(1.0f));
+
+        sh.uniform_fv(light+"attenuation", 3, ivec3(0.025f, 0.05f, 1.0f));
+
+        sh.uniform_i(light+"is_spotlight", 0);
+    }
+
+    sh.uniform_i("lights[0].is_spotlight", 1);
+    sh.uniform_fv("lights[0].sl_direction", 3, ivec3(0.0f, 0.0f, -1.0f));
+    sh.uniform_f("lights[0].sl_bright_rim", glm::cos(glm::radians(15.0f)));
+    sh.uniform_f("lights[0].sl_dark_rim", glm::cos(glm::radians(20.0f)));
     
     {
         Obj obj (&flat_ground, &sh);
