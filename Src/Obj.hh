@@ -8,13 +8,12 @@
 #pragma once
 
 #include "Core.hh"
-#include "Model.hh"
 
 class Obj
 {
     public:
 
-    Obj(Model ptr model = nullptr, Shader ptr shader = nullptr);
+    Obj(Model ptr model, Shader ptr shader);
 
     Model ptr model;
     Shader ptr shader;
@@ -32,10 +31,5 @@ class Obj
     //protected:
     
     glm::mat4 model_mat {1.0f};
-
-    Texture ptr diffuse = nullptr;
-    Texture ptr specular = nullptr;
-    float shininess = 0;
-    vector<Texture ptr> textures;
 
 };

@@ -1,0 +1,78 @@
+# DO NOT USE THIS YET
+# i just copy/pasted this from Core.cc
+
+MyChunk::quad_models = {
+        new Mesh{ GL_FLOAT, //-x
+        {
+            //positions           //colors              //texture coords
+            3,                    3,                    2,
+        },{
+            0.0f,  1.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
+            0.0f,  1.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
+            0.0f,  0.0f,  1.0f,   1.0f,  1.0f,  1.0f,   1.0f,  1.0f,
+            0.0f,  0.0f,  0.0f,   1.0f,  1.0f,  1.0f,   1.0f,  0.0f,
+        },{
+            0,1,2, 2,3,0
+        }
+    }, new Mesh{ GL_FLOAT, //+x
+        {
+            //positions           //colors              //texture coords
+            3,                    3,                    2,
+        },{
+            1.0f,  0.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
+            1.0f,  0.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
+            1.0f,  1.0f,  1.0f,   1.0f,  1.0f,  1.0f,   1.0f,  1.0f,
+            1.0f,  1.0f,  0.0f,   1.0f,  1.0f,  1.0f,   1.0f,  0.0f,
+        },{
+            0,1,2, 2,3,0
+        }
+    }, new Mesh{ GL_FLOAT, //-y
+        {
+            //positions           //colors              //texture coords
+            3,                    3,                    2,
+        },{
+            0.0f,  0.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
+            0.0f,  0.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
+            1.0f,  0.0f,  1.0f,   1.0f,  1.0f,  1.0f,   1.0f,  1.0f,
+            1.0f,  0.0f,  0.0f,   1.0f,  1.0f,  1.0f,   1.0f,  0.0f,
+        },{
+            0,1,2, 2,3,0
+        }
+    }, new Mesh{ GL_FLOAT, //+y
+        {
+            //positions           //colors              //texture coords
+            3,                    3,                    2,
+        },{
+            1.0f,  1.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
+            1.0f,  1.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
+            0.0f,  1.0f,  1.0f,   1.0f,  1.0f,  1.0f,   1.0f,  1.0f,
+            0.0f,  1.0f,  0.0f,   1.0f,  1.0f,  1.0f,   1.0f,  0.0f,
+        },{
+            0,1,2, 2,3,0
+        }
+    }, new Mesh{ GL_FLOAT, //-z
+        {
+            //positions           //colors              //texture coords
+            3,                    3,                    2,
+        },{
+            0.0f,  1.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
+            0.0f,  0.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
+            1.0f,  0.0f,  0.0f,   1.0f,  1.0f,  1.0f,   1.0f,  1.0f,
+            1.0f,  1.0f,  0.0f,   1.0f,  1.0f,  1.0f,   1.0f,  0.0f,
+        },{
+            0,1,2, 2,3,0
+        }
+    }, new Mesh{ GL_FLOAT, //+z
+        {
+            //positions           //colors              //texture coords
+            3,                    3,                    2,
+        },{
+            0.0f,  0.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
+            0.0f,  1.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
+            1.0f,  1.0f,  1.0f,   1.0f,  1.0f,  1.0f,   1.0f,  1.0f,
+            1.0f,  0.0f,  1.0f,   1.0f,  1.0f,  1.0f,   1.0f,  0.0f,
+        },{
+            0,1,2, 2,3,0
+        }
+    },
+};

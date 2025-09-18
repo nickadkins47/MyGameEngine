@@ -29,9 +29,9 @@ class Engine
 
     void run();
 
-    //TODO once i start working with assimp; DO NOT USE (yet)
-    //Model ref get_model(string cref name);
+    Obj ref new_obj(string cref model_path, string cref shader_path);
 
+    Model ref get_model(string cref name);
     Shader ref get_shader(string cref name);
     Texture ref get_texture(string cref name);
 

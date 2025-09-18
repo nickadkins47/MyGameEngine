@@ -9,9 +9,7 @@
 
 #include "Core.hh"
 
-class Engine;
 class asIScriptEngine;
-class asIScriptModule;
 class asIScriptFunction;
 
 class ScriptEng

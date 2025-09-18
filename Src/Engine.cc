@@ -74,9 +74,10 @@ void Engine::run()
             shader.uniform_fv("view_pos", 3, glm::value_ptr(camera.pos));
         }
 
-        Shader cref sh_m = get_shader("TutorialCube");
+        //TEMP: light source at objs[0];
+        Shader cref sh_m = get_shader("Shaders/Default");
         sh_m.use();
-        sh_m.uniform_fv("lights[0].position", 3, glm::value_ptr(objs[0].get_position())); //TEMP: light source at objs[0];
+        sh_m.uniform_fv("lights[0].position", 3, glm::value_ptr(objs[0].get_position())); 
 
         //General Rendering
 
@@ -109,10 +110,15 @@ void Engine::run()
     }
 }
 
-/* Model ref Engine::get_model(string cref name)
+Obj ref Engine::new_obj(string cref model_path, string cref shader_path)
+{
+    return objs.emplace_back(&get_model(model_path), &get_shader(shader_path));
+}
+
+Model ref Engine::get_model(string cref name)
 {
     return (*model_map.try_emplace(name, name).first).second;
-} */
+}
 
 Shader ref Engine::get_shader(string cref name)
 {
@@ -151,8 +157,6 @@ void Engine::initialize()
         return error("Failed to initialize GLAD");
 
     glEnable(GL_DEPTH_TEST);
-
-    glFrontFace(GL_CW);
     glEnable(GL_CULL_FACE);
 
     //ImGUI Init

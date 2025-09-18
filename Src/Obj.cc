@@ -5,6 +5,7 @@
  *  @brief: 
  */
 
+#include "Model.hh"
 #include "Obj.hh"
 
 Obj::Obj(Model ptr model, Shader ptr shader)
@@ -14,12 +15,7 @@ void Obj::render(glm::mat4 cref vp_mat) const
 {
     shader->use();
 
-    if (diffuse  != nullptr) shader->sampler2d(0, *diffuse);
-    if (specular != nullptr) shader->sampler2d(1, *specular);
-    shader->uniform_f("material.shininess", shininess);
-
-    for (int i = 0; i < textures.size(); i++)
-        shader->sampler2d(i+2, *textures[i]);
+    shader->uniform_f("material.shininess", 32.0f); //TEMP
 
     //cam's vp_mat * obj's model_mat
     glm::mat4 mvp_mat = vp_mat * model_mat;
@@ -32,7 +28,7 @@ void Obj::render(glm::mat4 cref vp_mat) const
 
     shader->uniform_fm("m_mat_itr", 3,3, glm::value_ptr(model_mat_itr));
     
-    model->render();
+    model->render(*shader);
 }
 
 glm::vec3 Obj::get_position() const

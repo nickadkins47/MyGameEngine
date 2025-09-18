@@ -39,18 +39,18 @@ void MyChunk::register_cube(int lx, int x, int ly, int y, int z, six<bool> cref 
     float const gz = qs * z; //etc
     glm::vec3 const gpos {gx,gy,gz};
 
-    six<Texture> ref textures = cube_txts[at(lx,ly,z)];
+    six<Texture ptr> ref textures = cube_txts[at(lx,ly,z)];
 
-    for (size_t i = 0; i < 6; i++)
+    /* for (size_t i = 0; i < 6; i++)
     {
         if (!open_sides[i]) continue; //dont make this face
 
-        Obj obj (quad_models[i]);
-        obj.model->process();
-        obj.textures.push_back(&textures[i]);
+        Obj obj (quad_models[i], &engine->get_shader("Shaders/Quad"));
+        obj.model->gen_gl_data();
+        obj.textures.push_back(textures[i]);
         obj.move_position(gpos);
         engine->objs.push_back(obj);
-    }
+    } */
 
     /* array<glm::vec3, 8> const v {
         glm::vec3{   gx,    gy,    gz},
@@ -77,7 +77,7 @@ void MyChunk::register_cube(int lx, int x, int ly, int y, int z, six<bool> cref 
     model->attributes = {{3, GL_FLOAT}, {2, GL_FLOAT}};
     model->gen_optimal_v_i(vertices);
     model->shader = this->shader;
-    model->process();
+    model->gen_gl_data();
     model->textures.emplace_back("Textures/grass_side.png");
     is_ren = true;
 } */

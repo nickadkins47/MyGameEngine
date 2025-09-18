@@ -13,11 +13,12 @@ class Texture
 {
     public:
 
-    Texture();
     Texture(string cref tex_path);
 
-    //deleteOtherOps(Texture)
+    deleteOtherOps(Texture)
 
     GLuint ID;
+    int type = 0; //type recieved from assimp
     int width = 0, height = 0, num_channels = 0;
+
 };

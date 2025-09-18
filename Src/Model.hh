@@ -7,42 +7,38 @@
 
 #pragma once
 
+//#include <assimp/material.h>
+
 #include "Core.hh"
+#include "Mesh.hh"
 #include "Shader.hh"
-#include "Texture.hh"
+
+class aiNode;
+class aiMesh;
+class aiScene;
+class aiMaterial;
+enum aiTextureType;
 
 class Model
 {
     public:
 
-    Model();
-    Model(GLenum val_type, vector<GLenum> cref attributes, vector<float> cref vertices, vector<uint> cref indices);
-
-    ~Model();
-
-    GLuint VAO, VBO, EBO;
+    Model(string cref path);
     
-    //bool use_EBO; //TODO
+    deleteOtherOps(Model)
 
-    //given vertices, generate optimal vertices & indices vectors for this model
-    void gen_optimal_v_i(vector<float> cref base_verts);
+    bool winding_cw = false; //render Clockwise (CW) instead of Counterclockwise (CCW)
 
-    //Create the model's VAO, VBO, and EBO, from
-    //the vertices, indices, and attributes;
-    void process();
-
-    //Renders the model on screen, based on the model matrix
-    //that is loaded into the shader beforehand
-    //(Also binds the model's VAO, VBO, and EBO)
-    void render() const;
+    void render(Shader cref shader) const;
 
     //protected:
 
-    GLenum val_type;
-    vector<GLenum> attributes;
-    vector<float> vertices; //TODO: template model class to allow for ints alongside floats
-    vector<uint> indices;
+    vector<Mesh> meshes;
+    
+    //possible TODO: reorganize things once i understand scenes a little better
 
-    static constexpr int sizeof_gl_type(GLenum type);
+    void process_node(aiNode ptr node, aiScene cptr scene, string cref path);
+    void process_mesh(aiMesh ptr mesh, aiScene cptr scene, string cref path);
+    void process_material(Mesh ref mesh, aiMaterial cptr mat, aiTextureType type, string cref path);
 
 };

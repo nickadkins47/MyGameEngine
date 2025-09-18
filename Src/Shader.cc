@@ -14,7 +14,7 @@ Shader::Shader(string cref path)
     int success;
     char info_log[512];
 
-    optional<string> vert_code_str = get_file_contents("Shaders/" + path + ".vert");
+    optional<string> vert_code_str = get_file_contents(path + ".vert");
     if (vert_code_str == std::nullopt)
     {
         glfwTerminate();
@@ -34,7 +34,7 @@ Shader::Shader(string cref path)
         return;
     };
 
-    optional<string> frag_code_str = get_file_contents("Shaders/" + path + ".frag");
+    optional<string> frag_code_str = get_file_contents(path + ".frag");
     if (frag_code_str == std::nullopt)
     {
         glfwTerminate();
@@ -76,6 +76,17 @@ Shader::Shader(string cref path)
     uniform_i("material.specular", 1); //Slot 1 = Specular
     for (int i = 2; i < 16; i++) //Slots 2+ = Textures
         uniform_i(format("s_tex{}", i-2).c_str(), i);
+}
+
+void Shader::init_lights(int num_dir_lights, int num_lights)
+{
+    this->num_dir_lights = num_dir_lights;
+    for (int i = 0; i < num_dir_lights; i++)
+        uniform_i(format("dir_lights[{}].mode", i), 0);
+    
+    this->num_lights = num_lights;
+    for (int i = 0; i < num_lights; i++)
+        uniform_i(format("lights[{}].mode", i), 0);
 }
 
 void Shader::use() const

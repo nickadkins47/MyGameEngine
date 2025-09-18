@@ -43,7 +43,7 @@ class MyChunk //: public Obj
 
     int inline static seed = 0;
 
-    array<Model ptr, 6> inline static quad_models;
+    array<Mesh ptr, 6> inline static quad_models;
 
     size_t inline static const x_dim = 8;
     size_t inline static const y_dim = 8;

@@ -44,82 +44,20 @@ int main(int argc, char const *argv[])
         return is_tab_mode | engine->mouse_buttons[GLFW_MOUSE_BUTTON_LEFT].is_pressed;
     };
 
-    //Tutorial Cubes
-
-    Model tutorial_cube { GL_FLOAT,
-        {
-            //positions            //normals              //texture coords
-            3,                     3,                     2,
-        }, {
-            -0.5f,  0.5f, -0.5f,   -1.0f,  0.0f,  0.0f,   0.0f, 0.0f,   // top left (down)
-            -0.5f,  0.5f,  0.5f,   -1.0f,  0.0f,  0.0f,   0.0f, 1.0f,   // top left (up)
-            -0.5f, -0.5f,  0.5f,   -1.0f,  0.0f,  0.0f,   1.0f, 1.0f,   // bottom left (up)
-            -0.5f, -0.5f, -0.5f,   -1.0f,  0.0f,  0.0f,   1.0f, 0.0f,   // bottom left (down)
-
-             0.5f, -0.5f, -0.5f,    1.0f,  0.0f,  0.0f,   0.0f, 0.0f,   // bottom right (down)
-             0.5f, -0.5f,  0.5f,    1.0f,  0.0f,  0.0f,   0.0f, 1.0f,   // bottom right (up)
-             0.5f,  0.5f,  0.5f,    1.0f,  0.0f,  0.0f,   1.0f, 1.0f,   // top right (up)
-             0.5f,  0.5f, -0.5f,    1.0f,  0.0f,  0.0f,   1.0f, 0.0f,   // top right (down)
-
-            -0.5f, -0.5f, -0.5f,    0.0f, -1.0f,  0.0f,   0.0f, 0.0f,   // bottom left (down)
-            -0.5f, -0.5f,  0.5f,    0.0f, -1.0f,  0.0f,   0.0f, 1.0f,   // bottom left (up)
-             0.5f, -0.5f,  0.5f,    0.0f, -1.0f,  0.0f,   1.0f, 1.0f,   // bottom right (up)
-             0.5f, -0.5f, -0.5f,    0.0f, -1.0f,  0.0f,   1.0f, 0.0f,   // bottom right (down)
-
-             0.5f,  0.5f, -0.5f,    0.0f,  1.0f,  0.0f,   0.0f, 0.0f,   // top right (down)
-             0.5f,  0.5f,  0.5f,    0.0f,  1.0f,  0.0f,   0.0f, 1.0f,   // top right (up)
-            -0.5f,  0.5f,  0.5f,    0.0f,  1.0f,  0.0f,   1.0f, 1.0f,   // top left (up)
-            -0.5f,  0.5f, -0.5f,    0.0f,  1.0f,  0.0f,   1.0f, 0.0f,   // top left (down)
-
-             0.5f, -0.5f, -0.5f,    0.0f,  0.0f, -1.0f,   0.0f, 0.0f,   // bottom right (down)
-             0.5f,  0.5f, -0.5f,    0.0f,  0.0f, -1.0f,   0.0f, 1.0f,   // top right (down)
-            -0.5f,  0.5f, -0.5f,    0.0f,  0.0f, -1.0f,   1.0f, 1.0f,   // top left (down)
-            -0.5f, -0.5f, -0.5f,    0.0f,  0.0f, -1.0f,   1.0f, 0.0f,   // bottom left (down)
-            
-            -0.5f, -0.5f,  0.5f,    0.0f,  0.0f,  1.0f,   0.0f, 0.0f,   // bottom left (up)
-            -0.5f,  0.5f,  0.5f,    0.0f,  0.0f,  1.0f,   0.0f, 1.0f,   // top left (up)
-             0.5f,  0.5f,  0.5f,    0.0f,  0.0f,  1.0f,   1.0f, 1.0f,   // top right (up)
-             0.5f, -0.5f,  0.5f,    0.0f,  0.0f,  1.0f,   1.0f, 0.0f,   // bottom right (up)
-        }, {
-             0,  1,  2,   2,  3,  0, //-x
-             4,  5,  6,   6,  7,  4, //+x
-             8,  9, 10,  10, 11,  8, //-y
-            12, 13, 14,  14, 15, 12, //+y
-            16, 17, 18,  18, 19, 16, //-z
-            20, 21, 22,  22, 23, 20, //+z
-        }
-    };
-    tutorial_cube.process();
-
-    glm::vec3 const axis1 = glm::normalize(glm::vec3(1.0f, 0.3f, 0.5f));
-
-    /* array<glm::vec3, 10> const cube_positions {
-        glm::vec3( 3.0f,  3.0f,  3.0f ),
-        glm::vec3( 2.0f,  5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f,  12.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3( 2.4f, -0.4f, -3.5f ),
-        glm::vec3(-1.7f,  3.0f, -7.5f ),
-        glm::vec3( 5.3f, -2.0f, -2.5f ),
-        glm::vec3( 1.5f, 11.0f, -5.5f ),
-        glm::vec3(10.5f,  0.2f, -1.5f ),
-        glm::vec3(-1.3f,  6.0f, -1.5f ),
-    }; */
+    //Light Cubes
 
     array<glm::vec3, 4> const light_cube_positions {
         glm::vec3( 3.0f,  3.0f,  3.0f),
         glm::vec3( 12.3f, -3.3f,  3.0f),
         glm::vec3(-4.0f,  20.0f,  3.0f),
         glm::vec3( 0.0f,  -10.0f,  3.0f)
-    }; 
+    };
 
     for (auto ref pos : light_cube_positions)
     {
-        Obj obj (&tutorial_cube, &engine->get_shader("Temp"));
+        Obj ref obj = engine->new_obj("Models/TutorialCube.obj", "Shaders/Temp");
+        obj.model->winding_cw = true;
         obj.move_position(pos);
-        obj.textures.push_back(&engine->get_texture("container.jpg"));
-        obj.textures.push_back(&engine->get_texture("awesomeface.png"));
-        engine->objs.push_back(obj);
     }
 
     engine->keyboard[GLFW_KEY_3].on_press = [](){
@@ -135,42 +73,22 @@ int main(int argc, char const *argv[])
         engine->objs[0].move_position(glm::vec3{0.0f, 0.0f, -0.1f});
     };
 
-    /* for (size_t i = 1; i < cube_positions.size(); i++)
-    {
-        Obj obj (new Model(tutorial_cube));
-        obj.move_position(cube_positions[i]);
-        obj.rotate(20.0f * i, axis1);
-        engine->objs.push_back(obj);
-    } */
-
-    Model flat_ground { GL_FLOAT,
-        {
-            //positions           //normals             //texture coords
-            3,                    3,                    2,
-        }, {
-            -0.5f, -0.5f, 0.0f,   0.0f,  0.0f,  1.0f,   0.0f, 0.0f,   // bottom left
-            -0.5f,  0.5f, 0.0f,   0.0f,  0.0f,  1.0f,   0.0f, 1.0f,   // top left
-             0.5f,  0.5f, 0.0f,   0.0f,  0.0f,  1.0f,   1.0f, 1.0f,   // top right
-             0.5f, -0.5f, 0.0f,   0.0f,  0.0f,  1.0f,   1.0f, 0.0f,   // bottom right
-        }, {
-            0,1,2, 2,3,0,
-        }
-    };
-    flat_ground.process();
-
-    Shader ref sh = engine->get_shader("TutorialCube"); 
-
-    //TEMP: position of lights[0] is handled in engine.run()
+    Shader ref sh = engine->get_shader("Shaders/Default");
+    sh.init_lights(1, 8);
     
-    sh.uniform_fv("dir_light.direction", 3, ivec3(-1.0f));
-    sh.uniform_fv("dir_light.ambient", 3, ivec3(0.05f));
-    sh.uniform_fv("dir_light.diffuse", 3, ivec3(0.05f));
-    sh.uniform_fv("dir_light.specular", 3, ivec3(0.05f));
+    sh.uniform_i("dir_lights[0].mode", 1);
+    sh.uniform_fv("dir_lights[0].direction", 3, ivec3(-1.0f));
+    sh.uniform_fv("dir_lights[0].ambient", 3, ivec3(0.05f));
+    sh.uniform_fv("dir_lights[0].diffuse", 3, ivec3(0.05f));
+    sh.uniform_fv("dir_lights[0].specular", 3, ivec3(0.05f));
 
     for (int i = 0; i < 4; i++)
     {
         string const light = format("lights[{}].", i);
 
+        sh.uniform_i(light+"mode", 1);
+
+        //TEMP: position of lights[0] is handled in engine.run()
         sh.uniform_fv(light+"position", 3, glm::value_ptr(light_cube_positions[i]));
 
         sh.uniform_fv(light+"ambient", 3, ivec3(0.0f));
@@ -178,110 +96,58 @@ int main(int argc, char const *argv[])
         sh.uniform_fv(light+"specular", 3, ivec3(1.0f));
 
         sh.uniform_fv(light+"attenuation", 3, ivec3(0.025f, 0.05f, 1.0f));
-
-        sh.uniform_i(light+"is_spotlight", 0);
     }
 
-    sh.uniform_i("lights[0].is_spotlight", 1);
+    sh.uniform_i("lights[0].mode", 2);
     sh.uniform_fv("lights[0].sl_direction", 3, ivec3(0.0f, 0.0f, -1.0f));
     sh.uniform_f("lights[0].sl_bright_rim", glm::cos(glm::radians(15.0f)));
     sh.uniform_f("lights[0].sl_dark_rim", glm::cos(glm::radians(20.0f)));
-    
+
     {
-        Obj obj (&flat_ground, &sh);
+        Obj ref obj = engine->new_obj("Models/FlatGround.obj", "Shaders/Default");
+        obj.model->winding_cw = true;
         obj.move_position(glm::vec3{0.0f, 0.0f, -3.0f});
         obj.scale(glm::vec3{128.0f});
-        obj.diffuse  = &engine->get_texture("container2.png");
-        obj.specular = &engine->get_texture("container2_specular.png");
-        obj.shininess = 32.0f;
-        engine->objs.push_back(obj);
+    }
+
+    {
+        Obj ref obj = engine->new_obj("Models/Backpack/backpack.obj", "Shaders/Default");
+        obj.move_position(glm::vec3{10.0f, 10.0f, 0.0f});
+    }
+
+    {
+        Obj ref obj = engine->new_obj("Models/Duck/duck.dae", "Shaders/Default");
+        obj.move_position(glm::vec3{-10.0f, -10.0f, 0.0f});
+        obj.scale(glm::vec3(0.0325f));
+        obj.rotate(90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+    }
+
+    {
+        Obj ref obj = engine->new_obj("Models/Spider/spider.obj", "Shaders/Default");
+        obj.move_position(glm::vec3{10.0f, -10.0f, 0.0f});
+        obj.scale(glm::vec3(0.0325f));
+        obj.rotate(90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+    }
+
+    {
+        Obj ref obj = engine->new_obj("Models/RotatingCube.3DS", "Shaders/Default");
+        obj.model->meshes[0].textures.push_back(&engine->get_texture("Textures/awesomeface.png"));
+        obj.move_position(glm::vec3{-10.0f, 10.0f, 0.0f});
+        obj.scale(glm::vec3(0.0325f));
+        obj.rotate(180.0f, glm::vec3(1.0f, 0.0f, 0.0f));
     }
 
     /* //Quads
-    
-    MyChunk::quad_models = {
-           new Model{ GL_FLOAT, //-x
-            {
-                //positions           //colors              //texture coords
-                3,                    3,                    2,
-            },{
-                0.0f,  1.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
-                0.0f,  1.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
-                0.0f,  0.0f,  1.0f,   1.0f,  1.0f,  1.0f,   1.0f,  1.0f,
-                0.0f,  0.0f,  0.0f,   1.0f,  1.0f,  1.0f,   1.0f,  0.0f,
-            },{
-                0,1,2, 2,3,0
-            }
-        }, new Model{ GL_FLOAT, //+x
-            {
-                //positions           //colors              //texture coords
-                3,                    3,                    2,
-            },{
-                1.0f,  0.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
-                1.0f,  0.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
-                1.0f,  1.0f,  1.0f,   1.0f,  1.0f,  1.0f,   1.0f,  1.0f,
-                1.0f,  1.0f,  0.0f,   1.0f,  1.0f,  1.0f,   1.0f,  0.0f,
-            },{
-                0,1,2, 2,3,0
-            }
-        }, new Model{ GL_FLOAT, //-y
-            {
-                //positions           //colors              //texture coords
-                3,                    3,                    2,
-            },{
-                0.0f,  0.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
-                0.0f,  0.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
-                1.0f,  0.0f,  1.0f,   1.0f,  1.0f,  1.0f,   1.0f,  1.0f,
-                1.0f,  0.0f,  0.0f,   1.0f,  1.0f,  1.0f,   1.0f,  0.0f,
-            },{
-                0,1,2, 2,3,0
-            }
-        }, new Model{ GL_FLOAT, //+y
-            {
-                //positions           //colors              //texture coords
-                3,                    3,                    2,
-            },{
-                1.0f,  1.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
-                1.0f,  1.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
-                0.0f,  1.0f,  1.0f,   1.0f,  1.0f,  1.0f,   1.0f,  1.0f,
-                0.0f,  1.0f,  0.0f,   1.0f,  1.0f,  1.0f,   1.0f,  0.0f,
-            },{
-                0,1,2, 2,3,0
-            }
-        }, new Model{ GL_FLOAT, //-z
-            {
-                //positions           //colors              //texture coords
-                3,                    3,                    2,
-            },{
-                0.0f,  1.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
-                0.0f,  0.0f,  0.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
-                1.0f,  0.0f,  0.0f,   1.0f,  1.0f,  1.0f,   1.0f,  1.0f,
-                1.0f,  1.0f,  0.0f,   1.0f,  1.0f,  1.0f,   1.0f,  0.0f,
-            },{
-                0,1,2, 2,3,0
-            }
-        }, new Model{ GL_FLOAT, //+z
-            {
-                //positions           //colors              //texture coords
-                3,                    3,                    2,
-            },{
-                0.0f,  0.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  0.0f,
-                0.0f,  1.0f,  1.0f,   1.0f,  1.0f,  1.0f,   0.0f,  1.0f,
-                1.0f,  1.0f,  1.0f,   1.0f,  1.0f,  1.0f,   1.0f,  1.0f,
-                1.0f,  0.0f,  1.0f,   1.0f,  1.0f,  1.0f,   1.0f,  0.0f,
-            },{
-                0,1,2, 2,3,0
-            }
-        },
-    };
+
+    //moved quad model to its own file
 
     Shader ref quad_sh = engine->get_shader("Shaders/Quad");
-    for (Model ptr ref model : MyChunk::quad_models)
+    for (Mesh ptr ref model : MyChunk::quad_models)
         model->shader = &quad_sh;
 
     //MCEng stuff
 
-     load_cube_txts();
+    load_cube_txts();
 
     MyGrid grid;
 
@@ -304,7 +170,7 @@ int main(int argc, char const *argv[])
 
     engine->shutdown();
     return 0;
-}  /// main
+}
 
 constexpr string get_file_path(string cref path)
 {

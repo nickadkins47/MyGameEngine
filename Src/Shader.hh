@@ -23,13 +23,17 @@ class Shader
     
     deleteOtherOps(Shader)
 
-    //Shader program ID
-    GLuint ID;
+    GLuint ID; //Shader program ID
+
+    int num_dir_lights = 0;
+    int num_lights = 0;
+
+    void init_lights(int num_dir_lights, int num_lights);
 
     //Use/Activate the Shader; AKA glUseProgram(ID);
     void use() const;
 
-    //TODO? kinda conflicted on these functions, will keep them here for now
+    //TODO? kinda conflicted on these functions, will keep them here for now but commented out
     /* void set_diffuse(Texture cref texture) const;
     void set_specular(Texture cref texture) const;
     void set_texture(int tex_unit, Texture cref texture) const; */
