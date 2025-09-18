@@ -1,6 +1,5 @@
 # Xmake cache
 .xmake/
-build/
 
 # MacOS Cache
 .DS_Store
@@ -8,6 +7,14 @@ build/
 # IDE Stuff
 .vscode
 .vs
+
+# MyGameEngine executable files
+Build/*.exe
+Build/*.exp
+Build/*.lib
+
+# Imgui generated file
+imgui.ini
 
 # Angelscript predefines (now auto-generated)
 as.predefined

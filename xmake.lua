@@ -1,6 +1,6 @@
 
 set_project("MyGameEngine")
-set_version("0.0.0")
+set_version("0.1.0")
 set_xmakever("2.9.9")
 
 add_requires("angelscript 2.37.0")
@@ -14,6 +14,18 @@ add_requires("stb 2025.03.14")
 target("main")
     set_kind("binary")
     set_basename("MyGameEngine")
+    set_extension(".exe")
     add_files("Src/**.cc")
     set_languages("c++23")
     add_packages("angelscript", "assimp", "glad", "glfw", "glm", "imgui", "stb")
+
+    set_warnings("all") -- do "all" normally, and "everything" for all warnings
+    set_targetdir("./Build")
+    set_objectdir("./.xmake/.objs")
+    set_dependir("./.xmake/.deps")
+    set_autogendir("./.xmake/.gens")
+
+    after_build(function (target)
+        os.rm("Build/*.exp")
+        os.rm("Build/*.lib")
+    end)

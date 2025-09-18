@@ -54,12 +54,6 @@
     class_name ref operator=( class_name cref toCopyAssign ) = delete; \
     class_name ref operator=( class_name mov toMoveAssign ) = delete;
 
-//gets the path to the specified file
-//from relative-to-project-directory
-//to relative-to-executable-directory.
-//Ex: ${project dir}/Src/Main.cc ==> ${executable dir}/../../../../Src/Main.cc
-constexpr string get_file_path(string cref path);
-
 //Reads contents of a file from the given path
 //returns a string full of the file's contents if successful
 //otherwise returns std::nullopt if it fails

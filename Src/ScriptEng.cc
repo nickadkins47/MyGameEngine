@@ -68,7 +68,7 @@ int include_cb(
 
 ScriptEng::ScriptEng()
 {
-    std::ofstream predefs(get_file_path("as.predefined"));
+    std::ofstream predefs("as.predefined");
     if (predefs.fail())
     {
         print("ERROR: couldn't open as.predefined\n");

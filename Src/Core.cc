@@ -172,14 +172,9 @@ int main(int argc, char const *argv[])
     return 0;
 }
 
-constexpr string get_file_path(string cref path)
-{
-    return "../../../../" + path;
-}
-
 optional<string> get_file_contents(string cref path)
 {
-    std::ifstream in_file(get_file_path(path));
+    std::ifstream in_file(path);
     if (in_file.fail())
     {
         print("get_file_contents error: cannot find {}\n", path);

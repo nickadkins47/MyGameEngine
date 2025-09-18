@@ -23,7 +23,7 @@ Model::Model(string cref path)
     if (std::filesystem::path(path).extension() == ".dae")
         flip_uvs = false;
 
-    aiScene cptr scene = importer.ReadFile(get_file_path(path), 
+    aiScene cptr scene = importer.ReadFile(path, 
         aiProcess_Triangulate | (flip_uvs ? aiProcess_FlipUVs : 0)
     );
 
