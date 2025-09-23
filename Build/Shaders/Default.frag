@@ -1,5 +1,8 @@
 #version 330 core
 
+#define LIGHTS_NUM 8
+#define TEX_NUM 16
+
 in vec3 f_pos;
 in vec3 f_nor;
 in vec2 f_tex;
@@ -10,35 +13,61 @@ struct Light
 {
     int mode; //0: Ignore, 1: Normal Light, 2: Global Light, 3: Spotlight
 
-    vec3 ambient;     // n g s
     vec3 diffuse;     // n g s
     vec3 specular;    // n g s
+    vec3 ambient;     // n g s
     vec3 attenuation; // n   s
     vec3 position;    // n   s
     vec3 direction;   //   g s
     float bright_rim; //     s
     float dark_rim;   //     s
 };
-#define LIGHTS_NUM 8
 uniform Light lights[LIGHTS_NUM];
 
-struct Material
+struct Tex
 {
-    sampler2D diffuse;
-    sampler2D specular;
-    float shininess;
+    int type; //0: Ignore, 1: Diffuse, 2: Specular, 3: Ambient
+    sampler2D tex;
 };
-uniform Material material;
+uniform Tex textures[TEX_NUM];
 
-uniform sampler2D s_tex0;
-uniform sampler2D s_tex1;
+uniform float shininess;
 
 uniform vec3 view_pos;
+
 vec3 view_dir;
 vec3 normal;
 
-vec3 s2d_diff;
-vec3 s2d_spec;
+vec3 t_diffuse;
+vec3 t_specular;
+vec3 t_ambient;
+
+void assign_or_blend(inout vec3 v, in int i)
+{
+    vec3 tvec = vec3(texture(textures[i].tex, f_tex));
+    v = (all(equal(v, vec3(0.0))))
+        ? tvec
+        : mix(v, tvec, 0.5)
+    ;
+}
+
+void get_texture_values()
+{
+    for (int i = 0; i < TEX_NUM; i++)
+    {
+        switch (textures[i].type)
+        {
+            case 1: assign_or_blend(t_diffuse, i); break;
+            case 2: assign_or_blend(t_specular, i); break;
+            case 3: assign_or_blend(t_ambient, i); break;
+        }
+        //Other texture types currently unhandled
+    }
+
+    //Extra: if ambient is blank, set it to diffuse tex value
+    if (all(equal(t_ambient, vec3(0.0))))
+        t_ambient = t_diffuse;
+}
 
 float calc_luminosity(Light light)
 {
@@ -67,21 +96,21 @@ float calc_intensity(Light light, vec3 light_dir)
 
 vec3 light_calc(Light light)
 {
-    vec3 ambient = light.ambient * s2d_diff;
-
     vec3 light_dir = (light.mode == 2)
         ? normalize(-light.direction) //global light
         : normalize(light.position - f_pos) //spot/normal light
     ;
     float diff = max(dot(normal, light_dir), 0.0);
 
-    vec3 diffuse = light.diffuse * diff * s2d_diff;
+    vec3 diffuse = light.diffuse * diff * t_diffuse;
 
     vec3 reflect_dir = reflect(-light_dir, normal);
     float ispec = max(dot(view_dir, reflect_dir), 0.0);
-    float spec = pow(ispec, material.shininess);
+    float spec = pow(ispec, shininess);
 
-    vec3 specular = light.specular * spec * s2d_spec;
+    vec3 specular = light.specular * spec * t_specular;
+
+    vec3 ambient = light.ambient * t_ambient;
 
     //If light isnt a global light, then calc luminosity
     float luminosity = (light.mode != 2)
@@ -103,9 +132,10 @@ void main()
     view_dir = normalize(view_pos - f_pos);
     normal = normalize(f_nor);
 
-    //TODO: dynamically handle textures
-    s2d_diff = vec3(texture(material.diffuse, f_tex));
-    s2d_spec = vec3(texture(material.specular, f_tex));
+    t_ambient = vec3(0.0);
+    t_diffuse = vec3(0.0);
+    t_specular = vec3(0.0);
+    get_texture_values();
 
     vec3 light_result = vec3(0.0);
 
@@ -116,9 +146,4 @@ void main()
     }
 
     out_color = vec4(light_result, 1.0);
-
-    /* vec4 tex1 = texture(s_tex0, f_tex);
-    vec4 tex2 = texture(s_tex1, f_tex);
-    out_color = mix(tex1, tex2, 0.2) * vec4(light_result, 1.0); */
-    
 } 

@@ -35,9 +35,11 @@ void Mesh::render(Shader cptr shader) const
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
     for (int i = 0; i < textures.size(); i++)
+    {
         shader->sampler2d(i, *textures[i]);
-
-    shader->uniform_f("material.shininess", shininess);
+        shader->uniform_i(format("textures[{}].type", i), textures[i]->type);
+    }
+    shader->uniform_f("shininess", shininess);
 
     //TODO: more options for how to render things? IE like GL_QUADS
     glDrawElements(GL_TRIANGLES, cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);

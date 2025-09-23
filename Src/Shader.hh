@@ -14,9 +14,9 @@
 struct Light
 {
     int mode = 0; //0: Ignore, 1: Normal Light, 2: Global Light, 3: Spotlight
-    glm::vec3 ambient {0.0f};
     glm::vec3 diffuse {0.0f};
     glm::vec3 specular {0.0f};
+    glm::vec3 ambient {0.0f};
     glm::vec3 attenuation {0.0f};
     glm::vec3 position {0.0f};
     glm::vec3 direction {0.0f};
@@ -30,7 +30,7 @@ class Shader
 
     //TODO DESC: Reads & Builds the Shader based on the provided path
     //given (path) has no extensions, it will look for (path).vert & (path).frag
-    static optional<Shader ptr> add(path cref shader_p, int num_lights = 0);
+    static optional<Shader ptr> add(path cref shader_p, int num_textures = 0, int num_lights = 0);
 
     static optional<Shader ptr> get(string cref shader_name);
 

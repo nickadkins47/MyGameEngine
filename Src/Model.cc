@@ -112,30 +112,43 @@ void Model::import_mesh(aiMesh ptr a_mesh, aiScene cptr scene, path cref file_p)
     }
 
     if (a_mesh->mMaterialIndex >= 0)
-    {
-        aiMaterial ptr material = scene->mMaterials[a_mesh->mMaterialIndex];
-        import_material(mesh, material, aiTextureType_DIFFUSE, file_p);
-        import_material(mesh, material, aiTextureType_SPECULAR, file_p);
-    }
+        import_material(mesh, scene->mMaterials[a_mesh->mMaterialIndex], file_p);
 
     mesh.gen_gl_data();
 }
 
-void Model::import_material(Mesh ref mesh, aiMaterial cptr mat, aiTextureType type, path cref file_p)
+void Model::import_material(Mesh ref mesh, aiMaterial cptr mat, path cref file_p)
 {
-    for (uint i = 0; i < mat->GetTextureCount(type); i++)
+    auto static constexpr supported_tex_types = {
+        aiTextureType_DIFFUSE,
+        aiTextureType_SPECULAR,
+        aiTextureType_AMBIENT
+    };
+    for (aiTextureType type : supported_tex_types)
     {
-        aiString texture_fn; //texture's file name
-        mat->GetTexture(type, i, &texture_fn);
-        path const texture_p (file_p.string() + '/' + texture_fn.C_Str());
+        for (uint i = 0; i < mat->GetTextureCount(type); i++)
+        {
+            aiString texture_fn; //texture's file name
+            mat->GetTexture(type, i, &texture_fn);
+            path const texture_p (file_p.string() + '/' + texture_fn.C_Str());
 
-        //Get Texture, or add it if it doenst exist already
-        Texture ptr texture = (Texture::exists(texture_p.string()))
-            ? Texture::get(texture_p.string()).value()
-            : Texture::add(texture_p).value()
-        ;
+            //Get Texture, or add it if it doenst exist already
+            Texture ptr texture = (Texture::exists(texture_p.string()))
+                ? Texture::get(texture_p.string()).value()
+                : Texture::add(texture_p).value()
+            ;
 
-        texture->type = type;
-        mesh.textures.push_back(texture);
+            texture->type = cast<int>(type);
+            mesh.textures.push_back(texture);
+        }
     }
+
+    /* aiReturn got_shiny = aiGetMaterialFloat(mat, AI_MATKEY_SHININESS, &mesh.shininess);
+    print("folder: {} | shiny: {}\n", file_p.string(), mesh.shininess);
+    if (got_shiny == AI_SUCCESS)
+    {
+        //Scale down from ~ 0-1000 -> ~ 0-125 (Within OpenGL's limit of 128)
+        mesh.shininess /= 8.0f;
+    }
+    else mesh.shininess = 32.0f; //Default */
 }

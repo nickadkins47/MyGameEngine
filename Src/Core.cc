@@ -9,9 +9,6 @@
 #include "Core.hh"
 #include "Engine.hh"
 
-//inline glm::vec3 inside glm::value_ptr
-#define ivec3(...) glm::value_ptr(glm::vec3(__VA_ARGS__))
-
 int main(int argc, char ** argv)
 {
     for (int i = 0; i < argc; i++)
@@ -42,7 +39,7 @@ int main(int argc, char ** argv)
         Model::add("Models/Quads/nz.obj");
         Model::add("Models/Quads/pz.obj");
 
-        Shader::add("Shaders/Default", 8);
+        Shader::add("Shaders/Default", 16, 8);
         Shader::add("Shaders/Temp");
 
         Texture::add("Textures/awesomeface.png");
@@ -63,7 +60,7 @@ int main(int argc, char ** argv)
 
     //Light Cubes
 
-    array<glm::vec3, 4> const light_cube_positions {
+    array<glm::vec3, 4> constexpr light_cube_positions {
         glm::vec3( 3.0f,  3.0f,  20.0f),
         glm::vec3( 12.3f, -3.3f,  20.0f),
         glm::vec3(-4.0f,  20.0f,  20.0f),
@@ -76,24 +73,24 @@ int main(int argc, char ** argv)
     {
         sh->lights[i] = {
             .mode = 1,
-            .ambient = glm::vec3(0.0f),
             .diffuse = glm::vec3(0.5f),
             .specular = glm::vec3(1.0f),
+            .ambient = glm::vec3(0.0f),
             .attenuation = glm::vec3(0.025f, 0.05f, 1.0f),
             .position = light_cube_positions[i],
         };
     }
 
-    sh->lights[0].mode = 2;
+    sh->lights[0].mode = 3;
     sh->lights[0].direction = glm::vec3(0.0f, 0.0f, -1.0f);
     sh->lights[0].bright_rim = glm::cos(glm::radians(20.0f));
     sh->lights[0].dark_rim = glm::cos(glm::radians(25.0f));
 
     /* sh->lights[4] = {
         .mode = 2,
-        .ambient = glm::vec3(0.5f),
         .diffuse = glm::vec3(0.5f),
         .specular = glm::vec3(0.5f),
+        .ambient = glm::vec3(0.5f),
         .direction = glm::vec3(0.0f, 0.0f, -1.0f),
     }; */
 
@@ -141,14 +138,6 @@ int main(int argc, char ** argv)
         obj->move_position(glm::vec3{10.0f, -10.0f, 15.0f});
         obj->scale(glm::vec3(0.0325f));
         obj->rotate(90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-    }
-
-    {
-        Obj ptr obj = engine->new_obj("Models/RotatingCube.3DS", "Shaders/Default");
-        obj->model->meshes[0].textures.push_back(Texture::get("Textures/awesomeface.png").value());
-        obj->move_position(glm::vec3{-10.0f, 10.0f, 15.0f});
-        obj->scale(glm::vec3(0.0325f));
-        obj->rotate(180.0f, glm::vec3(1.0f, 0.0f, 0.0f));
     }
 
     //MCEng stuff

@@ -49,7 +49,7 @@ class Mesh
     vector<Vertex> vertices;
     vector<uint> indices;
     vector<Texture ptr> textures;
-    float shininess = 32.0f; //TEMP
+    float shininess = 32.0f;
 
     static void vertex_attribute_array(GLenum val_type, vector<uint> cref attributes);
 

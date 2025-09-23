@@ -10,7 +10,7 @@
 
 Shader::Shader() {}
 
-optional<Shader ptr> Shader::add(path cref shader_p, int num_lights)
+optional<Shader ptr> Shader::add(path cref shader_p, int num_textures, int num_lights)
 {
     Log::info("Adding shaders \"{}\"...", shader_p.string());
 
@@ -85,12 +85,12 @@ optional<Shader ptr> Shader::add(path cref shader_p, int num_lights)
     glDeleteShader(vert_shader);
     glDeleteShader(frag_shader);
 
-    //set sampler 2d indices/slots whatever
     shader->use();
-    shader->uniform_i("material.diffuse", 0);  //Slot 0 = Diffuse
-    shader->uniform_i("material.specular", 1); //Slot 1 = Specular
-    for (int i = 2; i < 16; i++) //Slots 2+ = Textures
-        shader->uniform_i(format("s_tex{}", i-2).c_str(), i);
+    for (int i = 0; i < num_textures; i++)
+    {
+        shader->uniform_i(format("textures[{}].tex", i), i);
+        shader->uniform_i(format("textures[{}].type", i), 0);
+    }
 
     shader->lights.reserve(num_lights);
     for (int i = 0; i < num_lights; i++)
@@ -140,9 +140,9 @@ void Shader::update_light(int index) const
     Light cref light = lights.at(index);
     string const lname = format("lights[{}].", index);
     uniform_i(lname+"mode", light.mode);
-    uniform_fv(lname+"ambient", 3, glm::value_ptr(light.ambient));
     uniform_fv(lname+"diffuse", 3, glm::value_ptr(light.diffuse));
     uniform_fv(lname+"specular", 3, glm::value_ptr(light.specular));
+    uniform_fv(lname+"ambient", 3, glm::value_ptr(light.ambient));
     uniform_fv(lname+"attenuation", 3, glm::value_ptr(light.attenuation));
     uniform_fv(lname+"position", 3, glm::value_ptr(light.position));
     uniform_fv(lname+"direction", 3, glm::value_ptr(light.direction));

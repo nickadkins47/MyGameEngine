@@ -44,6 +44,6 @@ class Model
     void import_node(aiNode ptr node, aiScene cptr scene, path cref file_p);
     void import_mesh(aiMesh ptr mesh, aiScene cptr scene, path cref file_p);
     
-    static void import_material(Mesh ref mesh, aiMaterial cptr mat, aiTextureType type, path cref file_p);
+    static void import_material(Mesh ref mesh, aiMaterial cptr mat, path cref file_p);
 
 };
