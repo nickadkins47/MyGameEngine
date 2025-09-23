@@ -15,8 +15,6 @@ void Obj::render(glm::mat4 cref vp_mat) const
 {
     shader->use();
 
-    shader->uniform_f("material.shininess", 32.0f); //TEMP
-
     //cam's vp_mat * obj's model_mat
     glm::mat4 mvp_mat = vp_mat * model_mat;
 
@@ -28,7 +26,7 @@ void Obj::render(glm::mat4 cref vp_mat) const
 
     shader->uniform_fm("m_mat_itr", 3,3, glm::value_ptr(model_mat_itr));
     
-    model->render(*shader);
+    model->render(shader);
 }
 
 glm::vec3 Obj::get_position() const

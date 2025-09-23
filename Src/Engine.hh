@@ -7,7 +7,6 @@
 
 #pragma once
 
-#include "MCEng/Grid.hh"
 #include "Core.hh"
 #include "Camera.hh"
 #include "InputHandler.hh"
@@ -21,7 +20,7 @@ class Engine
 {
     public:
 
-    Engine(string cref window_name = "MyGameEngine");
+    Engine();
 
     ~Engine();
 
@@ -29,15 +28,11 @@ class Engine
 
     void run();
 
-    Obj ref new_obj(string cref model_path, string cref shader_path);
-
-    Model ref get_model(string cref name);
-    Shader ref get_shader(string cref name);
-    Texture ref get_texture(string cref name);
+    Obj ptr new_obj(string cref model_name, string cref shader_name);
 
     //protected:
 
-    string window_name;
+    string window_name = "MyGameEngine";
     bool valid = true;
 
     int window_width  = 1200;
@@ -52,20 +47,17 @@ class Engine
     InputHandler keyboard {glfwGetKey};
     InputHandler mouse_buttons {glfwGetMouseButton};
 
+    vector<Obj> objs;
+
     unordered_map<string, Model> model_map;
     unordered_map<string, Shader> shader_map;
     unordered_map<string, Texture> texture_map;
 
-    vector<Obj> objs;
-    //TODO: have a more efficient way to store objs/models (multimap?)
-    //s.t. it minimizes the use of model::bind()
-
+    //TODO: Add skybox
     glm::vec3 skybox_color = {0.2f, 0.3f, 0.3f};
 
     void initialize();
     void shutdown();
-
-    void error(string cref error_message);
 
 };
 

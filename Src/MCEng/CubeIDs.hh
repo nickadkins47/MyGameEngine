@@ -8,7 +8,8 @@
 #pragma once
 
 #include "../Core.hh"
-#include "../Texture.hh"
+
+class Texture;
 
 template<typename T>
 using six = array<T,6>;

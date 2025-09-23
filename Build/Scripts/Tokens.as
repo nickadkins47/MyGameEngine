@@ -1,9 +1,6 @@
 //1-to-1 copy of the GLFW keyboard tokens
 enum KeyboardTokens
 {
-    //Printable Keys
-
-    //
     k_space = 32, //no seq
     k_apostrophe = 39, //no seq
     k_comma = 44, //in seq
@@ -55,9 +52,6 @@ enum KeyboardTokens
     k_world_1 = 161, //no seq
     k_world_2 = 162, //no seq
 
-    //Function Keys
-
-    //
     k_escape = 256, //in seq
     k_enter = 257,
     k_tab = 258,

@@ -7,38 +7,43 @@
 
 #pragma once
 
-//#include <assimp/material.h>
-
 #include "Core.hh"
 #include "Mesh.hh"
 #include "Shader.hh"
 
-class aiNode;
-class aiMesh;
-class aiScene;
-class aiMaterial;
+struct aiNode;
+struct aiMesh;
+struct aiScene;
+struct aiMaterial;
 enum aiTextureType;
 
 class Model
 {
     public:
 
-    Model(string cref path);
+    static optional<Model ptr> add(path cref model_p, bool flip_uvs = true);
+
+    static optional<Model ptr> get(string cref model_name);
+
+    static bool exists(string cref model_name);
     
     deleteOtherOps(Model)
 
     bool winding_cw = false; //render Clockwise (CW) instead of Counterclockwise (CCW)
 
-    void render(Shader cref shader) const;
+    void render(Shader cptr shader) const;
 
     //protected:
 
+    Model();
+
     vector<Mesh> meshes;
     
-    //possible TODO: reorganize things once i understand scenes a little better
+    //possible TODO: reorganize things once i understand aiScenes a little better
 
-    void process_node(aiNode ptr node, aiScene cptr scene, string cref path);
-    void process_mesh(aiMesh ptr mesh, aiScene cptr scene, string cref path);
-    void process_material(Mesh ref mesh, aiMaterial cptr mat, aiTextureType type, string cref path);
+    void import_node(aiNode ptr node, aiScene cptr scene, path cref file_p);
+    void import_mesh(aiMesh ptr mesh, aiScene cptr scene, path cref file_p);
+    
+    static void import_material(Mesh ref mesh, aiMaterial cptr mat, aiTextureType type, path cref file_p);
 
 };

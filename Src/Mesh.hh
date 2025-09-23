@@ -36,22 +36,20 @@ class Mesh
     
     //bool use_EBO; //TODO
 
-    //given vertices, generate optimal vertices & indices vectors for this mesh
-    //void gen_optimal_v_i(vector<float> cref base_verts);
-
     //TODO Desc: Creates the model's VAO, VBO, and EBO, from the vertices & indices
     void gen_gl_data();
 
     //Renders the model on screen, based on the model matrix
     //that is loaded into the shader beforehand
     //(Also binds the model's VAO, VBO, and EBO)
-    void render(Shader cref shader) const;
+    void render(Shader cptr shader) const;
 
     //protected:
 
     vector<Vertex> vertices;
     vector<uint> indices;
     vector<Texture ptr> textures;
+    float shininess = 32.0f; //TEMP
 
     static void vertex_attribute_array(GLenum val_type, vector<uint> cref attributes);
 

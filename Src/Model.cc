@@ -5,8 +5,6 @@
  *  @brief: 
  */
 
-#include <filesystem>
-
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -14,29 +12,55 @@
 #include "Engine.hh"
 #include "Model.hh"
 
-Model::Model(string cref path)
+Model::Model() {}
+
+optional<Model ptr> Model::add(path cref model_p, bool flip_uvs)
 {
+    Log::info("Adding model \"{}\" via Assimp...", model_p.string());
     Assimp::Importer importer;
 
-    bool flip_uvs = true;
-
-    if (std::filesystem::path(path).extension() == ".dae")
-        flip_uvs = false;
-
-    aiScene cptr scene = importer.ReadFile(path, 
+    aiScene cptr scene = importer.ReadFile(model_p.string(), 
         aiProcess_Triangulate | (flip_uvs ? aiProcess_FlipUVs : 0)
     );
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) 
     {
-        print("ERROR::ASSIMP::{}\n", importer.GetErrorString());
-        return;
+        Log::warn("Adding model \"{}\" via Assimp: Failed ({})", 
+            model_p.string(), importer.GetErrorString()
+        );
+        return nullopt;
     }
 
-    process_node(scene->mRootNode, scene, std::filesystem::path(path).parent_path().string());
+    Model ptr model = &engine->model_map[model_p.string()];
+
+    model->import_node(scene->mRootNode, scene, model_p.parent_path());
+
+    Log::info("Adding model \"{}\" via Assimp: Success", model_p.string());
+    return model;
 }
 
-void Model::render(Shader cref shader) const
+optional<Model ptr> Model::get(string cref model_name)
+{
+    Log::info("Getting model \"{}\"...", model_name);
+    auto iter = engine->model_map.find(model_name);
+    if (iter == engine->model_map.end())
+    {
+        Log::warn("Getting model \"{}\": Failed", model_name);
+        return nullopt;
+    }
+    else
+    {
+        Log::info("Getting model \"{}\": Success", model_name);
+        return &iter->second;
+    }
+}
+
+bool Model::exists(string cref model_name)
+{
+    return engine->model_map.contains(model_name);
+}
+
+void Model::render(Shader cptr shader) const
 {
     glFrontFace(winding_cw ? GL_CW : GL_CCW);
 
@@ -44,21 +68,21 @@ void Model::render(Shader cref shader) const
         mesh.render(shader);
 }
 
-void Model::process_node(aiNode ptr node, aiScene cptr scene, string cref path)
+void Model::import_node(aiNode ptr node, aiScene cptr scene, path cref file_p)
 {
     for (uint i = 0; i < node->mNumMeshes; i++)
     {
         aiMesh ptr mesh = scene->mMeshes[node->mMeshes[i]];
-        process_mesh(mesh, scene, path);
+        import_mesh(mesh, scene, file_p);
     }
 
     for (uint i = 0; i < node->mNumChildren; i++)
     {
-        process_node(node->mChildren[i], scene, path);
+        import_node(node->mChildren[i], scene, file_p);
     }
 }
 
-void Model::process_mesh(aiMesh ptr a_mesh, aiScene cptr scene, string cref path)
+void Model::import_mesh(aiMesh ptr a_mesh, aiScene cptr scene, path cref file_p)
 {
     Mesh ref mesh = meshes.emplace_back();
 
@@ -90,21 +114,28 @@ void Model::process_mesh(aiMesh ptr a_mesh, aiScene cptr scene, string cref path
     if (a_mesh->mMaterialIndex >= 0)
     {
         aiMaterial ptr material = scene->mMaterials[a_mesh->mMaterialIndex];
-        process_material(mesh, material, aiTextureType_DIFFUSE, path);
-        process_material(mesh, material, aiTextureType_SPECULAR, path);
+        import_material(mesh, material, aiTextureType_DIFFUSE, file_p);
+        import_material(mesh, material, aiTextureType_SPECULAR, file_p);
     }
 
     mesh.gen_gl_data();
 }
 
-void Model::process_material(Mesh ref mesh, aiMaterial cptr mat, aiTextureType type, string cref path)
+void Model::import_material(Mesh ref mesh, aiMaterial cptr mat, aiTextureType type, path cref file_p)
 {
     for (uint i = 0; i < mat->GetTextureCount(type); i++)
     {
-        aiString str;
-        mat->GetTexture(type, i, &str);
-        Texture ref texture = engine->get_texture(path + '/' + string(str.C_Str()));
-        texture.type = type;
-        mesh.textures.push_back(&texture);
+        aiString texture_fn; //texture's file name
+        mat->GetTexture(type, i, &texture_fn);
+        path const texture_p (file_p.string() + '/' + texture_fn.C_Str());
+
+        //Get Texture, or add it if it doenst exist already
+        Texture ptr texture = (Texture::exists(texture_p.string()))
+            ? Texture::get(texture_p.string()).value()
+            : Texture::add(texture_p).value()
+        ;
+
+        texture->type = type;
+        mesh.textures.push_back(texture);
     }
 }

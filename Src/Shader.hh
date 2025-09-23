@@ -10,35 +10,46 @@
 #include "Core.hh"
 #include "Texture.hh"
 
-//inline glm::vec3 inside glm::value_ptr
-#define ivec3(...) glm::value_ptr(glm::vec3(__VA_ARGS__))
+//Refer to comments inside frag shader
+struct Light
+{
+    int mode = 0; //0: Ignore, 1: Normal Light, 2: Global Light, 3: Spotlight
+    glm::vec3 ambient {0.0f};
+    glm::vec3 diffuse {0.0f};
+    glm::vec3 specular {0.0f};
+    glm::vec3 attenuation {0.0f};
+    glm::vec3 position {0.0f};
+    glm::vec3 direction {0.0f};
+    float bright_rim = 0.0f;
+    float dark_rim = 0.0f;
+};
 
 class Shader
 {
     public:
-    
-    //Reads & Builds the Shader based on the provided path
+
+    //TODO DESC: Reads & Builds the Shader based on the provided path
     //given (path) has no extensions, it will look for (path).vert & (path).frag
-    Shader(string cref path);
+    static optional<Shader ptr> add(path cref shader_p, int num_lights = 0);
+
+    static optional<Shader ptr> get(string cref shader_name);
+
+    static bool exists(string cref shader_name);
     
     deleteOtherOps(Shader)
 
     GLuint ID; //Shader program ID
 
-    int num_dir_lights = 0;
-    int num_lights = 0;
-
-    void init_lights(int num_dir_lights, int num_lights);
-
     //Use/Activate the Shader; AKA glUseProgram(ID);
     void use() const;
 
-    //TODO? kinda conflicted on these functions, will keep them here for now but commented out
-    /* void set_diffuse(Texture cref texture) const;
-    void set_specular(Texture cref texture) const;
-    void set_texture(int tex_unit, Texture cref texture) const; */
-
     void sampler2d(int tex_unit, Texture cref texture) const;
+
+    //Updates the GPU's light[index] to match the one in shader class
+    void update_light(int index) const;
+
+    //Updates the position of the GPU's light[index] to match the one in shader class
+    void update_light_pos(int index) const;
 
     void uniform_f(string cref name, float value) const;
 
@@ -54,8 +65,10 @@ class Shader
 
     void uniform_fm(string cref name, int cols, int rows, float cptr value, bool transpose = false) const;
 
-    protected:
+    //protected:
 
-    //...
+    Shader();
+
+    vector<Light> lights;
 
 };

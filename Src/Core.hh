@@ -9,8 +9,11 @@
 
 #include <array>
     using std::array;
+#include <filesystem>
+    using std::filesystem::path;
 #include <format>
     using std::format;
+#include <fstream>
 #include <functional>
     using std::function;
 #include <optional>
@@ -44,8 +47,6 @@
 #define cast static_cast
 #define r_cast reinterpret_cast
 
-#define iprint(arg) print("{}\n", arg)
-
 //put this macro in a class (with the provided className) to delete the
 //auto-generated copy/move constructor/assignment operators for this class
 #define deleteOtherOps(class_name) \
@@ -54,7 +55,4 @@
     class_name ref operator=( class_name cref toCopyAssign ) = delete; \
     class_name ref operator=( class_name mov toMoveAssign ) = delete;
 
-//Reads contents of a file from the given path
-//returns a string full of the file's contents if successful
-//otherwise returns std::nullopt if it fails
-optional<string> get_file_contents(string cref path);
+#include "AuxFuncs.hh"

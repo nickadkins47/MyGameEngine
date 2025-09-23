@@ -5,22 +5,30 @@
  *  @brief: 
  */
 
-#include <fstream>
-
+#include "Engine.hh"
 #include "Shader.hh"
 
-Shader::Shader(string cref path)
+Shader::Shader() {}
+
+optional<Shader ptr> Shader::add(path cref shader_p, int num_lights)
 {
+    Log::info("Adding shaders \"{}\"...", shader_p.string());
+
     int success;
     char info_log[512];
+    path _shader_p (shader_p);
 
-    optional<string> vert_code_str = get_file_contents(path + ".vert");
-    if (vert_code_str == std::nullopt)
+    _shader_p.replace_extension(".vert");
+    optional<string> vert_code_ostr = get_file_contents(_shader_p);
+    if (vert_code_ostr == nullopt)
     {
-        glfwTerminate();
-        return;
+        Log::warn("Adding shaders \"{}\": Failed (Cannot locate \"{}\")",
+            shader_p.string(), _shader_p.string()
+        );
+        return nullopt;
     }
-    char const* vert_code = vert_code_str.value().c_str();
+    string vert_code_str = vert_code_ostr.value();
+    char const* vert_code = vert_code_str.c_str();
 
     GLuint vert_shader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vert_shader, 1, &vert_code, NULL);
@@ -30,17 +38,21 @@ Shader::Shader(string cref path)
     if(!success)
     {
         glGetShaderInfoLog(vert_shader, 512, NULL, info_log);
-        print("ERROR: vert_shader compilation failed:\n{}\n", info_log);
-        return;
-    };
-
-    optional<string> frag_code_str = get_file_contents(path + ".frag");
-    if (frag_code_str == std::nullopt)
-    {
-        glfwTerminate();
-        return;
+        Log::warn("Adding shaders \"{}\": Failed ({})", shader_p.string(), info_log);
+        return nullopt;
     }
-    char const* frag_code = frag_code_str.value().c_str();
+
+    _shader_p.replace_extension(".frag");
+    optional<string> frag_code_ostr = get_file_contents(_shader_p);
+    if (frag_code_ostr == nullopt)
+    {
+        Log::warn("Adding shaders \"{}\": Failed (Cannot locate \"{}\")",
+            shader_p.string(), _shader_p.string()
+        );
+        return nullopt;
+    }
+    string frag_code_str = frag_code_ostr.value();
+    char const* frag_code = frag_code_str.c_str();
 
     GLuint frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(frag_shader, 1, &frag_code, NULL);
@@ -50,43 +62,66 @@ Shader::Shader(string cref path)
     if(!success)
     {
         glGetShaderInfoLog(frag_shader, 512, NULL, info_log);
-        print("ERROR: frag_shader compilation failed:\n{}\n", info_log);
-        return;
-    };
+        Log::warn("Adding shaders \"{}\": Failed ({})", shader_p.string(), info_log);
+        return nullopt;
+    }
 
-    ID = glCreateProgram();
-    glAttachShader(ID, vert_shader);
-    glAttachShader(ID, frag_shader);
-    glLinkProgram(ID);
+    Shader ptr shader = &engine->shader_map[shader_p.string()];
 
-    glGetProgramiv(ID, GL_LINK_STATUS, &success);
+    shader->ID = glCreateProgram();
+    glAttachShader(shader->ID, vert_shader);
+    glAttachShader(shader->ID, frag_shader);
+    glLinkProgram(shader->ID);
+
+    glGetProgramiv(shader->ID, GL_LINK_STATUS, &success);
     if(!success)
     {
-        glGetProgramInfoLog(ID, 512, NULL, info_log);
-        print("ERROR: shader linking failed:\n{}\n", info_log);
-        return;
+        glGetProgramInfoLog(shader->ID, 512, NULL, info_log);
+        Log::warn("Adding shaders \"{}\": Failed ({})", shader_p.string(), info_log);
+        engine->shader_map.erase(shader_p.string());
+        return nullopt;
     }
 
     glDeleteShader(vert_shader);
     glDeleteShader(frag_shader);
 
     //set sampler 2d indices/slots whatever
-    use();
-    uniform_i("material.diffuse", 0);  //Slot 0 = Diffuse
-    uniform_i("material.specular", 1); //Slot 1 = Specular
+    shader->use();
+    shader->uniform_i("material.diffuse", 0);  //Slot 0 = Diffuse
+    shader->uniform_i("material.specular", 1); //Slot 1 = Specular
     for (int i = 2; i < 16; i++) //Slots 2+ = Textures
-        uniform_i(format("s_tex{}", i-2).c_str(), i);
+        shader->uniform_i(format("s_tex{}", i-2).c_str(), i);
+
+    shader->lights.reserve(num_lights);
+    for (int i = 0; i < num_lights; i++)
+    {
+        shader->lights.emplace_back();
+        shader->uniform_i(format("lights[{}].mode", i), 0);
+    }
+
+    Log::info("Adding shaders \"{}\": Success", shader_p.string());
+    return shader;
 }
 
-void Shader::init_lights(int num_dir_lights, int num_lights)
+optional<Shader ptr> Shader::get(string cref shader_name)
 {
-    this->num_dir_lights = num_dir_lights;
-    for (int i = 0; i < num_dir_lights; i++)
-        uniform_i(format("dir_lights[{}].mode", i), 0);
-    
-    this->num_lights = num_lights;
-    for (int i = 0; i < num_lights; i++)
-        uniform_i(format("lights[{}].mode", i), 0);
+    Log::info("Getting shaders \"{}\"...", shader_name);
+    auto iter = engine->shader_map.find(shader_name);
+    if (iter == engine->shader_map.end())
+    {
+        Log::warn("Getting shaders \"{}\": Failed", shader_name);
+        return nullopt;
+    }
+    else
+    {
+        Log::info("Getting shaders \"{}\": Success", shader_name);
+        return &iter->second;
+    }
+}
+
+bool Shader::exists(string cref shader_name)
+{
+    return engine->shader_map.contains(shader_name);
 }
 
 void Shader::use() const
@@ -94,28 +129,30 @@ void Shader::use() const
     glUseProgram(ID);
 }
 
-/* void Shader::set_diffuse(Texture cref texture) const
-{
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture.ID);
-}
-
-void Shader::set_specular(Texture cref texture) const
-{
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, texture.ID);
-}
-
-void Shader::set_texture(int tex_unit, Texture cref texture) const
-{
-    glActiveTexture(GL_TEXTURE2 + tex_unit); //GL_TEXTURE2 because first two slots reserved
-    glBindTexture(GL_TEXTURE_2D, texture.ID);
-} */
-
 void Shader::sampler2d(int tex_unit, Texture cref texture) const
 {
     glActiveTexture(GL_TEXTURE0 + tex_unit);
     glBindTexture(GL_TEXTURE_2D, texture.ID);
+}
+
+void Shader::update_light(int index) const
+{
+    Light cref light = lights.at(index);
+    string const lname = format("lights[{}].", index);
+    uniform_i(lname+"mode", light.mode);
+    uniform_fv(lname+"ambient", 3, glm::value_ptr(light.ambient));
+    uniform_fv(lname+"diffuse", 3, glm::value_ptr(light.diffuse));
+    uniform_fv(lname+"specular", 3, glm::value_ptr(light.specular));
+    uniform_fv(lname+"attenuation", 3, glm::value_ptr(light.attenuation));
+    uniform_fv(lname+"position", 3, glm::value_ptr(light.position));
+    uniform_fv(lname+"direction", 3, glm::value_ptr(light.direction));
+    uniform_f(lname+"bright_rim", light.bright_rim);
+    uniform_f(lname+"dark_rim", light.dark_rim);
+}
+
+void Shader::update_light_pos(int index) const
+{
+    uniform_fv(format("lights[{}].position", index), 3, glm::value_ptr(lights.at(index).position));
 }
 
 void Shader::uniform_f(string cref name, float value) const

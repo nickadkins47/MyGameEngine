@@ -42,25 +42,25 @@ void Camera::update()
 
 void Camera::update_angle()
 {
-    double xpos, ypos;
-    glfwGetCursorPos(engine->window, &xpos, &ypos);
+    double xpos_d, ypos_d;
+    glfwGetCursorPos(engine->window, &xpos_d, &ypos_d);
+    float xpos = cast<float>(xpos_d);
+    float ypos = cast<float>(ypos_d);
 
     float static old_xpos = cast<float>(engine->window_width) / 2.0f;
     float static old_ypos = cast<float>(engine->window_height) / 2.0f;
-    float static const sensitivity = 0.125f;
 
-    if (first_mouse)
+    if (!first_mouse)
     {
-        old_xpos = cast<float>(xpos);
-        old_ypos = cast<float>(ypos);
-        first_mouse = false;
+        //y,x is intentional here, as opposed to x,y.
+        //forgot why angle[0] is being subtracted though.
+        angle[0] -= (ypos - old_ypos) * sensitivity;
+        angle[1] += (xpos - old_xpos) * sensitivity;
     }
+    else first_mouse = false;
 
-    angle[0] -= (cast<float>(ypos) - old_ypos) * sensitivity; //inverted?
-    angle[1] += (cast<float>(xpos) - old_xpos) * sensitivity;
-
-    old_ypos = ypos;
     old_xpos = xpos;
+    old_ypos = ypos;
 
     if (angle[0] < -89.0f) { //constrain pitch to (-90, 90)
         angle[0] = -89.0f;
@@ -74,11 +74,13 @@ void Camera::update_angle()
     }
 }
 
-glm::mat4 Camera::get_vp_mat() const {
+glm::mat4 Camera::get_vp_mat() const
+{
     return proj_mat * glm::lookAt(pos, pos + lookDirF, lookDirU); //proj_mat * view_mat
 }
 
-void Camera::set_proj_mat(float fov_degrees, float near_z, float far_z) {
+void Camera::set_proj_mat(float fov_degrees, float near_z, float far_z)
+{
     float const aspect_ratio = 
         cast<float>(engine->window_width) / 
         cast<float>(engine->window_height);

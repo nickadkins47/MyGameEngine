@@ -7,18 +7,12 @@
 
 #pragma once
 
-#include <stb/stb_perlin.h>
-
 #include "CubeIDs.hh"
 #include "../Core.hh"
-#include "../Model.hh"
-#include "../Obj.hh"
-#include "../Texture.hh"
 
-class MyGrid;
-class Engine;
+class Model;
 
-class MyChunk //: public Obj
+class MyChunk
 {
     public:
     
@@ -43,13 +37,13 @@ class MyChunk //: public Obj
 
     int inline static seed = 0;
 
-    array<Mesh ptr, 6> inline static quad_models;
-
     size_t inline static const x_dim = 8;
     size_t inline static const y_dim = 8;
     size_t inline static const z_dim = 16;
 
-    private:
+    array<Model ptr, 6> inline static quad_models;
+
+    protected:
 
     array<array<array<CubeID, z_dim>, y_dim>, x_dim> _chunk {}; //3d array of cube IDs
 

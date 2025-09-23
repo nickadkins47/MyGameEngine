@@ -10,21 +10,6 @@
 
 Mesh::Mesh() {}
 
-/* void Mesh::gen_optimal_v_i(vector<float> cref base_verts)
-{
-    //TODO: move to chunk & redo it since texture coords will mess it up
-
-    //TEMP: just make some indices for the existing verts
-    vertices = base_verts;
-    uint num_quads = cast<uint>(base_verts.size() / 4);
-    for (uint i = 0; i < num_quads; i += 4)
-    {
-        indices.append_range(vector<uint>{
-            i+0, i+1, i+2,  i+2, i+3, i+0,
-        });
-    }
-} */
-
 void Mesh::gen_gl_data()
 {
     glGenVertexArrays(1, &VAO);
@@ -43,17 +28,19 @@ void Mesh::gen_gl_data()
     vertex_attribute_array(GL_FLOAT, {3, 3, 2});
 }
 
-void Mesh::render(Shader cref shader) const
+void Mesh::render(Shader cptr shader) const
 {
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
     for (int i = 0; i < textures.size(); i++)
-        shader.sampler2d(i, *textures[i]);
+        shader->sampler2d(i, *textures[i]);
+
+    shader->uniform_f("material.shininess", shininess);
 
     //TODO: more options for how to render things? IE like GL_QUADS
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
 }
 
 void Mesh::vertex_attribute_array(GLenum val_type, vector<uint> cref attributes)

@@ -7,21 +7,22 @@
 
 #include "CubeIDs.hh"
 #include "../Engine.hh"
+#include "../Texture.hh"
 
 void load_cube_txts()
 {
     //TODO: use engine->get_texture after reworking all of this
 
-    Texture ptr test1 = &engine->get_texture("Textures/test/test1.png");
-    Texture ptr test2 = &engine->get_texture("Textures/test/test2.png");
-    Texture ptr test3 = &engine->get_texture("Textures/test/test3.png");
-    Texture ptr test4 = &engine->get_texture("Textures/test/test4.png");
-    Texture ptr test5 = &engine->get_texture("Textures/test/test5.png");
-    Texture ptr test6 = &engine->get_texture("Textures/test/test6.png");
+    Texture ptr test1 = Texture::get("Textures/test/test1.png").value();
+    Texture ptr test2 = Texture::get("Textures/test/test2.png").value();
+    Texture ptr test3 = Texture::get("Textures/test/test3.png").value();
+    Texture ptr test4 = Texture::get("Textures/test/test4.png").value();
+    Texture ptr test5 = Texture::get("Textures/test/test5.png").value();
+    Texture ptr test6 = Texture::get("Textures/test/test6.png").value();
 
-    Texture ptr grass_top = &engine->get_texture("Textures/grass_top.png");
-    Texture ptr grass_side = &engine->get_texture("Textures/grass_side.png");
-    Texture ptr grass_bottom = &engine->get_texture("Textures/grass_bottom.png");
+    Texture ptr grass_top = Texture::get("Textures/grass_top.png").value();
+    Texture ptr grass_side = Texture::get("Textures/grass_side.png").value();
+    Texture ptr grass_bottom = Texture::get("Textures/grass_bottom.png").value();
 
     cube_txts = {
         //0 or Undefined value -> "Air" / Empty

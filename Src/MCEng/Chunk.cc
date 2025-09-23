@@ -5,8 +5,12 @@
  *  @brief: 
  */
 
+#include <stb/stb_perlin.h>
+
 #include "Chunk.hh"
 #include "../Engine.hh"
+#include "../Obj.hh"
+#include "../Texture.hh"
 
 MyChunk::MyChunk() {}
 
@@ -17,10 +21,10 @@ CubeID ref MyChunk::at(int x, int y, int z)
 
 void MyChunk::generate(int cx, int cy)
 {
-    for (int lx = 0; lx < x_dim; lx++) { //local x
-        int const x = lx + (cx * x_dim); //global x
-        for (int ly = 0; ly < y_dim; ly++) { //local y
-            int const y = ly + (cy * y_dim); //global y
+    for (int lx = 0; lx < cast<int>(x_dim); lx++) { //local x
+        int const x = lx + (cx * cast<int>(x_dim)); //global x
+        for (int ly = 0; ly < cast<int>(y_dim); ly++) { //local y
+            int const y = ly + (cy * cast<int>(y_dim)); //global y
             //int const z = 1;
             int const z = perlin(x, y, 0.1f, 2.0f, 4.0f);
             _chunk[lx][ly][z] = CubeID::GRASS;
@@ -41,16 +45,15 @@ void MyChunk::register_cube(int lx, int x, int ly, int y, int z, six<bool> cref 
 
     six<Texture ptr> ref textures = cube_txts[at(lx,ly,z)];
 
-    /* for (size_t i = 0; i < 6; i++)
+    for (size_t i = 0; i < 6; i++)
     {
         if (!open_sides[i]) continue; //dont make this face
 
-        Obj obj (quad_models[i], &engine->get_shader("Shaders/Quad"));
-        obj.model->gen_gl_data();
-        obj.textures.push_back(textures[i]);
-        obj.move_position(gpos);
-        engine->objs.push_back(obj);
-    } */
+        //TODO
+        /* Obj ptr obj = engine->new_obj(quad_models[i], "Shaders/Default");
+        obj->model->meshes[0].textures.push_back(textures[i]);
+        obj->move_position(gpos); */
+    }
 
     /* array<glm::vec3, 8> const v {
         glm::vec3{   gx,    gy,    gz},
@@ -92,8 +95,7 @@ int MyChunk::perlin(int x, int y, float in_scale, float out_shift, float out_sca
         seed
     );
     res = out_scale * (res + out_shift);
-    //print("{}\n", res);
-    return res;
+    return cast<int>(res);
 }
 
 /* constexpr array<float, 20> MyChunk::get_from_v_at_indices(array<glm::vec3, 8> cref v, int i1, int i2, int i3, int i4)

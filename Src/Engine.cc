@@ -11,22 +11,35 @@
 
 #include "Engine.hh"
 
-Engine::Engine(string cref window_name)
-: window_name(window_name) {}
+Engine::Engine() {}
 
 Engine::~Engine() {}
 
 void Engine::run()
 {
+    //Init script stuff
     script_engine.run();
 
+    //Init Lights
+    for (auto cref [_, shader] : shader_map)
+    {
+        shader.use();
+        for (int i = 0; i < shader.lights.size(); i++)
+            shader.update_light(i);
+    }
+
+    //Init etc
     double prev_time = glfwGetTime();
     int frame_count = 0;
     int display_fps = 0;
     double display_ms_frame = 0.0;
 
+    Shader ptr sh_def = Shader::get("Shaders/Default").value();
+
     for (/**/; !glfwWindowShouldClose(window); glfwPollEvents())
     {
+        if (!valid) return; //If game engine is to shut down, then break here
+
         //ImGui New Frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -39,8 +52,6 @@ void Engine::run()
         {
             display_fps = frame_count;
             display_ms_frame = 1000.0 / cast<double>(frame_count);
-            //print("{} FPS, {} ms/frame\n", display_fps, display_ms_frame);
-            
             prev_time += 1.0;
             frame_count = 0;
         }
@@ -74,12 +85,15 @@ void Engine::run()
             shader.uniform_fv("view_pos", 3, glm::value_ptr(camera.pos));
         }
 
-        //TEMP: light source at objs[0];
-        Shader cref sh_m = get_shader("Shaders/Default");
-        sh_m.use();
-        sh_m.uniform_fv("lights[0].position", 3, glm::value_ptr(objs[0].get_position())); 
+        //TEMP: moving light source at objs[0];
+        if (objs.size() > 0)
+        {
+            sh_def->use();
+            sh_def->lights[0].position = objs[0].get_position();
+            sh_def->update_light_pos(0);
+        }
 
-        //General Rendering
+        //Rendering
 
         glClearColor(skybox_color.x, skybox_color.y, skybox_color.z, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -110,34 +124,23 @@ void Engine::run()
     }
 }
 
-Obj ref Engine::new_obj(string cref model_path, string cref shader_path)
+Obj ptr Engine::new_obj(string cref model_name, string cref shader_name)
 {
-    return objs.emplace_back(&get_model(model_path), &get_shader(shader_path));
-}
-
-Model ref Engine::get_model(string cref name)
-{
-    return (*model_map.try_emplace(name, name).first).second;
-}
-
-Shader ref Engine::get_shader(string cref name)
-{
-    return (*shader_map.try_emplace(name, name).first).second;
-}
-
-Texture ref Engine::get_texture(string cref name)
-{
-    return (*texture_map.try_emplace(name, name).first).second;
+    return &objs.emplace_back(Model::get(model_name).value(), Shader::get(shader_name).value());
 }
 
 void Engine::initialize()
 {
-    print("Game Engine: Initializing\n");
+    Log::info("Initializing...");
 
     //GLFW Init
     
     if (!glfwInit())
-        return error("Failed to initialize GLFW");
+    {
+        Log::error("Initializing: Failed (Initializing GLFW)");
+        shutdown();
+        return;
+    }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); //v3.3
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -145,7 +148,11 @@ void Engine::initialize()
 
     window = glfwCreateWindow(window_width, window_height, window_name.c_str(), NULL, NULL);
     if (window == NULL)
-        return error("Failed to create GLFW window");
+    {
+        Log::error("Initializing: Failed (Initializing GLFW Window)");
+        shutdown();
+        return;
+    }
     
     glfwMakeContextCurrent(window);
 
@@ -154,7 +161,11 @@ void Engine::initialize()
     //GLAD Init
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-        return error("Failed to initialize GLAD");
+    {
+        Log::error("Initializing: Failed (Initializing GLAD)");
+        shutdown();
+        return;
+    }
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -178,11 +189,18 @@ void Engine::initialize()
         engine->window_height = height;
     });
 
+    /* glfwSetKeyCallback(window, [](GLFWwindow ptr window, int key, int scancode, int action, int mods)
+    {
+
+    }); */
+
+    Log::info("Initializing: Success");
 }
 
 void Engine::shutdown()
 {
-    print("Game Engine: Shutting Down\n");
+    Log::info("Shutting Down");
+    valid = false;
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
@@ -192,10 +210,4 @@ void Engine::shutdown()
 
     //TODO: more detailed terminate?
     //also learn more about deleting certain specific things
-}
-
-void Engine::error(string cref error_message)
-{
-    print("Game Engine: {}\n", error_message); //TODO print to stderr?
-    shutdown();
 }

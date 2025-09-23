@@ -32,6 +32,8 @@ class Camera
 
     bool first_mouse = false;
 
+    float sensitivity = 0.125f;
+
     function<float(void)> move_speed_func = [](){return 1.0f;};
 
     //protected:

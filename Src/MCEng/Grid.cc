@@ -21,7 +21,7 @@ CubeID ref MyGrid::at(int x, int y, int z)
 {
     return this->chunk(
         cast<int>(std::floor(cast<double>(x) / MyChunk::x_dim)), //floor to lowest multiple of x/y_dim
-        cast<int>(std::floor(cast<double>(y) / MyChunk::y_dim))  //
+        cast<int>(std::floor(cast<double>(y) / MyChunk::y_dim))
     ).at(
         x % MyChunk::x_dim, y % MyChunk::y_dim, z
     );
@@ -32,20 +32,29 @@ void MyGrid::load(int cx, int cy)
     MyChunk ref chk = this->chunk(cx,cy);
     if (chk.is_ren) return;
 
-    for (int xs : {-1,0,1}) { //generate all neighboring chunks
-        for (int ys : {-1,0,1}) {
+    for (int xs : {-1,0,1}) //generate all neighboring chunks
+    {
+        for (int ys : {-1,0,1})
+        {
             MyChunk ref neighbor = this->chunk(cx+xs,cy+ys);
             if (!neighbor.is_gen) neighbor.generate(cx+xs,cy+ys);
         }
     }
 
-    for (size_t lx = 0; lx < chk.x_dim; lx++) { //local x
-        int const x = lx + (cx * chk.x_dim); //global x
-        for (size_t ly = 0; ly < chk.y_dim; ly++) { //local y
-            int const y = ly + (cy * chk.y_dim); //global y
-            for (size_t z = 0; z < chk.z_dim; z++) { //local & global z
-                //if (x,y,z) is 0 (air) or undefined, dont draw anything for that block
-                if (is_open(x,y,z)) continue;
+    for (size_t lx = 0; lx < chk.x_dim; lx++) //local x
+    {
+        int const x = cast<int>(lx) + (cx * cast<int>(chk.x_dim)); //global x
+
+        for (size_t ly = 0; ly < chk.y_dim; ly++) //local y
+        {
+            int const y = cast<int>(ly) + (cy * cast<int>(chk.y_dim)); //global y
+
+            for (size_t lz = 0; lz < chk.z_dim; lz++) //local z
+            {
+                int const z = cast<int>(lz); //global z (== local z, for 2D chunks)
+
+                if (is_open(x,y,z)) continue; //if (x,y,z) is 0 (air) or undefined, dont render block
+
                 six<bool> const open_sides = {
                     is_open(x-1,y,z), //is block at(x,y,z) air/empty/invalid?
                     is_open(x+1,y,z),
@@ -54,10 +63,12 @@ void MyGrid::load(int cx, int cy)
                     is_open(x,y,z-1),
                     is_open(x,y,z+1),
                 };
-                chk.register_cube(lx, x, ly, y, z, open_sides);
+
+                chk.register_cube(cast<int>(lx), x, cast<int>(ly), y, z, open_sides);
             }
         }
     }
+    chk.is_ren = true;
 }
 
 bool MyGrid::is_open(int x, int y, int z)
