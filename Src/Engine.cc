@@ -35,6 +35,9 @@ void Engine::run()
     int display_fps = 0;
     double display_ms_frame = 0.0;
 
+    //Init Camera values
+    camera.update_angle(0.0f, 0.0f);
+
     //Main Engine Loop
     for (/**/; !glfwWindowShouldClose(window); glfwPollEvents())
     {
@@ -60,25 +63,11 @@ void Engine::run()
         ImGui::Text("%4.3lf ms/frame", display_ms_frame);
         ImGui::End();
 
-        //General Calculations
+        //Run Callbacks
+        for (auto cref cb : runtime_cbs)
+            cb();
 
-        if (is_selected_func())
-        {
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-            camera.update_angle();
-        }
-        else
-        {
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-            camera.first_mouse = true;
-        }
-
-        mouse_buttons.update(window);
-        keyboard.update(window);
-        camera.update();
-
-        glm::mat4 const vp_mat = camera.get_vp_mat();
-
+        //Update camera values in all shaders
         for (auto cref [_, shader] : shader_map)
         {
             shader.use();
@@ -100,6 +89,8 @@ void Engine::run()
         }
 
         //Rendering
+
+        glm::mat4 const vp_mat = camera.get_vp_mat();
 
         glClearColor(skybox_color.x, skybox_color.y, skybox_color.z, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -127,6 +118,10 @@ void Engine::run()
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window); //update screen
+
+        //Reset action flags (IE GLFW_PRESS, GLFW_RELEASE, etc)
+        keyboard.reset();
+        mouse_buttons.reset();
     }
 }
 
@@ -195,10 +190,15 @@ void Engine::initialize()
         engine->window_height = height;
     });
 
-    /* glfwSetKeyCallback(window, [](GLFWwindow ptr window, int key, int scancode, int action, int mods)
+    glfwSetKeyCallback(window, [](GLFWwindow ptr window, int key, int scancode, int action, int mods)
     {
+        engine->keyboard.set(key, action);
+    });
 
-    }); */
+    glfwSetMouseButtonCallback(window, [](GLFWwindow ptr window, int button, int action, int mods)
+    {
+        engine->mouse_buttons.set(button, action);
+    });
 
     Log::info("Initializing: Success");
 }

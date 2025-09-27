@@ -11,9 +11,9 @@
 
 int main(int argc, char ** argv)
 {
-    for (int i = 0; i < argc; i++)
+    //check arguments
+    for (string cref arg : vector<string>{argv, argv + argc})
     {
-        string arg (argv[i]);
         if (arg == "-L1") Log::init_logging(1);
         if (arg == "-L2") Log::init_logging(2);
         if (arg == "-L3") Log::init_logging(3);
@@ -96,18 +96,16 @@ int main(int argc, char ** argv)
     }
     engine->lights[0].follower_index = 0;
 
-    engine->keyboard[GLFW_KEY_3].on_press = [](){
-        engine->objs[0].move_position(glm::vec3{0.1f, 0.1f, 0.0f});
-    };
-    engine->keyboard[GLFW_KEY_4].on_press = [](){
-        engine->objs[0].move_position(glm::vec3{-0.1f, -0.1f, 0.0f});
-    };
-    engine->keyboard[GLFW_KEY_5].on_press = [](){
-        engine->objs[0].move_position(glm::vec3{0.0f, 0.0f, 0.1f});
-    };
-    engine->keyboard[GLFW_KEY_6].on_press = [](){
-        engine->objs[0].move_position(glm::vec3{0.0f, 0.0f, -0.1f});
-    };
+    engine->runtime_cbs.push_back([](){
+        if (engine->keyboard[GLFW_KEY_3].is_down)
+            engine->objs[0].move_position(glm::vec3{0.1f, 0.1f, 0.0f});
+        if (engine->keyboard[GLFW_KEY_4].is_down)
+            engine->objs[0].move_position(glm::vec3{-0.1f, -0.1f, 0.0f});
+        if (engine->keyboard[GLFW_KEY_5].is_down)
+            engine->objs[0].move_position(glm::vec3{0.0f, 0.0f, 0.1f});
+        if (engine->keyboard[GLFW_KEY_6].is_down)
+            engine->objs[0].move_position(glm::vec3{0.0f, 0.0f, -0.1f});
+    });
 
     {
         Obj ptr obj = engine->new_obj("Models/FlatGround.obj", "Shaders/Default");
@@ -156,22 +154,33 @@ int main(int argc, char ** argv)
         }
     } */
 
-    //Other
+    //Other Runtime Callbacks
 
-    engine->camera.move_speed_func = [](){
-        return (engine->keyboard[GLFW_KEY_LEFT_SHIFT].is_pressed)
-            ? 0.5f
-        : (engine->keyboard[GLFW_KEY_LEFT_CONTROL].is_pressed)
-            ? 0.03125f
-        //Else, Default to
-            : 0.125f
+    engine->runtime_cbs.push_back([](){
+        auto ref kbd = engine->keyboard;
+        bool movements[6] {
+            kbd[GLFW_KEY_W].is_down, kbd[GLFW_KEY_S].is_down, // +/- Forward
+            kbd[GLFW_KEY_A].is_down, kbd[GLFW_KEY_D].is_down, // +/- Left
+            kbd[GLFW_KEY_Q].is_down, kbd[GLFW_KEY_E].is_down, // +/- Up
+        };
+
+        float move_speed = 
+            (engine->keyboard[GLFW_KEY_LEFT_SHIFT].is_down)?   0.5f :
+            (engine->keyboard[GLFW_KEY_LEFT_CONTROL].is_down)? 0.03125f :
+            /*Default*/ 0.125f
         ;
-    };
+        
+        engine->camera.pos += move_speed * (
+            engine->camera.lookDirF * cast<float>(movements[0] - movements[1]) +
+            engine->camera.lookDirL * cast<float>(movements[2] - movements[3]) +
+            engine->camera.lookDirU * cast<float>(movements[4] - movements[5])
+        );
+    });
 
-    engine->is_selected_func = [](){
+    engine->runtime_cbs.push_back([](){
         static bool is_tab_mode = false, tab_available = true;
         
-        if (engine->keyboard[GLFW_KEY_TAB].is_pressed)
+        if (engine->keyboard[GLFW_KEY_TAB].is_down)
         {
             if (tab_available)
             {
@@ -181,8 +190,19 @@ int main(int argc, char ** argv)
         }
         else tab_available = true;
 
-        return is_tab_mode | engine->mouse_buttons[GLFW_MOUSE_BUTTON_LEFT].is_pressed;
-    };
+        if (is_tab_mode || engine->mouse_buttons[GLFW_MOUSE_BUTTON_LEFT].is_down)
+        {
+            glfwSetInputMode(engine->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            double xpos_d, ypos_d;
+            glfwGetCursorPos(engine->window, &xpos_d, &ypos_d);
+            engine->camera.update_angle(cast<float>(xpos_d), cast<float>(ypos_d));
+        }
+        else
+        {
+            glfwSetInputMode(engine->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            engine->camera.first_mouse = true;
+        }
+    });
 
     //Run Engine (Loop)
 

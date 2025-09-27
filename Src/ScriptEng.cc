@@ -17,7 +17,7 @@
 #define m_str(s) #s
 
 //Same as global_func, but with seperate parameter lists for C++ & AS
-#define global_func_sp(ret, name, cc_params, as_params, cap, body) \
+#define global_func_sp(ret, name, cap, cc_params, as_params, body) \
     char cptr _s_##name = m_str(ret name##as_params); \
     Log::info("Script Global Func \"{}\"...", _s_##name); \
     typedef ret (*_t_##name)##cc_params; \
@@ -33,8 +33,8 @@
     predefs << _s_##name << ";\n";
 
 //Macro for defining a function in the Scripts that interfaces with the C++ code
-#define global_func(ret, name, params, cap, body) \
-    global_func_sp(ret, name, params, params, cap, body)
+#define global_func(ret, name, cap, params, body) \
+    global_func_sp(ret, name, cap, params, params, body)
 
 //Macro for creating function definitions
 #define funcdef(ret, name, params) \
@@ -111,34 +111,36 @@ ScriptEng::ScriptEng()
     funcdef(void, VoidCallback, ());
 
     global_func_sp(
-        void, kbd_on_press, (int token, asIScriptFunction ptr cb),
-        (int token, VoidCallback @cb), [],
+        void, kbd_on_press, [],
+        (int token, asIScriptFunction ptr cb),
+        (int token, VoidCallback @cb),
     {
         engine->script_engine.s_funcs.push_back(cb);
-        engine->keyboard[token].on_press = [cb](){
-            engine->script_engine.run_as_function(cb);
-        };
+        engine->runtime_cbs.push_back([cb, token](){
+            if (engine->keyboard[token].is_down)
+                engine->script_engine.run_as_function(cb);
+        });
     });
 
-    global_func(void, camera_proj_mat, (float fov_degrees, float near_z, float far_z), [], {
+    global_func(void, camera_proj_mat, [], (float fov_degrees, float near_z, float far_z), {
         engine->camera.set_proj_mat(fov_degrees, near_z, far_z);
     });
 
-    global_func(void, camera_pos, (float x, float y, float z), [], {
+    global_func(void, camera_pos, [], (float x, float y, float z), {
         engine->camera.pos = glm::vec3(x,y,z);
     });
 
     //General Functions
 
-    global_func(void, exit, (), [], {
+    global_func(void, exit, [], (), {
         glfwSetWindowShouldClose(engine->window, true);
     });
 
-    global_func(void, option_draw_lines, (), [], {
+    global_func(void, option_draw_lines, [], (), {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     });
 
-    global_func(void, option_draw_fill, (), [], {
+    global_func(void, option_draw_fill, [], (), {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     });
     

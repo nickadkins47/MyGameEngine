@@ -7,9 +7,9 @@
 
 #pragma once
 
+#include "ButtonHandler.hh"
 #include "Core.hh"
 #include "Camera.hh"
-#include "InputHandler.hh"
 #include "Light.hh"
 #include "Model.hh"
 #include "Obj.hh"
@@ -36,25 +36,26 @@ class Engine
     string window_name = "MyGameEngine";
     bool valid = true;
 
+    GLFWwindow ptr window = nullptr;
     int window_width  = 1200;
     int window_height = 900;
 
-    function<bool(void)> is_selected_func = [](){return false;};
-
-    GLFWwindow ptr window = nullptr;
-    Camera camera;
     ScriptEng script_engine;
 
-    InputHandler keyboard {glfwGetKey};
-    InputHandler mouse_buttons {glfwGetMouseButton};
+    ButtonHandler keyboard;
+    ButtonHandler mouse_buttons;
+    Camera camera;
 
     vector<Obj> objs;
     vector<Light> lights;
 
-    //unordered_map<string, Obj> obj_map;
+    //unordered_map<string, Obj> obj_map; //TODO maybe?
     unordered_map<string, Model> model_map;
     unordered_map<string, Shader> shader_map;
     unordered_map<string, Texture> texture_map;
+
+    //Callbacks for the engine to run every frame
+    vector<function<void(void)>> runtime_cbs;
 
     //TODO: Add skybox
     glm::vec3 skybox_color = {0.2f, 0.3f, 0.3f};
