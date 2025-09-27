@@ -21,7 +21,7 @@ class Model
 {
     public:
 
-    static optional<Model ptr> add(path cref model_p, bool flip_uvs = true);
+    static optional<Model ptr> add(path cref model_p, bool winding_cw = false, bool flip_uvs = true);
 
     static optional<Model ptr> get(string cref model_name);
 

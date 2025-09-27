@@ -137,13 +137,13 @@ void main()
     t_specular = vec3(0.0);
     get_texture_values();
 
-    vec3 light_result = vec3(0.0);
+    vec3 result = vec3(0.0);
 
     for (int i = 0; i < LIGHTS_NUM; i++)
     {
         if (lights[i].mode != 0)
-            light_result += light_calc(lights[i]);
+            result += light_calc(lights[i]);
     }
 
-    out_color = vec4(light_result, 1.0);
+    out_color = vec4(result, 1.0);
 } 

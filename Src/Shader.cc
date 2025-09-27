@@ -10,7 +10,7 @@
 
 Shader::Shader() {}
 
-optional<Shader ptr> Shader::add(path cref shader_p, int num_textures, int num_lights)
+optional<Shader ptr> Shader::add(path cref shader_p, int num_lights, int num_textures)
 {
     Log::info("Adding shaders \"{}\"...", shader_p.string());
 
@@ -86,17 +86,14 @@ optional<Shader ptr> Shader::add(path cref shader_p, int num_textures, int num_l
     glDeleteShader(frag_shader);
 
     shader->use();
+    for (int i = 0; i < num_lights; i++)
+    {
+        shader->uniform_i(format("lights[{}].mode", i), 0);
+    }
     for (int i = 0; i < num_textures; i++)
     {
         shader->uniform_i(format("textures[{}].tex", i), i);
         shader->uniform_i(format("textures[{}].type", i), 0);
-    }
-
-    shader->lights.reserve(num_lights);
-    for (int i = 0; i < num_lights; i++)
-    {
-        shader->lights.emplace_back();
-        shader->uniform_i(format("lights[{}].mode", i), 0);
     }
 
     Log::info("Adding shaders \"{}\": Success", shader_p.string());
@@ -133,26 +130,6 @@ void Shader::sampler2d(int tex_unit, Texture cref texture) const
 {
     glActiveTexture(GL_TEXTURE0 + tex_unit);
     glBindTexture(GL_TEXTURE_2D, texture.ID);
-}
-
-void Shader::update_light(int index) const
-{
-    Light cref light = lights.at(index);
-    string const lname = format("lights[{}].", index);
-    uniform_i(lname+"mode", light.mode);
-    uniform_fv(lname+"diffuse", 3, glm::value_ptr(light.diffuse));
-    uniform_fv(lname+"specular", 3, glm::value_ptr(light.specular));
-    uniform_fv(lname+"ambient", 3, glm::value_ptr(light.ambient));
-    uniform_fv(lname+"attenuation", 3, glm::value_ptr(light.attenuation));
-    uniform_fv(lname+"position", 3, glm::value_ptr(light.position));
-    uniform_fv(lname+"direction", 3, glm::value_ptr(light.direction));
-    uniform_f(lname+"bright_rim", light.bright_rim);
-    uniform_f(lname+"dark_rim", light.dark_rim);
-}
-
-void Shader::update_light_pos(int index) const
-{
-    uniform_fv(format("lights[{}].position", index), 3, glm::value_ptr(lights.at(index).position));
 }
 
 void Shader::uniform_f(string cref name, float value) const

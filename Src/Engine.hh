@@ -10,6 +10,7 @@
 #include "Core.hh"
 #include "Camera.hh"
 #include "InputHandler.hh"
+#include "Light.hh"
 #include "Model.hh"
 #include "Obj.hh"
 #include "ScriptEng.hh"
@@ -48,7 +49,9 @@ class Engine
     InputHandler mouse_buttons {glfwGetMouseButton};
 
     vector<Obj> objs;
+    vector<Light> lights;
 
+    //unordered_map<string, Obj> obj_map;
     unordered_map<string, Model> model_map;
     unordered_map<string, Shader> shader_map;
     unordered_map<string, Texture> texture_map;

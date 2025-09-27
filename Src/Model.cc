@@ -14,7 +14,7 @@
 
 Model::Model() {}
 
-optional<Model ptr> Model::add(path cref model_p, bool flip_uvs)
+optional<Model ptr> Model::add(path cref model_p, bool winding_cw, bool flip_uvs)
 {
     Log::info("Adding model \"{}\" via Assimp...", model_p.string());
     Assimp::Importer importer;
@@ -32,6 +32,7 @@ optional<Model ptr> Model::add(path cref model_p, bool flip_uvs)
     }
 
     Model ptr model = &engine->model_map[model_p.string()];
+    model->winding_cw = winding_cw;
 
     model->import_node(scene->mRootNode, scene, model_p.parent_path());
 

@@ -24,18 +24,18 @@ void Engine::run()
     for (auto cref [_, shader] : shader_map)
     {
         shader.use();
-        for (int i = 0; i < shader.lights.size(); i++)
-            shader.update_light(i);
+        for (int i = 0; i < lights.size(); i++)
+            lights[i].update(i, &shader);
     }
 
-    //Init etc
+    //Init FPS Counter
+    double constexpr one_second = 1.0;
     double prev_time = glfwGetTime();
     int frame_count = 0;
     int display_fps = 0;
     double display_ms_frame = 0.0;
 
-    Shader ptr sh_def = Shader::get("Shaders/Default").value();
-
+    //Main Engine Loop
     for (/**/; !glfwWindowShouldClose(window); glfwPollEvents())
     {
         if (!valid) return; //If game engine is to shut down, then break here
@@ -48,11 +48,11 @@ void Engine::run()
         //FPS Count Handler
         double current_time = glfwGetTime();
         frame_count++;
-        if (current_time - prev_time >= 1.0)
+        if (current_time - prev_time >= one_second) //if a second has passed
         {
             display_fps = frame_count;
             display_ms_frame = 1000.0 / cast<double>(frame_count);
-            prev_time += 1.0;
+            prev_time += one_second;
             frame_count = 0;
         }
         ImGui::Begin("FPS Counter");
@@ -85,12 +85,18 @@ void Engine::run()
             shader.uniform_fv("view_pos", 3, glm::value_ptr(camera.pos));
         }
 
-        //TEMP: moving light source at objs[0];
-        if (objs.size() > 0)
+        //Update moving lights
+        for (int i = 0; i < lights.size(); i++)
         {
-            sh_def->use();
-            sh_def->lights[0].position = objs[0].get_position();
-            sh_def->update_light_pos(0);
+            if (lights[i].follower_index >= 0)
+            {
+                lights[i].position = engine->objs[lights[i].follower_index].get_position();
+                for (auto cref [_, shader] : shader_map)
+                {
+                    shader.use();
+                    lights[i].update_pos(i, &shader);
+                }
+            }
         }
 
         //Rendering
@@ -137,7 +143,7 @@ void Engine::initialize()
     
     if (!glfwInit())
     {
-        Log::error("Initializing: Failed (Initializing GLFW)");
+        Log::error("Initializing: Failed (Couldn't initialize GLFW)");
         shutdown();
         return;
     }
@@ -149,7 +155,7 @@ void Engine::initialize()
     window = glfwCreateWindow(window_width, window_height, window_name.c_str(), NULL, NULL);
     if (window == NULL)
     {
-        Log::error("Initializing: Failed (Initializing GLFW Window)");
+        Log::error("Initializing: Failed (Couldn't initialize GLFW Window)");
         shutdown();
         return;
     }
@@ -162,7 +168,7 @@ void Engine::initialize()
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        Log::error("Initializing: Failed (Initializing GLAD)");
+        Log::error("Initializing: Failed (Couldn't initialize GLAD)");
         shutdown();
         return;
     }

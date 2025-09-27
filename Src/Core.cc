@@ -26,20 +26,19 @@ int main(int argc, char ** argv)
     
     {
         Model::add("Models/Backpack/backpack.obj");
-        Model::add("Models/Duck/duck.dae", false);
+        Model::add("Models/Duck/duck.dae", false, false);
         Model::add("Models/Spider/spider.obj");
-        Model::add("Models/FlatGround.obj");
-        Model::add("Models/RotatingCube.3DS");
-        Model::add("Models/TutorialCube.obj");
+        Model::add("Models/FlatGround.obj", true);
+        Model::add("Models/TutorialCube.obj", true);
 
-        Model::add("Models/Quads/nx.obj");
-        Model::add("Models/Quads/px.obj");
-        Model::add("Models/Quads/ny.obj");
-        Model::add("Models/Quads/py.obj");
-        Model::add("Models/Quads/nz.obj");
-        Model::add("Models/Quads/pz.obj");
+        Model::add("Models/Quads/nx.obj", true);
+        Model::add("Models/Quads/px.obj", true);
+        Model::add("Models/Quads/ny.obj", true);
+        Model::add("Models/Quads/py.obj", true);
+        Model::add("Models/Quads/nz.obj", true);
+        Model::add("Models/Quads/pz.obj", true);
 
-        Shader::add("Shaders/Default", 16, 8);
+        Shader::add("Shaders/Default", 8, 16);
         Shader::add("Shaders/Temp");
 
         Texture::add("Textures/awesomeface.png");
@@ -61,45 +60,41 @@ int main(int argc, char ** argv)
     //Light Cubes
 
     array<glm::vec3, 4> constexpr light_cube_positions {
-        glm::vec3( 3.0f,  3.0f,  20.0f),
+        glm::vec3( 10.0f,  10.0f,  20.0f),
         glm::vec3( 12.3f, -3.3f,  20.0f),
         glm::vec3(-4.0f,  20.0f,  20.0f),
         glm::vec3( 0.0f,  -10.0f,  20.0f)
     };
 
-    Shader ptr sh = Shader::get("Shaders/Default").value();
-
     for (int i = 0; i < 4; i++)
     {
-        sh->lights[i] = {
-            .mode = 1,
-            .diffuse = glm::vec3(0.5f),
-            .specular = glm::vec3(1.0f),
-            .ambient = glm::vec3(0.0f),
-            .attenuation = glm::vec3(0.025f, 0.05f, 1.0f),
-            .position = light_cube_positions[i],
-        };
+        Light ref light = engine->lights.emplace_back();
+        light.mode = 1;
+        light.diffuse = glm::vec3(0.5f);
+        light.specular = glm::vec3(1.0f);
+        light.ambient = glm::vec3(0.0f);
+        light.attenuation = glm::vec3(0.025f, 0.05f, 1.0f);
+        light.position = light_cube_positions[i];
     }
 
-    sh->lights[0].mode = 3;
-    sh->lights[0].direction = glm::vec3(0.0f, 0.0f, -1.0f);
-    sh->lights[0].bright_rim = glm::cos(glm::radians(20.0f));
-    sh->lights[0].dark_rim = glm::cos(glm::radians(25.0f));
+    engine->lights[0].mode = 3;
+    engine->lights[0].direction = glm::vec3(0.0f, 0.0f, -1.0f);
+    engine->lights[0].bright_rim = glm::cos(glm::radians(20.0f));
+    engine->lights[0].dark_rim = glm::cos(glm::radians(25.0f));
 
-    /* sh->lights[4] = {
-        .mode = 2,
-        .diffuse = glm::vec3(0.5f),
-        .specular = glm::vec3(0.5f),
-        .ambient = glm::vec3(0.5f),
-        .direction = glm::vec3(0.0f, 0.0f, -1.0f),
-    }; */
+    /* Light ref directional_light = engine->lights.emplace_back();
+    directional_light.mode = 2;
+    directional_light.diffuse = glm::vec3(0.5f);
+    directional_light.specular = glm::vec3(0.5f);
+    directional_light.ambient = glm::vec3(0.5f);
+    directional_light.direction = glm::vec3(0.0f, 0.0f, -1.0f); */
 
     for (auto ref pos : light_cube_positions)
     {
         Obj ptr obj = engine->new_obj("Models/TutorialCube.obj", "Shaders/Temp");
-        obj->model->winding_cw = true;
         obj->move_position(pos);
     }
+    engine->lights[0].follower_index = 0;
 
     engine->keyboard[GLFW_KEY_3].on_press = [](){
         engine->objs[0].move_position(glm::vec3{0.1f, 0.1f, 0.0f});
@@ -116,7 +111,6 @@ int main(int argc, char ** argv)
 
     {
         Obj ptr obj = engine->new_obj("Models/FlatGround.obj", "Shaders/Default");
-        obj->model->winding_cw = true;
         obj->move_position(glm::vec3{0.0f, 0.0f, -3.0f});
         obj->scale(glm::vec3{128.0f});
     }
