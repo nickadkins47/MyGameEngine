@@ -11,7 +11,7 @@
 
 //Keeps track of external inputs for any given type of GLFW Input
 //Ex: Keyboard keys, Mouse buttons, Joystick movements, etc.
-//Use operator[] to read the state of any given button, based on results
+//Use .at(key) to read the state of any given button, based on results
 //from glfwPollEvents(). Plus one more bool for simply if the key is down
 class ButtonHandler
 {
@@ -28,7 +28,7 @@ class ButtonHandler
 
     ButtonHandler();
 
-    deleteOtherOps(ButtonHandler)
+    delete_other_ops(ButtonHandler)
 
     //Resets all Input actions to false
     void reset();
@@ -37,7 +37,7 @@ class ButtonHandler
     void set(GLFWInputCode input_code, int action);
 
     //Accesses the input state for the specified key/button
-    Input cref operator[](GLFWInputCode input_code);
+    Input cref at(GLFWInputCode input_code);
 
     protected:
 

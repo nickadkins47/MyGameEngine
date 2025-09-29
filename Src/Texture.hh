@@ -13,20 +13,22 @@ class Texture
 {
     public:
 
-    static optional<Texture ptr> add(path cref texture_p);
+    static optional<Texture ptr> add(string cref texture_path);
 
     static optional<Texture ptr> get(string cref texture_name);
 
     static bool exists(string cref texture_name);
 
-    deleteOtherOps(Texture)
+    delete_other_ops(Texture)
 
-    GLuint ID;
+    uint ID;
     int type = 0; //type recieved from assimp
-    int width = 0, height = 0, num_channels = 0;
+    int width = 0, height = 0, src_channels = 0; //data recieved from stbi_load
 
     //protected:
 
     Texture();
+
+    unordered_map<string, Texture> inline static texture_map;
 
 };

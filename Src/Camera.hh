@@ -7,6 +7,9 @@
 
 #pragma once
 
+#include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
+
 #include "Core.hh"
 
 class Camera
@@ -15,7 +18,7 @@ class Camera
 
     Camera();
 
-    deleteOtherOps(Camera)
+    delete_other_ops(Camera)
 
     //Camera's look sensitivity
     float sensitivity = 0.125f;

@@ -6,12 +6,14 @@
  */
 
 #include <angelscript.h>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 #include "Ext/ScriptBuilder.hh"
+#include "ButtonHandler.hh"
+#include "Camera.hh"
 #include "Engine.hh"
 #include "ScriptEng.hh"
-
-//TODO: get rid of assert statements in these macros, add logging
 
 //Helper macro; stringifies the input (s -> "s")
 #define m_str(s) #s
@@ -79,10 +81,10 @@ void message_cb(asSMessageInfo cptr msg, void ptr param)
 int include_cb(
     const char *include, const char *from, CScriptBuilder *builder, void *userParam
 ) {
-    optional<string> s_code = get_file_contents(path(string("Scripts/") + include));
+    optional<string> s_code = get_file_contents(string("Scripts/") + include);
     if (s_code == nullopt) return -1;
 
-    int r = builder->AddSectionFromMemory(include, s_code.value().c_str(), cast<uint>(s_code.value().length()));
+    int r = builder->AddSectionFromMemory(include, s_code.value().data(), cast<uint>(s_code.value().length()));
     if (r < 0) return -2;
     return 0;
 }
@@ -115,19 +117,19 @@ ScriptEng::ScriptEng()
         (int token, asIScriptFunction ptr cb),
         (int token, VoidCallback @cb),
     {
-        engine->script_engine.s_funcs.push_back(cb);
+        engine->script_engine->s_funcs.push_back(cb);
         engine->runtime_cbs.push_back([cb, token](){
-            if (engine->keyboard[token].is_down)
-                engine->script_engine.run_as_function(cb);
+            if (engine->keyboard->at(token).is_down)
+                engine->script_engine->run_as_function(cb);
         });
     });
 
     global_func(void, camera_proj_mat, [], (float fov_degrees, float near_z, float far_z), {
-        engine->camera.set_proj_mat(fov_degrees, near_z, far_z);
+        engine->camera->set_proj_mat(fov_degrees, near_z, far_z);
     });
 
     global_func(void, camera_pos, [], (float x, float y, float z), {
-        engine->camera.pos = glm::vec3(x,y,z);
+        engine->camera->pos = glm::vec3(x,y,z);
     });
 
     //General Functions
@@ -168,7 +170,7 @@ ScriptEng::~ScriptEng()
     Log::info("Shutting Down Script Engine: Success");
 }
 
-void ScriptEng::run(path cref script_p)
+void ScriptEng::run(string_view script_path)
 {
     Log::info("Running Script Engine...");
 
@@ -182,13 +184,13 @@ void ScriptEng::run(path cref script_p)
         return;
     }
 
-    string const s_code = get_file_contents(script_p).value();
+    string const s_code = get_file_contents(script_path).value();
 
-    r = s_builder.AddSectionFromMemory(script_p.string().c_str(), s_code.c_str(), cast<uint>(s_code.length()));
-    //r = s_builder.AddSectionFromFile(script_p.string().c_str());
+    r = s_builder.AddSectionFromMemory(script_path.data(), s_code.data(), cast<uint>(s_code.length()));
+    //r = s_builder.AddSectionFromFile(script_path.data());
     if (r < 0)
     {
-        Log::error("Running Script Engine: Failed (Cannot add section \"{}\")", script_p.string());
+        Log::error("Running Script Engine: Failed (Cannot add section \"{}\")", script_path);
         return;
     }
 

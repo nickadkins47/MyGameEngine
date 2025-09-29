@@ -6,15 +6,16 @@
  */
 
 #include <chrono>
+#include <print>
 #include <sstream>
 
 #include "AuxFuncs.hh"
 
-optional<string> get_file_contents(path cref file_p)
+optional<string> get_file_contents(string_view file_path)
 {
     //Lack of logging here bc i prefer doing it in the
     //places where this function is used, rather than here
-    std::ifstream in_file(file_p);
+    std::ifstream in_file(file_path.data());
     if (in_file.fail())
     {
         return nullopt;
@@ -37,7 +38,7 @@ void Log::init_logging(int mode)
     Log::log_file.open("Logs/" + log_f_name);
     if (Log::log_file.fail())
     {
-        print("ERROR: FAILED to open log\n");
+        std::print("ERROR: FAILED to open log\n");
         Log::log_mode = 0;
     }
 }

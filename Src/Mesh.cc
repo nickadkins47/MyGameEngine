@@ -5,7 +5,10 @@
  *  @brief: 
  */
 
+#include <glad/glad.h>
+
 #include "Mesh.hh"
+#include "Shader.hh"
 #include "Texture.hh"
 
 Mesh::Mesh() {}
@@ -36,16 +39,16 @@ void Mesh::render(Shader cptr shader) const
 
     for (int i = 0; i < textures.size(); i++)
     {
-        shader->sampler2d(i, *textures[i]);
+        shader->sampler2d(i, textures[i]);
         shader->uniform_i(format("textures[{}].type", i), textures[i]->type);
     }
     shader->uniform_f("shininess", shininess);
 
     //TODO: more options for how to render things? IE like GL_QUADS
-    glDrawElements(GL_TRIANGLES, cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, cast<int>(indices.size()), GL_UNSIGNED_INT, 0);
 }
 
-void Mesh::vertex_attribute_array(GLenum val_type, vector<uint> cref attributes)
+void Mesh::vertex_attribute_array(uint val_type, vector<uint> cref attributes)
 {
     int total_size = 0;
     for (uint cref attr : attributes)
@@ -61,7 +64,7 @@ void Mesh::vertex_attribute_array(GLenum val_type, vector<uint> cref attributes)
     }
 }
 
-constexpr int Mesh::sizeof_gl_type(GLenum val_type)
+constexpr int Mesh::sizeof_gl_type(uint val_type)
 {
     switch (val_type)
     {

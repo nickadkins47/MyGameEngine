@@ -5,6 +5,7 @@
  *  @brief: 
  */
 
+#include <glm/vec3.hpp>
 #include <stb/stb_perlin.h>
 
 #include "Chunk.hh"

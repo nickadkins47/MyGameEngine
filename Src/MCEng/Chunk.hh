@@ -18,7 +18,7 @@ class MyChunk
     
     MyChunk();
 
-    deleteOtherOps(MyChunk)
+    delete_other_ops(MyChunk)
 
     //returns reference to the block ID at (x,y,z)
     CubeID ref at(int x, int y, int z);

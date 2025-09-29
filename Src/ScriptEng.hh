@@ -19,11 +19,11 @@ class ScriptEng
     ScriptEng(); //Initialize ScriptEng
     ~ScriptEng();
 
-    deleteOtherOps(ScriptEng)
+    delete_other_ops(ScriptEng)
 
     //Run ScriptEng with the given Script File (Defaults to "Scripts/Main.as")
     //Must be done after main Engine is done initializing
-    void run(path cref script_p = "Scripts/Main.as");
+    void run(string_view script_path = "Scripts/Main.as");
 
     //protected:
 

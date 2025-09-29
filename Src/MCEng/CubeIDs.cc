@@ -11,8 +11,6 @@
 
 void load_cube_txts()
 {
-    //TODO: use engine->get_texture after reworking all of this
-
     Texture ptr test1 = Texture::get("Textures/test/test1.png").value();
     Texture ptr test2 = Texture::get("Textures/test/test2.png").value();
     Texture ptr test3 = Texture::get("Textures/test/test3.png").value();

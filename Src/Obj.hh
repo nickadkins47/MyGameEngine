@@ -7,7 +7,13 @@
 
 #pragma once
 
+#include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
+
 #include "Core.hh"
+
+class Model;
+class Shader;
 
 class Obj
 {
@@ -31,5 +37,7 @@ class Obj
     //protected:
     
     glm::mat4 model_mat {1.0f};
+
+    //unordered_map<string, Obj> inline static obj_map; //TODO maybe?
 
 };

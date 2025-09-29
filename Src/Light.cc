@@ -5,6 +5,8 @@
  *  @brief: 
  */
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include "Light.hh"
 #include "Shader.hh"
 

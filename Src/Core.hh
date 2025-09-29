@@ -9,8 +9,6 @@
 
 #include <array>
     using std::array;
-#include <filesystem>
-    using std::filesystem::path;
 #include <format>
     using std::format;
 #include <fstream>
@@ -19,22 +17,14 @@
 #include <optional>
     using std::nullopt;
     using std::optional;
-#include <print>
-    using std::print;
 #include <string>
     using std::string;
+#include <string_view>
+    using std::string_view;
 #include <unordered_map>
     using std::unordered_map;
 #include <vector>
     using std::vector;
-
-#include <glad/glad.h>
-
-#include <GLFW/glfw3.h>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #define ptr *
 #define ref &
@@ -47,12 +37,12 @@
 #define cast static_cast
 #define r_cast reinterpret_cast
 
-//put this macro in a class (with the provided className) to delete the
+//put this macro in a class (with the provided class_name) to delete the
 //auto-generated copy/move constructor/assignment operators for this class
-#define deleteOtherOps(class_name) \
-    class_name( class_name cref toCopy ) = delete; \
-    class_name( class_name mov toMove ) = delete; \
-    class_name ref operator=( class_name cref toCopyAssign ) = delete; \
-    class_name ref operator=( class_name mov toMoveAssign ) = delete;
+#define delete_other_ops(class_name) \
+    class_name( class_name cref to_copy ) = delete; \
+    class_name( class_name mov to_move ) = delete; \
+    class_name ref operator=( class_name cref to_copy_assign ) = delete; \
+    class_name ref operator=( class_name mov to_move_assign ) = delete;
 
 #include "AuxFuncs.hh"

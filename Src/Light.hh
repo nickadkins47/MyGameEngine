@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <glm/vec3.hpp>
+
 #include "Core.hh"
 
 class Obj;
@@ -18,7 +20,7 @@ class Light
 
     Light();
 
-    //deleteOtherOps(Light)
+    //delete_other_ops(Light)
 
     int mode = 0; //0: Ignore, 1: Normal Light, 2: Global Light, 3: Spotlight
 

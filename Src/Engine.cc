@@ -5,11 +5,20 @@
  *  @brief: 
  */
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
+#include "ButtonHandler.hh"
+#include "Camera.hh"
 #include "Engine.hh"
+#include "Model.hh"
+#include "ScriptEng.hh"
+#include "Shader.hh"
+#include "Texture.hh"
 
 Engine::Engine() {}
 
@@ -18,10 +27,10 @@ Engine::~Engine() {}
 void Engine::run()
 {
     //Init script stuff
-    script_engine.run();
+    script_engine->run();
 
     //Init Lights
-    for (auto cref [_, shader] : shader_map)
+    for (auto cref [_, shader] : Shader::shader_map)
     {
         shader.use();
         for (int i = 0; i < lights.size(); i++)
@@ -36,7 +45,7 @@ void Engine::run()
     double display_ms_frame = 0.0;
 
     //Init Camera values
-    camera.update_angle(0.0f, 0.0f);
+    camera->update_angle(0.0f, 0.0f);
 
     //Main Engine Loop
     for (/**/; !glfwWindowShouldClose(window); glfwPollEvents())
@@ -68,10 +77,10 @@ void Engine::run()
             cb();
 
         //Update camera values in all shaders
-        for (auto cref [_, shader] : shader_map)
+        for (auto cref [_, shader] : Shader::shader_map)
         {
             shader.use();
-            shader.uniform_fv("view_pos", 3, glm::value_ptr(camera.pos));
+            shader.uniform_fv("view_pos", 3, glm::value_ptr(camera->pos));
         }
 
         //Update moving lights
@@ -80,7 +89,7 @@ void Engine::run()
             if (lights[i].follower_index >= 0)
             {
                 lights[i].position = engine->objs[lights[i].follower_index].get_position();
-                for (auto cref [_, shader] : shader_map)
+                for (auto cref [_, shader] : Shader::shader_map)
                 {
                     shader.use();
                     lights[i].update_pos(i, &shader);
@@ -90,7 +99,7 @@ void Engine::run()
 
         //Rendering
 
-        glm::mat4 const vp_mat = camera.get_vp_mat();
+        glm::mat4 const vp_mat = camera->get_vp_mat();
 
         glClearColor(skybox_color.x, skybox_color.y, skybox_color.z, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -120,8 +129,8 @@ void Engine::run()
         glfwSwapBuffers(window); //update screen
 
         //Reset action flags (IE GLFW_PRESS, GLFW_RELEASE, etc)
-        keyboard.reset();
-        mouse_buttons.reset();
+        keyboard->reset();
+        mouse_buttons->reset();
     }
 }
 
@@ -146,8 +155,9 @@ void Engine::initialize()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); //v3.3
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_SAMPLES, 4); //for multisampling
 
-    window = glfwCreateWindow(window_width, window_height, window_name.c_str(), NULL, NULL);
+    window = glfwCreateWindow(window_width, window_height, window_name.data(), NULL, NULL);
     if (window == NULL)
     {
         Log::error("Initializing: Failed (Couldn't initialize GLFW Window)");
@@ -157,7 +167,8 @@ void Engine::initialize()
     
     glfwMakeContextCurrent(window);
 
-    glfwSwapInterval(1);
+    if (opt_init_vsync)
+        glfwSwapInterval(1);
 
     //GLAD Init
 
@@ -170,6 +181,7 @@ void Engine::initialize()
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_MULTISAMPLE);
 
     //ImGUI Init
 
@@ -180,6 +192,13 @@ void Engine::initialize()
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
+
+    //Engine Components Init
+
+    script_engine = new ScriptEng();
+    keyboard = new ButtonHandler();
+    mouse_buttons = new ButtonHandler();
+    camera = new Camera();
 
     //Other callbacks Init
 
@@ -192,12 +211,12 @@ void Engine::initialize()
 
     glfwSetKeyCallback(window, [](GLFWwindow ptr window, int key, int scancode, int action, int mods)
     {
-        engine->keyboard.set(key, action);
+        engine->keyboard->set(key, action);
     });
 
     glfwSetMouseButtonCallback(window, [](GLFWwindow ptr window, int button, int action, int mods)
     {
-        engine->mouse_buttons.set(button, action);
+        engine->mouse_buttons->set(button, action);
     });
 
     Log::info("Initializing: Success");

@@ -6,10 +6,10 @@
  */
 
 #include "Core.hh"
-#include "Shader.hh"
 
 #pragma once
 
+class Shader;
 class Texture;
 
 union Vertex
@@ -30,9 +30,9 @@ class Mesh
 
     Mesh();
 
-    //deleteOtherOps(Mesh)
+    //delete_other_ops(Mesh)
 
-    GLuint VAO, VBO, EBO;
+    uint VAO, VBO, EBO;
     
     //bool use_EBO; //TODO
 
@@ -49,10 +49,10 @@ class Mesh
     vector<Vertex> vertices;
     vector<uint> indices;
     vector<Texture ptr> textures;
-    float shininess = 32.0f;
+    float shininess = 32.0f; //TEMP default value
 
-    static void vertex_attribute_array(GLenum val_type, vector<uint> cref attributes);
+    static void vertex_attribute_array(uint val_type, vector<uint> cref attributes);
 
-    static constexpr int sizeof_gl_type(GLenum type);
+    static constexpr int sizeof_gl_type(uint type);
 
 };

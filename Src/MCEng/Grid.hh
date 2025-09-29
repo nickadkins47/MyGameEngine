@@ -17,7 +17,7 @@ class MyGrid
 
     MyGrid();
     
-    deleteOtherOps(MyGrid)
+    delete_other_ops(MyGrid)
 
     //return chunk based on (cx,cy) coordinates
     constexpr MyChunk ref chunk(int cx, int cy);

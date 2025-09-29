@@ -7,15 +7,14 @@
 
 #pragma once
 
-#include "ButtonHandler.hh"
 #include "Core.hh"
-#include "Camera.hh"
 #include "Light.hh"
-#include "Model.hh"
 #include "Obj.hh"
-#include "ScriptEng.hh"
-#include "Shader.hh"
-#include "Texture.hh"
+
+struct GLFWwindow;
+class ButtonHandler;
+class Camera;
+class ScriptEng;
 
 class Engine
 {
@@ -25,7 +24,7 @@ class Engine
 
     ~Engine();
 
-    deleteOtherOps(Engine)
+    delete_other_ops(Engine)
 
     void run();
 
@@ -36,23 +35,20 @@ class Engine
     string window_name = "MyGameEngine";
     bool valid = true;
 
+    bool inline static opt_init_vsync = true; //temp?
+
     GLFWwindow ptr window = nullptr;
     int window_width  = 1200;
     int window_height = 900;
 
-    ScriptEng script_engine;
+    ScriptEng ptr script_engine;
 
-    ButtonHandler keyboard;
-    ButtonHandler mouse_buttons;
-    Camera camera;
+    ButtonHandler ptr keyboard;
+    ButtonHandler ptr mouse_buttons;
+    Camera ptr camera;
 
     vector<Obj> objs;
     vector<Light> lights;
-
-    //unordered_map<string, Obj> obj_map; //TODO maybe?
-    unordered_map<string, Model> model_map;
-    unordered_map<string, Shader> shader_map;
-    unordered_map<string, Texture> texture_map;
 
     //Callbacks for the engine to run every frame
     vector<function<void(void)>> runtime_cbs;
@@ -65,4 +61,4 @@ class Engine
 
 };
 
-Engine inline ptr engine = nullptr; //static pointer to current/primary engine
+Engine inline ptr engine = nullptr; //global pointer to current/primary engine

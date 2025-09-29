@@ -5,8 +5,11 @@
  *  @brief: 
  */
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include "Model.hh"
 #include "Obj.hh"
+#include "Shader.hh"
 
 Obj::Obj(Model ptr model, Shader ptr shader)
 : model(model), shader(shader) {}

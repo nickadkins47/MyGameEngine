@@ -5,56 +5,52 @@
  *  @brief: 
  */
 
+#include <glad/glad.h>
+
 #include "Engine.hh"
 #include "Shader.hh"
+#include "Texture.hh"
 
 Shader::Shader() {}
 
-optional<Shader ptr> Shader::add(path cref shader_p, int num_lights, int num_textures)
+optional<Shader ptr> Shader::add(string cref shader_path, int num_lights, int num_textures)
 {
-    Log::info("Adding shaders \"{}\"...", shader_p.string());
+    Log::info("Adding shaders \"{}\"...", shader_path);
 
     int success;
     char info_log[512];
-    path _shader_p (shader_p);
 
-    _shader_p.replace_extension(".vert");
-    optional<string> vert_code_ostr = get_file_contents(_shader_p);
+    optional<string> vert_code_ostr = get_file_contents(shader_path + ".vert");
     if (vert_code_ostr == nullopt)
     {
-        Log::warn("Adding shaders \"{}\": Failed (Cannot locate \"{}\")",
-            shader_p.string(), _shader_p.string()
-        );
+        Log::warn("Adding shaders \"{0}\": Failed (Cannot locate \"{0}.vert\")", shader_path);
         return nullopt;
     }
     string vert_code_str = vert_code_ostr.value();
-    char const* vert_code = vert_code_str.c_str();
+    char const* vert_code = vert_code_str.data();
 
-    GLuint vert_shader = glCreateShader(GL_VERTEX_SHADER);
+    uint vert_shader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vert_shader, 1, &vert_code, NULL);
     glCompileShader(vert_shader);
-   
+
     glGetShaderiv(vert_shader, GL_COMPILE_STATUS, &success);
     if(!success)
     {
         glGetShaderInfoLog(vert_shader, 512, NULL, info_log);
-        Log::warn("Adding shaders \"{}\": Failed ({})", shader_p.string(), info_log);
+        Log::warn("Adding shaders \"{}\": Failed ({})", shader_path, info_log);
         return nullopt;
     }
 
-    _shader_p.replace_extension(".frag");
-    optional<string> frag_code_ostr = get_file_contents(_shader_p);
+    optional<string> frag_code_ostr = get_file_contents(shader_path + ".frag");
     if (frag_code_ostr == nullopt)
     {
-        Log::warn("Adding shaders \"{}\": Failed (Cannot locate \"{}\")",
-            shader_p.string(), _shader_p.string()
-        );
+        Log::warn("Adding shaders \"{0}\": Failed (Cannot locate \"{0}.frag\")", shader_path);
         return nullopt;
     }
     string frag_code_str = frag_code_ostr.value();
-    char const* frag_code = frag_code_str.c_str();
+    char const* frag_code = frag_code_str.data();
 
-    GLuint frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    uint frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(frag_shader, 1, &frag_code, NULL);
     glCompileShader(frag_shader);
 
@@ -62,11 +58,11 @@ optional<Shader ptr> Shader::add(path cref shader_p, int num_lights, int num_tex
     if(!success)
     {
         glGetShaderInfoLog(frag_shader, 512, NULL, info_log);
-        Log::warn("Adding shaders \"{}\": Failed ({})", shader_p.string(), info_log);
+        Log::warn("Adding shaders \"{}\": Failed ({})", shader_path, info_log);
         return nullopt;
     }
 
-    Shader ptr shader = &engine->shader_map[shader_p.string()];
+    Shader ptr shader = &shader_map[shader_path];
 
     shader->ID = glCreateProgram();
     glAttachShader(shader->ID, vert_shader);
@@ -77,8 +73,8 @@ optional<Shader ptr> Shader::add(path cref shader_p, int num_lights, int num_tex
     if(!success)
     {
         glGetProgramInfoLog(shader->ID, 512, NULL, info_log);
-        Log::warn("Adding shaders \"{}\": Failed ({})", shader_p.string(), info_log);
-        engine->shader_map.erase(shader_p.string());
+        Log::warn("Adding shaders \"{}\": Failed ({})", shader_path, info_log);
+        shader_map.erase(shader_path);
         return nullopt;
     }
 
@@ -96,15 +92,15 @@ optional<Shader ptr> Shader::add(path cref shader_p, int num_lights, int num_tex
         shader->uniform_i(format("textures[{}].type", i), 0);
     }
 
-    Log::info("Adding shaders \"{}\": Success", shader_p.string());
+    Log::info("Adding shaders \"{}\": Success", shader_path);
     return shader;
 }
 
 optional<Shader ptr> Shader::get(string cref shader_name)
 {
     Log::info("Getting shaders \"{}\"...", shader_name);
-    auto iter = engine->shader_map.find(shader_name);
-    if (iter == engine->shader_map.end())
+    auto iter = shader_map.find(shader_name);
+    if (iter == shader_map.end())
     {
         Log::warn("Getting shaders \"{}\": Failed", shader_name);
         return nullopt;
@@ -118,7 +114,7 @@ optional<Shader ptr> Shader::get(string cref shader_name)
 
 bool Shader::exists(string cref shader_name)
 {
-    return engine->shader_map.contains(shader_name);
+    return shader_map.contains(shader_name);
 }
 
 void Shader::use() const
@@ -126,132 +122,132 @@ void Shader::use() const
     glUseProgram(ID);
 }
 
-void Shader::sampler2d(int tex_unit, Texture cref texture) const
+void Shader::sampler2d(int tex_unit, Texture cptr texture) const
 {
     glActiveTexture(GL_TEXTURE0 + tex_unit);
-    glBindTexture(GL_TEXTURE_2D, texture.ID);
+    glBindTexture(GL_TEXTURE_2D, texture->ID);
 }
 
-void Shader::uniform_f(string cref name, float value) const
+void Shader::uniform_f(string_view name, float value) const
 {
-    glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+    glUniform1f(glGetUniformLocation(ID, name.data()), value);
 }
 
-void Shader::uniform_i(string cref name, int value) const
+void Shader::uniform_i(string_view name, int value) const
 {
-    glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
+    glUniform1i(glGetUniformLocation(ID, name.data()), value);
 }
 
-void Shader::uniform_u(string cref name, uint value) const
+void Shader::uniform_u(string_view name, uint value) const
 {
-    glUniform1ui(glGetUniformLocation(ID, name.c_str()), value);
+    glUniform1ui(glGetUniformLocation(ID, name.data()), value);
 }
 
-void Shader::uniform_fv(string cref name, int size, float cptr value) const
-{
-    if (size == 1)
-    {
-        glUniform1fv(glGetUniformLocation(ID, name.c_str()), 1, value);
-    }
-    else if (size == 2)
-    {
-        glUniform2fv(glGetUniformLocation(ID, name.c_str()), 1, value);
-    }
-    else if (size == 3)
-    {
-        glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, value);
-    }
-    else if (size == 4)
-    {
-        glUniform4fv(glGetUniformLocation(ID, name.c_str()), 1, value);
-    }
-}
-
-void Shader::uniform_iv(string cref name, int size, int cptr value) const
+void Shader::uniform_fv(string_view name, int size, float cptr value) const
 {
     if (size == 1)
     {
-        glUniform1iv(glGetUniformLocation(ID, name.c_str()), 1, value);
+        glUniform1fv(glGetUniformLocation(ID, name.data()), 1, value);
     }
     else if (size == 2)
     {
-        glUniform2iv(glGetUniformLocation(ID, name.c_str()), 1, value);
+        glUniform2fv(glGetUniformLocation(ID, name.data()), 1, value);
     }
     else if (size == 3)
     {
-        glUniform3iv(glGetUniformLocation(ID, name.c_str()), 1, value);
+        glUniform3fv(glGetUniformLocation(ID, name.data()), 1, value);
     }
     else if (size == 4)
     {
-        glUniform4iv(glGetUniformLocation(ID, name.c_str()), 1, value);
+        glUniform4fv(glGetUniformLocation(ID, name.data()), 1, value);
     }
 }
 
-void Shader::uniform_uv(string cref name, int size, uint cptr value) const
+void Shader::uniform_iv(string_view name, int size, int cptr value) const
 {
     if (size == 1)
     {
-        glUniform1uiv(glGetUniformLocation(ID, name.c_str()), 1, value);
+        glUniform1iv(glGetUniformLocation(ID, name.data()), 1, value);
     }
     else if (size == 2)
     {
-        glUniform2uiv(glGetUniformLocation(ID, name.c_str()), 1, value);
+        glUniform2iv(glGetUniformLocation(ID, name.data()), 1, value);
     }
     else if (size == 3)
     {
-        glUniform3uiv(glGetUniformLocation(ID, name.c_str()), 1, value);
+        glUniform3iv(glGetUniformLocation(ID, name.data()), 1, value);
     }
     else if (size == 4)
     {
-        glUniform4uiv(glGetUniformLocation(ID, name.c_str()), 1, value);
+        glUniform4iv(glGetUniformLocation(ID, name.data()), 1, value);
     }
 }
 
-void Shader::uniform_fm(string cref name, int cols, int rows, float cptr value, bool transpose) const
+void Shader::uniform_uv(string_view name, int size, uint cptr value) const
+{
+    if (size == 1)
+    {
+        glUniform1uiv(glGetUniformLocation(ID, name.data()), 1, value);
+    }
+    else if (size == 2)
+    {
+        glUniform2uiv(glGetUniformLocation(ID, name.data()), 1, value);
+    }
+    else if (size == 3)
+    {
+        glUniform3uiv(glGetUniformLocation(ID, name.data()), 1, value);
+    }
+    else if (size == 4)
+    {
+        glUniform4uiv(glGetUniformLocation(ID, name.data()), 1, value);
+    }
+}
+
+void Shader::uniform_fm(string_view name, int cols, int rows, float cptr value, bool transpose) const
 {
     if (cols == 2)
     {
         if (rows == 2)
         {
-            glUniformMatrix2fv  (glGetUniformLocation(ID, name.c_str()), 1, transpose, value);
+            glUniformMatrix2fv  (glGetUniformLocation(ID, name.data()), 1, transpose, value);
         }
         else if (rows == 3)
         {
-            glUniformMatrix2x3fv(glGetUniformLocation(ID, name.c_str()), 1, transpose, value);
+            glUniformMatrix2x3fv(glGetUniformLocation(ID, name.data()), 1, transpose, value);
         }
         else if (rows == 4)
         {
-            glUniformMatrix2x4fv(glGetUniformLocation(ID, name.c_str()), 1, transpose, value);
+            glUniformMatrix2x4fv(glGetUniformLocation(ID, name.data()), 1, transpose, value);
         }
     }
     else if (cols == 3)
     {
         if (rows == 2)
         {
-            glUniformMatrix3x2fv(glGetUniformLocation(ID, name.c_str()), 1, transpose, value);
+            glUniformMatrix3x2fv(glGetUniformLocation(ID, name.data()), 1, transpose, value);
         }
         else if (rows == 3)
         {
-            glUniformMatrix3fv  (glGetUniformLocation(ID, name.c_str()), 1, transpose, value);
+            glUniformMatrix3fv  (glGetUniformLocation(ID, name.data()), 1, transpose, value);
         }
         else if (rows == 4)
         {
-            glUniformMatrix3x4fv(glGetUniformLocation(ID, name.c_str()), 1, transpose, value);
+            glUniformMatrix3x4fv(glGetUniformLocation(ID, name.data()), 1, transpose, value);
         }
     }
     else if (cols == 4)
     {
         if (rows == 2)
         {
-            glUniformMatrix4x2fv(glGetUniformLocation(ID, name.c_str()), 1, transpose, value);
+            glUniformMatrix4x2fv(glGetUniformLocation(ID, name.data()), 1, transpose, value);
         }
         else if (rows == 3)
         {
-            glUniformMatrix4x3fv(glGetUniformLocation(ID, name.c_str()), 1, transpose, value);
+            glUniformMatrix4x3fv(glGetUniformLocation(ID, name.data()), 1, transpose, value);
         }
         else if (rows == 4)
         {
-            glUniformMatrix4fv  (glGetUniformLocation(ID, name.c_str()), 1, transpose, value);
+            glUniformMatrix4fv  (glGetUniformLocation(ID, name.data()), 1, transpose, value);
         }
     }
 }

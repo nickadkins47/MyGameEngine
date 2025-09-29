@@ -12,7 +12,7 @@
 //Reads contents of a file from the given path
 //returns a string full of the file's contents if successful
 //otherwise returns std::nullopt if it fails
-optional<string> get_file_contents(path cref file_p);
+optional<string> get_file_contents(string_view file_path);
 
 namespace Log
 {
@@ -36,7 +36,7 @@ namespace Log
         if (log_mode >= 3)
         {
             log_file << " INFO: "
-                << format(fmt, std::forward<Args>(args)...)
+                << std::format(fmt, std::forward<Args>(args)...)
                 << '\n';
         }
     }
@@ -48,7 +48,7 @@ namespace Log
         if (log_mode >= 2)
         {
             log_file << " WARN: "
-                << format(fmt, std::forward<Args>(args)...)
+                << std::format(fmt, std::forward<Args>(args)...)
                 << '\n';
         }
     }
@@ -60,7 +60,7 @@ namespace Log
         if (log_mode >= 1)
         {
             log_file << "ERROR: "
-                << format(fmt, std::forward<Args>(args)...)
+                << std::format(fmt, std::forward<Args>(args)...)
                 << '\n';
         }
     }
