@@ -8,6 +8,7 @@
 #pragma once
 
 #include "Core.hh"
+#include "Manager.hh"
 
 class Texture;
 
@@ -19,9 +20,7 @@ class Shader
     //given (path) has no extensions, it will look for (path).vert & (path).frag
     static optional<Shader ptr> add(string cref shader_path, int num_lights = 0, int num_textures = 0);
 
-    static optional<Shader ptr> get(string cref shader_name);
-
-    static bool exists(string cref shader_name);
+    manager_funcs_hh(Shader, shader_name)
     
     delete_other_ops(Shader)
 
@@ -50,6 +49,6 @@ class Shader
 
     Shader();
 
-    unordered_map<string, Shader> inline static shader_map;
+    Manager<Shader> inline static manager;
 
 };

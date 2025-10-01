@@ -62,7 +62,7 @@ optional<Shader ptr> Shader::add(string cref shader_path, int num_lights, int nu
         return nullopt;
     }
 
-    Shader ptr shader = &shader_map[shader_path];
+    Shader ptr shader = manager.get_new(shader_path);
 
     shader->ID = glCreateProgram();
     glAttachShader(shader->ID, vert_shader);
@@ -74,7 +74,7 @@ optional<Shader ptr> Shader::add(string cref shader_path, int num_lights, int nu
     {
         glGetProgramInfoLog(shader->ID, 512, NULL, info_log);
         Log::warn("Adding shaders \"{}\": Failed ({})", shader_path, info_log);
-        shader_map.erase(shader_path);
+        Shader::remove(shader_path);
         return nullopt;
     }
 
@@ -96,26 +96,7 @@ optional<Shader ptr> Shader::add(string cref shader_path, int num_lights, int nu
     return shader;
 }
 
-optional<Shader ptr> Shader::get(string cref shader_name)
-{
-    Log::info("Getting shaders \"{}\"...", shader_name);
-    auto iter = shader_map.find(shader_name);
-    if (iter == shader_map.end())
-    {
-        Log::warn("Getting shaders \"{}\": Failed", shader_name);
-        return nullopt;
-    }
-    else
-    {
-        Log::info("Getting shaders \"{}\": Success", shader_name);
-        return &iter->second;
-    }
-}
-
-bool Shader::exists(string cref shader_name)
-{
-    return shader_map.contains(shader_name);
-}
+manager_funcs_cc(Shader, shader_name)
 
 void Shader::use() const
 {
@@ -251,4 +232,3 @@ void Shader::uniform_fm(string_view name, int cols, int rows, float cptr value, 
         }
     }
 }
-

@@ -41,15 +41,15 @@ void MyGrid::load(int cx, int cy)
         }
     }
 
-    for (size_t lx = 0; lx < chk.x_dim; lx++) //local x
+    for (size_t lx = 0; lx < MyChunk::x_dim; lx++) //local x
     {
-        int const x = cast<int>(lx) + (cx * cast<int>(chk.x_dim)); //global x
+        int const x = cast<int>(lx) + (cx * cast<int>(MyChunk::x_dim)); //global x
 
-        for (size_t ly = 0; ly < chk.y_dim; ly++) //local y
+        for (size_t ly = 0; ly < MyChunk::y_dim; ly++) //local y
         {
-            int const y = cast<int>(ly) + (cy * cast<int>(chk.y_dim)); //global y
+            int const y = cast<int>(ly) + (cy * cast<int>(MyChunk::y_dim)); //global y
 
-            for (size_t lz = 0; lz < chk.z_dim; lz++) //local z
+            for (size_t lz = 0; lz < MyChunk::z_dim; lz++) //local z
             {
                 int const z = cast<int>(lz); //global z (== local z, for 2D chunks)
 

@@ -8,6 +8,7 @@
 #pragma once
 
 #include "Core.hh"
+#include "Manager.hh"
 #include "Mesh.hh"
 
 struct aiMaterial;
@@ -23,9 +24,9 @@ class Model
 
     static optional<Model ptr> add(string cref model_path, bool winding_cw = false, bool flip_uvs = true);
 
-    static optional<Model ptr> get(string cref model_name);
+    static optional<Model ptr> add(string cref model_name, vector<Mesh> cref meshes);
 
-    static bool exists(string cref model_name);
+    manager_funcs_hh(Model, model_name)
     
     delete_other_ops(Model)
 
@@ -37,7 +38,7 @@ class Model
 
     Model();
 
-    unordered_map<string, Model> inline static model_map;
+    Manager<Model> inline static manager;
 
     vector<Mesh> meshes;
     

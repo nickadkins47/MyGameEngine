@@ -20,16 +20,22 @@
 
 int main(int argc, char ** argv)
 {
+    engine = new Engine();
+
     //check arguments
-    for (string_view arg : vector<string_view>{argv, argv + argc})
+    vector<string_view> args (argv, argv + argc);
+    for (int i = 0; i < args.size(); i++)
     {
-        if (arg == "-L1") Log::init_logging(1);
-        if (arg == "-L2") Log::init_logging(2);
-        if (arg == "-L3") Log::init_logging(3);
-        if (arg == "-no_vsync") Engine::opt_init_vsync = false;
+        if (args[i] == "-no_vsync") engine->opt_init_vsync = false;
+        else if (args[i] == "-L1") Log::init_logging(1);
+        else if (args[i] == "-L2") Log::init_logging(2);
+        else if (args[i] == "-L3") Log::init_logging(3);
+        else if (args[i] == "-S") {
+            engine->script_entrypoint = args.at(i + 1);
+            i++;
+        }
     }
 
-    engine = new Engine();
     engine->initialize();
 
     //Loading Assets
@@ -41,30 +47,30 @@ int main(int argc, char ** argv)
         Model::add("Models/FlatGround.obj", true);
         Model::add("Models/TutorialCube.obj", true);
 
-        Model::add("Models/Quads/nx.obj", true);
-        Model::add("Models/Quads/px.obj", true);
-        Model::add("Models/Quads/ny.obj", true);
-        Model::add("Models/Quads/py.obj", true);
-        Model::add("Models/Quads/nz.obj", true);
-        Model::add("Models/Quads/pz.obj", true);
+        Model::add("Models/Quads/nx.obj", true, false);
+        Model::add("Models/Quads/px.obj", true, false);
+        Model::add("Models/Quads/ny.obj", true, false);
+        Model::add("Models/Quads/py.obj", true, false);
+        Model::add("Models/Quads/nz.obj", true, false);
+        Model::add("Models/Quads/pz.obj", true, false);
 
         Shader::add("Shaders/Default", 8, 16);
         Shader::add("Shaders/Temp");
 
-        Texture::add("Textures/awesomeface.png");
-        Texture::add("Textures/container.jpg");
-        Texture::add("Textures/container2.png");
-        Texture::add("Textures/container2_specular.png");
-        Texture::add("Textures/grass_bottom.png");
-        Texture::add("Textures/grass_side.png");
-        Texture::add("Textures/grass_top.png");
+        Texture::add("Textures/awesomeface.png", 1);
+        Texture::add("Textures/container.jpg", 1);
+        Texture::add("Textures/container2.png", 1);
+        Texture::add("Textures/container2_specular.png", 2);
+        Texture::add("Textures/grass_bottom.png", 1);
+        Texture::add("Textures/grass_side.png", 1);
+        Texture::add("Textures/grass_top.png", 1);
 
-        Texture::add("Textures/test/test1.png");
-        Texture::add("Textures/test/test2.png");
-        Texture::add("Textures/test/test3.png");
-        Texture::add("Textures/test/test4.png");
-        Texture::add("Textures/test/test5.png");
-        Texture::add("Textures/test/test6.png");
+        Texture::add("Textures/test/test1.png", 1);
+        Texture::add("Textures/test/test2.png", 1);
+        Texture::add("Textures/test/test3.png", 1);
+        Texture::add("Textures/test/test4.png", 1);
+        Texture::add("Textures/test/test5.png", 1);
+        Texture::add("Textures/test/test6.png", 1);
     }
 
     //Light Cubes
@@ -80,63 +86,64 @@ int main(int argc, char ** argv)
     {
         Light ref light = engine->lights.emplace_back();
         light.mode = 1;
-        light.diffuse = glm::vec3(0.5f);
+        light.diffuse = glm::vec3(1.0f);
         light.specular = glm::vec3(1.0f);
         light.ambient = glm::vec3(0.0f);
         light.attenuation = glm::vec3(0.025f, 0.05f, 1.0f);
         light.position = light_cube_positions[i];
     }
 
-    engine->lights[0].mode = 3;
+    /* engine->lights[0].mode = 3;
     engine->lights[0].direction = glm::vec3(0.0f, 0.0f, -1.0f);
     engine->lights[0].bright_rim = glm::cos(glm::radians(20.0f));
-    engine->lights[0].dark_rim = glm::cos(glm::radians(25.0f));
+    engine->lights[0].dark_rim = glm::cos(glm::radians(25.0f)); */
 
-    Light ref directional_light = engine->lights.emplace_back();
+/*     Light ref directional_light = engine->lights.emplace_back();
     directional_light.mode = 2;
     directional_light.diffuse = glm::vec3(0.5f);
     directional_light.specular = glm::vec3(0.5f);
     directional_light.ambient = glm::vec3(0.25f);
-    directional_light.direction = glm::vec3(0.0f, 0.0f, -1.0f);
+    directional_light.direction = glm::vec3(0.0f, 0.0f, -1.0f); */
 
-    for (auto ref pos : light_cube_positions)
+    for (int i = 0; i < light_cube_positions.size(); i++)
     {
-        Obj ptr obj = engine->new_obj("Models/TutorialCube.obj", "Shaders/Temp");
-        obj->move_position(pos);
+        Obj ptr obj = Obj::add(format("Lightcube{}", i), "Models/TutorialCube.obj", "Shaders/Temp").value();
+        obj->move_position(light_cube_positions[i]);
     }
-    engine->lights[0].follower_index = 0;
+    engine->lights[0].follower = Obj::get("Lightcube0").value();
 
     engine->runtime_cbs.push_back([](){
+        Obj ptr light_cube0 = Obj::get("Lightcube0").value();
         if (engine->keyboard->at(GLFW_KEY_3).is_down)
-            engine->objs[0].move_position(glm::vec3{0.1f, 0.1f, 0.0f});
+            light_cube0->move_position(glm::vec3{0.1f, 0.1f, 0.0f});
         if (engine->keyboard->at(GLFW_KEY_4).is_down)
-            engine->objs[0].move_position(glm::vec3{-0.1f, -0.1f, 0.0f});
+            light_cube0->move_position(glm::vec3{-0.1f, -0.1f, 0.0f});
         if (engine->keyboard->at(GLFW_KEY_5).is_down)
-            engine->objs[0].move_position(glm::vec3{0.0f, 0.0f, 0.1f});
+            light_cube0->move_position(glm::vec3{0.0f, 0.0f, 0.1f});
         if (engine->keyboard->at(GLFW_KEY_6).is_down)
-            engine->objs[0].move_position(glm::vec3{0.0f, 0.0f, -0.1f});
+            light_cube0->move_position(glm::vec3{0.0f, 0.0f, -0.1f});
     });
 
     {
-        Obj ptr obj = engine->new_obj("Models/FlatGround.obj", "Shaders/Default");
+        Obj ptr obj = Obj::add("Ground", "Models/FlatGround.obj", "Shaders/Default").value();
         obj->move_position(glm::vec3{0.0f, 0.0f, -3.0f});
         obj->scale(glm::vec3{128.0f});
     }
 
     {
-        Obj ptr obj = engine->new_obj("Models/Backpack/backpack.obj", "Shaders/Default");
+        Obj ptr obj = Obj::add("Backpack", "Models/Backpack/backpack.obj", "Shaders/Default").value();
         obj->move_position(glm::vec3{10.0f, 10.0f, 15.0f});
     }
 
     {
-        Obj ptr obj = engine->new_obj("Models/Duck/duck.dae", "Shaders/Default");
+        Obj ptr obj = Obj::add("Duck", "Models/Duck/duck.dae", "Shaders/Default").value();
         obj->move_position(glm::vec3{-10.0f, -10.0f, 15.0f});
         obj->scale(glm::vec3(0.0325f));
         obj->rotate(90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
     }
 
     {
-        Obj ptr obj = engine->new_obj("Models/Spider/spider.obj", "Shaders/Default");
+        Obj ptr obj = Obj::add("Spider", "Models/Spider/spider.obj", "Shaders/Default").value();
         obj->move_position(glm::vec3{10.0f, -10.0f, 15.0f});
         obj->scale(glm::vec3(0.0325f));
         obj->rotate(90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -146,11 +153,29 @@ int main(int argc, char ** argv)
 
     /* load_cube_txts();
 
-    //TODO set quad_models
+    MyChunk::default_sh = Shader::get("Shaders/Default").value();
+    MyChunk::quad_models = {
+        Model::get("Models/Quads/nx.obj").value(),
+        Model::get("Models/Quads/px.obj").value(),
+        Model::get("Models/Quads/ny.obj").value(),
+        Model::get("Models/Quads/py.obj").value(),
+        Model::get("Models/Quads/nz.obj").value(),
+        Model::get("Models/Quads/pz.obj").value(),
+    };
 
-    for (auto cref quad_model : MyChunk::quad_model_names)
-        engine->get_model(quad_model)->winding_cw = true;
+    {
+        Texture ptr grass_top = Texture::get("Textures/grass_top.png").value();
+        Texture ptr grass_side = Texture::get("Textures/grass_side.png").value();
+        Texture ptr grass_bottom = Texture::get("Textures/grass_bottom.png").value();
 
+        MyChunk::quad_models[0]->meshes[0].textures.push_back(grass_side);
+        MyChunk::quad_models[1]->meshes[0].textures.push_back(grass_side);
+        MyChunk::quad_models[2]->meshes[0].textures.push_back(grass_side);
+        MyChunk::quad_models[3]->meshes[0].textures.push_back(grass_side);
+        MyChunk::quad_models[4]->meshes[0].textures.push_back(grass_bottom);
+        MyChunk::quad_models[5]->meshes[0].textures.push_back(grass_top);
+    }
+    
     MyGrid grid;
 
     int const h_sz_x = MyGrid::sz_x / 2; //half of sz_x
@@ -212,6 +237,14 @@ int main(int argc, char ** argv)
             glfwSetInputMode(engine->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             engine->camera->first_mouse = true;
         }
+    });
+
+    engine->runtime_cbs.push_back([](){
+        bool static b = false;
+        if (engine->keyboard->at(GLFW_KEY_R).act_press) b = !b;
+
+        for (auto ref [_, shader] : Shader::get_map())
+            shader.uniform_i("extra_flag", cast<int>(b));
     });
 
     //Run Engine (Loop)

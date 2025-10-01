@@ -28,14 +28,13 @@ class Engine
 
     void run();
 
-    Obj ptr new_obj(string cref model_name, string cref shader_name);
-
     //protected:
 
     string window_name = "MyGameEngine";
     bool valid = true;
 
-    bool inline static opt_init_vsync = true; //temp?
+    string script_entrypoint = "Scripts/Main.as";
+    bool opt_init_vsync = true;
 
     GLFWwindow ptr window = nullptr;
     int window_width  = 1200;
@@ -47,7 +46,6 @@ class Engine
     ButtonHandler ptr mouse_buttons;
     Camera ptr camera;
 
-    vector<Obj> objs;
     vector<Light> lights;
 
     //Callbacks for the engine to run every frame

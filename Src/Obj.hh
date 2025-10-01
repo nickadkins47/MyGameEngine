@@ -11,6 +11,7 @@
 #include <glm/vec3.hpp>
 
 #include "Core.hh"
+#include "Manager.hh"
 
 class Model;
 class Shader;
@@ -19,7 +20,13 @@ class Obj
 {
     public:
 
-    Obj(Model ptr model, Shader ptr shader);
+    static optional<Obj ptr> add(string cref obj_name, string cref model_name, string cref shader_name);
+
+    static optional<Obj ptr> add(string cref obj_name, Model ptr model, Shader ptr shader);
+
+    manager_funcs_hh(Obj, obj_name)
+
+    delete_other_ops(Obj)
 
     Model ptr model;
     Shader ptr shader;
@@ -35,9 +42,11 @@ class Obj
     void scale(glm::vec3 cref factor);
 
     //protected:
+
+    Obj();
+
+    Manager<Obj> inline static manager;
     
     glm::mat4 model_mat {1.0f};
-
-    //unordered_map<string, Obj> inline static obj_map; //TODO maybe?
 
 };

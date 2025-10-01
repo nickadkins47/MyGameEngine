@@ -35,6 +35,8 @@ uniform float shininess;
 
 uniform vec3 view_pos;
 
+uniform int extra_flag;
+
 vec3 view_dir;
 vec3 normal;
 
@@ -42,10 +44,12 @@ vec3 t_diffuse;
 vec3 t_specular;
 vec3 t_ambient;
 
+const vec3 default_t = vec3(0.5);
+
 void assign_or_blend(inout vec3 v, in int i)
 {
     vec3 tvec = vec3(texture(textures[i].tex, f_tex));
-    v = (all(equal(v, vec3(0.0))))
+    v = (all(equal(v, default_t)))
         ? tvec
         : mix(v, tvec, 0.5)
     ;
@@ -53,6 +57,10 @@ void assign_or_blend(inout vec3 v, in int i)
 
 void get_texture_values()
 {
+    t_ambient = vec3(0.0);
+    t_diffuse = vec3(0.0);
+    t_specular = vec3(0.0);
+
     for (int i = 0; i < TEX_NUM; i++)
     {
         switch (textures[i].type)
@@ -104,8 +112,8 @@ vec3 light_calc(Light light)
 
     vec3 diffuse = light.diffuse * diff * t_diffuse;
 
-    vec3 reflect_dir = reflect(-light_dir, normal);
-    float ispec = max(dot(view_dir, reflect_dir), 0.0);
+    vec3 halfway_dir = normalize(light_dir + view_dir);
+    float ispec = max(dot(normal, halfway_dir), 0.0);
     float spec = pow(ispec, shininess);
 
     vec3 specular = light.specular * spec * t_specular;
@@ -132,9 +140,6 @@ void main()
     view_dir = normalize(view_pos - f_pos);
     normal = normalize(f_nor);
 
-    t_ambient = vec3(0.0);
-    t_diffuse = vec3(0.0);
-    t_specular = vec3(0.0);
     get_texture_values();
 
     vec3 result = vec3(0.0);

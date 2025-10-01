@@ -11,8 +11,33 @@
 #include "Obj.hh"
 #include "Shader.hh"
 
-Obj::Obj(Model ptr model, Shader ptr shader)
-: model(model), shader(shader) {}
+Obj::Obj() {}
+
+optional<Obj ptr> Obj::add(string cref obj_name, string cref model_name, string cref shader_name)
+{
+    Log::info("Adding obj \"{}\"...", obj_name);
+    
+    Obj ptr obj = manager.get_new(obj_name);
+    obj->model = Model::get(model_name).value();
+    obj->shader = Shader::get(shader_name).value();
+
+    Log::info("Adding obj \"{}\": Success", obj_name);
+    return obj;
+}
+
+optional<Obj ptr> Obj::add(string cref obj_name, Model ptr model, Shader ptr shader)
+{
+    Log::info("Adding obj \"{}\"...", obj_name);
+    
+    Obj ptr obj = manager.get_new(obj_name);
+    obj->model = model;
+    obj->shader = shader;
+
+    Log::info("Adding obj \"{}\": Success", obj_name);
+    return obj;
+}
+
+manager_funcs_cc(Obj, obj_name)
 
 void Obj::render(glm::mat4 cref vp_mat) const
 {

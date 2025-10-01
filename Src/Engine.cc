@@ -27,10 +27,10 @@ Engine::~Engine() {}
 void Engine::run()
 {
     //Init script stuff
-    script_engine->run();
+    script_engine->run(script_entrypoint);
 
     //Init Lights
-    for (auto cref [_, shader] : Shader::shader_map)
+    for (auto cref [_, shader] : Shader::get_map())
     {
         shader.use();
         for (int i = 0; i < lights.size(); i++)
@@ -77,7 +77,7 @@ void Engine::run()
             cb();
 
         //Update camera values in all shaders
-        for (auto cref [_, shader] : Shader::shader_map)
+        for (auto cref [_, shader] : Shader::get_map())
         {
             shader.use();
             shader.uniform_fv("view_pos", 3, glm::value_ptr(camera->pos));
@@ -86,10 +86,10 @@ void Engine::run()
         //Update moving lights
         for (int i = 0; i < lights.size(); i++)
         {
-            if (lights[i].follower_index >= 0)
+            if (lights[i].follower != nullptr)
             {
-                lights[i].position = engine->objs[lights[i].follower_index].get_position();
-                for (auto cref [_, shader] : Shader::shader_map)
+                lights[i].position = lights[i].follower->get_position();
+                for (auto cref [_, shader] : Shader::get_map())
                 {
                     shader.use();
                     lights[i].update_pos(i, &shader);
@@ -97,30 +97,15 @@ void Engine::run()
             }
         }
 
-        //Rendering
+        //Obj Rendering
 
         glm::mat4 const vp_mat = camera->get_vp_mat();
 
         glClearColor(skybox_color.x, skybox_color.y, skybox_color.z, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        for (Obj cref obj : objs)
+        for (auto cref [_, obj] : Obj::get_map())
             obj.render(vp_mat);
-
-        //MCEng Rendering (temp?)
-        /* static const int offset = -15;
-        if (grid != nullptr)
-        {
-            for (int cx = 0; cx < grid->sz_x; cx++)
-            {
-                for (int cy = 0; cy < grid->sz_y; cy++)
-                {
-                    MyChunk ref chunk = grid->chunk(cx,cy);
-                    chunk.model->bind();
-                    chunk.render(vp_mat);
-                }
-            }
-        } */
 
         //ImGui Rendering
         ImGui::Render();
@@ -132,11 +117,6 @@ void Engine::run()
         keyboard->reset();
         mouse_buttons->reset();
     }
-}
-
-Obj ptr Engine::new_obj(string cref model_name, string cref shader_name)
-{
-    return &objs.emplace_back(Model::get(model_name).value(), Shader::get(shader_name).value());
 }
 
 void Engine::initialize()

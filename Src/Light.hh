@@ -33,7 +33,7 @@ class Light
     float bright_rim = 0.0f;
     float dark_rim = 0.0f;
 
-    int follower_index = -1; //Set this to the index of an Obj for this Light to follow  
+    Obj ptr follower = nullptr; //Set to have the light follow the obj
 
     //Updates the GPU's light[index] to match the one in this class
     void update(int index, Shader cptr shader) const;

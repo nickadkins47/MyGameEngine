@@ -21,9 +21,9 @@ class ScriptEng
 
     delete_other_ops(ScriptEng)
 
-    //Run ScriptEng with the given Script File (Defaults to "Scripts/Main.as")
+    //Run ScriptEng with the given Script File
     //Must be done after main Engine is done initializing
-    void run(string_view script_path = "Scripts/Main.as");
+    void run(string_view script_path);
 
     //protected:
 

@@ -8,16 +8,15 @@
 #pragma once
 
 #include "Core.hh"
+#include "Manager.hh"
 
 class Texture
 {
     public:
 
-    static optional<Texture ptr> add(string cref texture_path);
+    static optional<Texture ptr> add(string cref texture_path, int type);
 
-    static optional<Texture ptr> get(string cref texture_name);
-
-    static bool exists(string cref texture_name);
+    manager_funcs_hh(Texture, texture_name)
 
     delete_other_ops(Texture)
 
@@ -29,6 +28,6 @@ class Texture
 
     Texture();
 
-    unordered_map<string, Texture> inline static texture_map;
+    Manager<Texture> inline static manager;
 
 };

@@ -8,12 +8,11 @@
 #include <glad/glad.h>
 #include <stb/stb_image.h>
 
-#include "Engine.hh"
 #include "Texture.hh"
 
 Texture::Texture() {}
 
-optional<Texture ptr> Texture::add(string cref texture_path)
+optional<Texture ptr> Texture::add(string cref texture_path, int type)
 {
     Log::info("Adding texture \"{}\"...", texture_path);
 
@@ -27,10 +26,11 @@ optional<Texture ptr> Texture::add(string cref texture_path)
         return nullopt;
     }
 
-    Texture ptr texture = &texture_map[texture_path];
+    Texture ptr texture = manager.get_new(texture_path);
     texture->width = width;
     texture->height = height;
     texture->src_channels = src_channels;
+    texture->type = type;
 
     glGenTextures(1, &texture->ID);
     glBindTexture(GL_TEXTURE_2D, texture->ID);
@@ -49,23 +49,4 @@ optional<Texture ptr> Texture::add(string cref texture_path)
     return texture;
 }
 
-optional<Texture ptr> Texture::get(string cref texture_name)
-{
-    Log::info("Getting texture \"{}\"...", texture_name);
-    auto iter = texture_map.find(texture_name);
-    if (iter == texture_map.end())
-    {
-        Log::warn("Getting texture \"{}\": Failed", texture_name);
-        return nullopt;
-    }
-    else
-    {
-        Log::info("Getting texture \"{}\": Success", texture_name);
-        return &iter->second;
-    }
-}
-
-bool Texture::exists(string cref texture_name)
-{
-    return texture_map.contains(texture_name);
-}
+manager_funcs_cc(Texture, texture_name)

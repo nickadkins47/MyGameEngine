@@ -64,4 +64,7 @@ namespace Log
                 << '\n';
         }
     }
+
+    //TODO DESC: Returns GL error from glGetError() if something fails, else returns nullopt
+    optional<string> get_gl_error();
 }

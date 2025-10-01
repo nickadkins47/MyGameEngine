@@ -35,7 +35,7 @@ optional<Model ptr> Model::add(string cref model_path, bool winding_cw, bool fli
         return nullopt;
     }
 
-    Model ptr model = &model_map[model_path];
+    Model ptr model = manager.get_new(model_path);
     model->winding_cw = winding_cw;
 
     string const model_dir = std::filesystem::path(model_path).parent_path().string();
@@ -45,26 +45,18 @@ optional<Model ptr> Model::add(string cref model_path, bool winding_cw, bool fli
     return model;
 }
 
-optional<Model ptr> Model::get(string cref model_name)
+optional<Model ptr> Model::add(string cref model_name, vector<Mesh> cref meshes)
 {
-    Log::info("Getting model \"{}\"...", model_name);
-    auto iter = model_map.find(model_name);
-    if (iter == model_map.end())
-    {
-        Log::warn("Getting model \"{}\": Failed", model_name);
-        return nullopt;
-    }
-    else
-    {
-        Log::info("Getting model \"{}\": Success", model_name);
-        return &iter->second;
-    }
+    Log::info("Adding model \"{}\" directly...", model_name);
+
+    Model ptr model = manager.get_new(model_name);
+    model->meshes = meshes;
+
+    Log::info("Adding model \"{}\" directly: Success.", model_name);
+    return model;
 }
 
-bool Model::exists(string cref model_name)
-{
-    return model_map.contains(model_name);
-}
+manager_funcs_cc(Model, model_name)
 
 void Model::render(Shader cptr shader) const
 {
@@ -94,20 +86,20 @@ void Model::import_mesh(aiMesh ptr a_mesh, aiScene cptr scene, string cref model
 
     for (uint i = 0; i < a_mesh->mNumVertices; i++)
     {
-        Vertex ref vertex = mesh.vertices.emplace_back();
-        
-        vertex.x = a_mesh->mVertices[i].x;
-        vertex.y = a_mesh->mVertices[i].y;
-        vertex.z = a_mesh->mVertices[i].z;
-        vertex.nx = a_mesh->mNormals[i].x;
-        vertex.ny = a_mesh->mNormals[i].y;
-        vertex.nz = a_mesh->mNormals[i].z;
-
-        if (a_mesh->mTextureCoords[0])
-        {
-            vertex.tx = a_mesh->mTextureCoords[0][i].x;
-            vertex.ty = a_mesh->mTextureCoords[0][i].y;
-        }
+        mesh.vertices.emplace_back() = {
+            .x = a_mesh->mVertices[i].x,
+            .y = a_mesh->mVertices[i].y,
+            .z = a_mesh->mVertices[i].z,
+            .nx = a_mesh->mNormals[i].x,
+            .ny = a_mesh->mNormals[i].y,
+            .nz = a_mesh->mNormals[i].z,
+            .tx = (a_mesh->mTextureCoords[0])
+                ? a_mesh->mTextureCoords[0][i].x
+                : 0,
+            .ty = (a_mesh->mTextureCoords[0])
+                ? a_mesh->mTextureCoords[0][i].y
+                : 0,
+        };
     }
 
     for (uint i = 0; i < a_mesh->mNumFaces; i++)
@@ -141,10 +133,8 @@ void Model::import_material(Mesh ref mesh, aiMaterial cptr mat, string cref mode
             //Get Texture, or add it if it doenst exist already
             Texture ptr texture = (Texture::exists(texture_path))
                 ? Texture::get(texture_path).value()
-                : Texture::add(texture_path).value()
+                : Texture::add(texture_path, type).value()
             ;
-
-            texture->type = cast<int>(type);
             mesh.textures.push_back(texture);
         }
     }
