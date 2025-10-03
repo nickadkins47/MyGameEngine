@@ -14,24 +14,22 @@
 #include "Manager.hh"
 
 class Model;
-class Shader;
 
 class Obj
 {
     public:
 
-    static optional<Obj ptr> add(string cref obj_name, string cref model_name, string cref shader_name);
+    static optional<Obj ptr> add(string cref obj_name, string cref model_name);
 
-    static optional<Obj ptr> add(string cref obj_name, Model ptr model, Shader ptr shader);
+    static optional<Obj ptr> add(string cref obj_name, Model ptr model);
 
     manager_funcs_hh(Obj, obj_name)
 
     delete_other_ops(Obj)
 
-    Model ptr model;
-    Shader ptr shader;
+    glm::mat4 model_mat {1.0f};
 
-    void render(glm::mat4 cref vp_mat) const;
+    Manager<Obj> inline static manager;
 
     glm::vec3 get_position() const;
     void set_position(glm::vec3 cref position);
@@ -41,12 +39,16 @@ class Obj
 
     void scale(glm::vec3 cref factor);
 
-    //protected:
-
-    Obj();
-
-    Manager<Obj> inline static manager;
+    constexpr Model ptr get_model();
     
-    glm::mat4 model_mat {1.0f};
+    void set_model(Model ptr model);
+
+    void unset_model();
+
+    Obj(); //TODO fix manager so it can call this constructor while this is private
+
+    protected:
+
+    Model ptr model = nullptr;
 
 };

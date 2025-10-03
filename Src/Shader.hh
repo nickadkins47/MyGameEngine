@@ -25,6 +25,7 @@ class Shader
     delete_other_ops(Shader)
 
     uint ID; //Shader program ID
+    int num_textures;
 
     //Use/Activate the Shader; AKA glUseProgram(ID);
     void use() const;
@@ -44,8 +45,6 @@ class Shader
     void uniform_uv(string_view name, int size, uint cptr value) const;
 
     void uniform_fm(string_view name, int cols, int rows, float cptr value, bool transpose = false) const;
-
-    //protected:
 
     Shader();
 

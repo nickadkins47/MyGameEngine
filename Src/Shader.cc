@@ -63,6 +63,7 @@ optional<Shader ptr> Shader::add(string cref shader_path, int num_lights, int nu
     }
 
     Shader ptr shader = manager.get_new(shader_path);
+    shader->num_textures = num_textures;
 
     shader->ID = glCreateProgram();
     glAttachShader(shader->ID, vert_shader);

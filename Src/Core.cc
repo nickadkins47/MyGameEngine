@@ -26,14 +26,13 @@ int main(int argc, char ** argv)
     vector<string_view> args (argv, argv + argc);
     for (int i = 0; i < args.size(); i++)
     {
-        if (args[i] == "-no_vsync") engine->opt_init_vsync = false;
-        else if (args[i] == "-L1") Log::init_logging(1);
-        else if (args[i] == "-L2") Log::init_logging(2);
-        else if (args[i] == "-L3") Log::init_logging(3);
-        else if (args[i] == "-S") {
+        if (args[i] == "-S") {
             engine->script_entrypoint = args.at(i + 1);
             i++;
         }
+        else if (args[i] == "-L1") Log::init_logging(1);
+        else if (args[i] == "-L2") Log::init_logging(2);
+        else if (args[i] == "-L3") Log::init_logging(3);
     }
 
     engine->initialize();
@@ -47,15 +46,15 @@ int main(int argc, char ** argv)
         Model::add("Models/FlatGround.obj", true);
         Model::add("Models/TutorialCube.obj", true);
 
-        Model::add("Models/Quads/nx.obj", true, false);
-        Model::add("Models/Quads/px.obj", true, false);
-        Model::add("Models/Quads/ny.obj", true, false);
-        Model::add("Models/Quads/py.obj", true, false);
-        Model::add("Models/Quads/nz.obj", true, false);
-        Model::add("Models/Quads/pz.obj", true, false);
+        Model::add("Models/Quads/nx.obj", true, false, true);
+        Model::add("Models/Quads/px.obj", true, false, true);
+        Model::add("Models/Quads/ny.obj", true, false, true);
+        Model::add("Models/Quads/py.obj", true, false, true);
+        Model::add("Models/Quads/nz.obj", true, false, true);
+        Model::add("Models/Quads/pz.obj", true, false, true);
 
         Shader::add("Shaders/Default", 8, 16);
-        Shader::add("Shaders/Temp");
+        Shader::add("Shaders/Instanced", 8, 16);
 
         Texture::add("Textures/awesomeface.png", 1);
         Texture::add("Textures/container.jpg", 1);
@@ -73,6 +72,8 @@ int main(int argc, char ** argv)
         Texture::add("Textures/test/test6.png", 1);
     }
 
+    engine->default_shader = Shader::get("Shaders/Default").value();
+
     //Light Cubes
 
     array<glm::vec3, 4> constexpr light_cube_positions {
@@ -84,13 +85,14 @@ int main(int argc, char ** argv)
 
     for (int i = 0; i < 4; i++)
     {
-        Light ref light = engine->lights.emplace_back();
-        light.mode = 1;
-        light.diffuse = glm::vec3(1.0f);
-        light.specular = glm::vec3(1.0f);
-        light.ambient = glm::vec3(0.0f);
-        light.attenuation = glm::vec3(0.025f, 0.05f, 1.0f);
-        light.position = light_cube_positions[i];
+        engine->lights.emplace_back() = {
+            .mode = 1,
+            .diffuse = glm::vec3(1.0f),
+            .specular = glm::vec3(1.0f),
+            .ambient = glm::vec3(0.0f),
+            .attenuation = glm::vec3(0.025f, 0.05f, 1.0f),
+            .position = light_cube_positions[i],
+        };
     }
 
     /* engine->lights[0].mode = 3;
@@ -98,16 +100,17 @@ int main(int argc, char ** argv)
     engine->lights[0].bright_rim = glm::cos(glm::radians(20.0f));
     engine->lights[0].dark_rim = glm::cos(glm::radians(25.0f)); */
 
-/*     Light ref directional_light = engine->lights.emplace_back();
-    directional_light.mode = 2;
-    directional_light.diffuse = glm::vec3(0.5f);
-    directional_light.specular = glm::vec3(0.5f);
-    directional_light.ambient = glm::vec3(0.25f);
-    directional_light.direction = glm::vec3(0.0f, 0.0f, -1.0f); */
+    /* engine->lights.emplace_back() = {
+        .mode = 2,
+        .diffuse = glm::vec3(0.5f),
+        .specular = glm::vec3(0.5f),
+        .ambient = glm::vec3(0.25f),
+        .direction = glm::vec3(0.0f, 0.0f, -1.0f),
+    }; */
 
     for (int i = 0; i < light_cube_positions.size(); i++)
     {
-        Obj ptr obj = Obj::add(format("Lightcube{}", i), "Models/TutorialCube.obj", "Shaders/Temp").value();
+        Obj ptr obj = Obj::add(format("Lightcube{}", i), "Models/TutorialCube.obj").value();
         obj->move_position(light_cube_positions[i]);
     }
     engine->lights[0].follower = Obj::get("Lightcube0").value();
@@ -125,25 +128,25 @@ int main(int argc, char ** argv)
     });
 
     {
-        Obj ptr obj = Obj::add("Ground", "Models/FlatGround.obj", "Shaders/Default").value();
+        Obj ptr obj = Obj::add("Ground", "Models/FlatGround.obj").value();
         obj->move_position(glm::vec3{0.0f, 0.0f, -3.0f});
         obj->scale(glm::vec3{128.0f});
     }
 
     {
-        Obj ptr obj = Obj::add("Backpack", "Models/Backpack/backpack.obj", "Shaders/Default").value();
+        Obj ptr obj = Obj::add("Backpack", "Models/Backpack/backpack.obj").value();
         obj->move_position(glm::vec3{10.0f, 10.0f, 15.0f});
     }
 
     {
-        Obj ptr obj = Obj::add("Duck", "Models/Duck/duck.dae", "Shaders/Default").value();
+        Obj ptr obj = Obj::add("Duck", "Models/Duck/duck.dae").value();
         obj->move_position(glm::vec3{-10.0f, -10.0f, 15.0f});
         obj->scale(glm::vec3(0.0325f));
         obj->rotate(90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
     }
 
     {
-        Obj ptr obj = Obj::add("Spider", "Models/Spider/spider.obj", "Shaders/Default").value();
+        Obj ptr obj = Obj::add("Spider", "Models/Spider/spider.obj").value();
         obj->move_position(glm::vec3{10.0f, -10.0f, 15.0f});
         obj->scale(glm::vec3(0.0325f));
         obj->rotate(90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -151,9 +154,8 @@ int main(int argc, char ** argv)
 
     //MCEng stuff
 
-    /* load_cube_txts();
+    load_cube_txts();
 
-    MyChunk::default_sh = Shader::get("Shaders/Default").value();
     MyChunk::quad_models = {
         Model::get("Models/Quads/nx.obj").value(),
         Model::get("Models/Quads/px.obj").value(),
@@ -162,6 +164,10 @@ int main(int argc, char ** argv)
         Model::get("Models/Quads/nz.obj").value(),
         Model::get("Models/Quads/pz.obj").value(),
     };
+
+    Shader ptr instanced_sh = Shader::get("Shaders/Instanced").value();
+    for (auto model : MyChunk::quad_models)
+        model->shader = instanced_sh;
 
     {
         Texture ptr grass_top = Texture::get("Textures/grass_top.png").value();
@@ -187,7 +193,7 @@ int main(int argc, char ** argv)
         {
             grid.load(cx,cy);
         }
-    } */
+    }
 
     //Other Runtime Callbacks
 
@@ -199,17 +205,17 @@ int main(int argc, char ** argv)
             kbd->at(GLFW_KEY_Q).is_down, kbd->at(GLFW_KEY_E).is_down, // +/- Up
         };
 
-        float move_speed = 
-            (kbd->at(GLFW_KEY_LEFT_SHIFT).is_down)?   0.5f :
-            (kbd->at(GLFW_KEY_LEFT_CONTROL).is_down)? 0.03125f :
-            /*Default*/ 0.125f
-        ;
-        
-        engine->camera->pos += move_speed * (
-            engine->camera->lookDirF * cast<float>(movements[0] - movements[1]) +
-            engine->camera->lookDirL * cast<float>(movements[2] - movements[3]) +
-            engine->camera->lookDirU * cast<float>(movements[4] - movements[5])
+        float move_speed = cast<float>(engine->delta_time) * (
+            (kbd->at(GLFW_KEY_LEFT_SHIFT).is_down)?   20.0f :
+            (kbd->at(GLFW_KEY_LEFT_CONTROL).is_down)? 5.0f :
+            /*Default*/ 10.0f
         );
+
+        engine->camera->move_position(move_speed * (
+            engine->camera->look_dir_f * cast<float>(movements[0] - movements[1]) +
+            engine->camera->look_dir_l * cast<float>(movements[2] - movements[3]) +
+            engine->camera->look_dir_u * cast<float>(movements[4] - movements[5])
+        ));
     });
 
     engine->runtime_cbs.push_back([](){
@@ -245,6 +251,9 @@ int main(int argc, char ** argv)
 
         for (auto ref [_, shader] : Shader::get_map())
             shader.uniform_i("extra_flag", cast<int>(b));
+
+        if (!b) engine->opt_vsync_enable();
+        else engine->opt_vsync_disable();
     });
 
     //Run Engine (Loop)

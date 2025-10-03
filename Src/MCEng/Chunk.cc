@@ -12,7 +12,6 @@
 #include "../Engine.hh"
 #include "../Obj.hh"
 #include "../Model.hh"
-#include "../Shader.hh"
 #include "../Texture.hh"
 
 MyChunk::MyChunk() {}
@@ -57,8 +56,9 @@ void MyChunk::register_cube(int lx, int x, int ly, int y, int z, six<bool> cref 
         static int num_quads_total = 0;
         if (!open_sides[i]) continue; //then dont make this face
 
-        Obj ptr obj = Obj::add(format("Quad[{}]", num_quads_total), quad_models[i], default_sh).value();
+        Obj ptr obj = Obj::add(format("Quad[{}]", num_quads_total), quad_models[i]).value();
         obj->move_position(gpos);
+        num_quads_total++;
     }
 }
 

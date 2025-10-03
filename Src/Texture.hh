@@ -24,8 +24,6 @@ class Texture
     int type = 0; //type recieved from assimp
     int width = 0, height = 0, src_channels = 0; //data recieved from stbi_load
 
-    //protected:
-
     Texture();
 
     Manager<Texture> inline static manager;

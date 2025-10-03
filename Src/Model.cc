@@ -10,15 +10,16 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include <glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "Engine.hh"
 #include "Model.hh"
+#include "Shader.hh"
 #include "Texture.hh"
 
 Model::Model() {}
 
-optional<Model ptr> Model::add(string cref model_path, bool winding_cw, bool flip_uvs)
+optional<Model ptr> Model::add(string cref model_path, bool winding_cw, bool flip_uvs, bool instanced)
 {
     Log::info("Adding model \"{}\" via Assimp...", model_path);
     Assimp::Importer importer;
@@ -37,9 +38,10 @@ optional<Model ptr> Model::add(string cref model_path, bool winding_cw, bool fli
 
     Model ptr model = manager.get_new(model_path);
     model->winding_cw = winding_cw;
+    model->instanced = instanced;
 
     string const model_dir = std::filesystem::path(model_path).parent_path().string();
-    model->import_node(scene->mRootNode, scene, model_dir);
+    model->import_node(scene->mRootNode, scene, model_dir, instanced);
 
     Log::info("Adding model \"{}\" via Assimp: Success", model_path);
     return model;
@@ -51,6 +53,8 @@ optional<Model ptr> Model::add(string cref model_name, vector<Mesh> cref meshes)
 
     Model ptr model = manager.get_new(model_name);
     model->meshes = meshes;
+    for (auto ref mesh : model->meshes)
+        mesh.parent = model;
 
     Log::info("Adding model \"{}\" directly: Success.", model_name);
     return model;
@@ -58,32 +62,52 @@ optional<Model ptr> Model::add(string cref model_name, vector<Mesh> cref meshes)
 
 manager_funcs_cc(Model, model_name)
 
-void Model::render(Shader cptr shader) const
+void Model::render() const
 {
+    Shader ptr shader = (this->shader == nullptr)
+        ? engine->default_shader
+        : this->shader
+    ;
+    shader->use();
+
     glFrontFace(winding_cw ? GL_CW : GL_CCW);
 
-    for (Mesh cref mesh : meshes)
-        mesh.render(shader);
+    if (instanced)
+    {
+        //model mat buffer (IVBO) should already be set
+        for (auto ref mesh : meshes)
+            mesh.render(shader);
+    }
+    else //not instanced -> render normally
+    {
+        for (auto obj : parent_objs)
+        {
+            shader->uniform_fm("m_mat", 4,4, glm::value_ptr(obj->model_mat));
+            for (auto ref mesh : meshes)
+                mesh.render(shader);
+        }
+    }
 }
 
-void Model::import_node(aiNode ptr node, aiScene cptr scene, string cref model_dir)
+void Model::import_node(aiNode ptr node, aiScene cptr scene, string cref model_dir, bool instanced)
 {
     for (uint i = 0; i < node->mNumMeshes; i++)
     {
         aiMesh ptr mesh = scene->mMeshes[node->mMeshes[i]];
-        import_mesh(mesh, scene, model_dir);
+        import_mesh(mesh, scene, model_dir, instanced);
     }
 
     for (uint i = 0; i < node->mNumChildren; i++)
     {
-        import_node(node->mChildren[i], scene, model_dir);
+        import_node(node->mChildren[i], scene, model_dir, instanced);
     }
 }
 
-void Model::import_mesh(aiMesh ptr a_mesh, aiScene cptr scene, string cref model_dir)
+void Model::import_mesh(aiMesh ptr a_mesh, aiScene cptr scene, string cref model_dir, bool instanced)
 {
-    Mesh ref mesh = meshes.emplace_back();
+    Mesh ref mesh = meshes.emplace_back(this);
 
+    //TODO: mesh.vertices.reserve() for however many vertices there are
     for (uint i = 0; i < a_mesh->mNumVertices; i++)
     {
         mesh.vertices.emplace_back() = {
@@ -112,7 +136,7 @@ void Model::import_mesh(aiMesh ptr a_mesh, aiScene cptr scene, string cref model
     if (a_mesh->mMaterialIndex >= 0)
         import_material(mesh, scene->mMaterials[a_mesh->mMaterialIndex], model_dir);
 
-    mesh.gen_gl_data();
+    mesh.gen_gl_data(true, instanced);
 }
 
 void Model::import_material(Mesh ref mesh, aiMaterial cptr mat, string cref model_dir)

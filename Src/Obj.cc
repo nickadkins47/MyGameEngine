@@ -5,57 +5,37 @@
  *  @brief: 
  */
 
-#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
+#include "Engine.hh"
 #include "Model.hh"
 #include "Obj.hh"
-#include "Shader.hh"
 
 Obj::Obj() {}
 
-optional<Obj ptr> Obj::add(string cref obj_name, string cref model_name, string cref shader_name)
+optional<Obj ptr> Obj::add(string cref obj_name, string cref model_name)
 {
     Log::info("Adding obj \"{}\"...", obj_name);
     
     Obj ptr obj = manager.get_new(obj_name);
-    obj->model = Model::get(model_name).value();
-    obj->shader = Shader::get(shader_name).value();
+    obj->set_model(Model::get(model_name).value());
 
     Log::info("Adding obj \"{}\": Success", obj_name);
     return obj;
 }
 
-optional<Obj ptr> Obj::add(string cref obj_name, Model ptr model, Shader ptr shader)
+optional<Obj ptr> Obj::add(string cref obj_name, Model ptr model)
 {
     Log::info("Adding obj \"{}\"...", obj_name);
     
     Obj ptr obj = manager.get_new(obj_name);
-    obj->model = model;
-    obj->shader = shader;
+    obj->set_model(model);
 
     Log::info("Adding obj \"{}\": Success", obj_name);
     return obj;
 }
 
 manager_funcs_cc(Obj, obj_name)
-
-void Obj::render(glm::mat4 cref vp_mat) const
-{
-    shader->use();
-
-    //cam's vp_mat * obj's model_mat
-    glm::mat4 mvp_mat = vp_mat * model_mat;
-
-    shader->uniform_fm("mvp_mat", 4,4, glm::value_ptr(mvp_mat));
-    shader->uniform_fm("m_mat", 4,4, glm::value_ptr(model_mat));
-
-    //model matrix, inverted transposed & reduced to a mat3
-    glm::mat3 model_mat_itr = glm::mat3(glm::transpose(glm::inverse(model_mat)));
-
-    shader->uniform_fm("m_mat_itr", 3,3, glm::value_ptr(model_mat_itr));
-    
-    model->render(shader);
-}
 
 glm::vec3 Obj::get_position() const
 {
@@ -80,4 +60,44 @@ void Obj::rotate(float deg, glm::vec3 cref axis)
 void Obj::scale(glm::vec3 cref factor)
 {
     model_mat = glm::scale(model_mat, factor);
+}
+
+constexpr Model ptr Obj::get_model()
+{
+    return model;
+}
+
+void Obj::set_model(Model ptr model)
+{
+    if (this->model != nullptr) unset_model();
+
+    this->model = model;
+    this->model->parent_objs.push_back(this);
+
+    if (engine->is_running)
+    {
+        for (auto ref mesh : model->meshes)
+        {
+            if (mesh.IVBO != 0) //if instanced
+                mesh.update_instance_m_mats();
+        }
+    }
+}
+
+void Obj::unset_model()
+{
+    auto iter = std::find(model->parent_objs.cbegin(), model->parent_objs.cend(), this);
+    if (iter == model->parent_objs.cend()) return;
+    model->parent_objs.erase(iter);
+
+    if (engine->is_running)
+    {
+        for (auto ref mesh : model->meshes)
+        {
+            if (mesh.IVBO != 0) //if instanced
+                mesh.update_instance_m_mats();
+        }
+    }
+
+    this->model = nullptr;
 }

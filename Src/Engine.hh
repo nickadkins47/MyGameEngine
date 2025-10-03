@@ -15,6 +15,7 @@ struct GLFWwindow;
 class ButtonHandler;
 class Camera;
 class ScriptEng;
+class Shader;
 
 class Engine
 {
@@ -28,23 +29,24 @@ class Engine
 
     void run();
 
-    //protected:
-
     string window_name = "MyGameEngine";
-    bool valid = true;
 
     string script_entrypoint = "Scripts/Main.as";
-    bool opt_init_vsync = true;
+    bool is_running = false;
 
     GLFWwindow ptr window = nullptr;
     int window_width  = 1200;
     int window_height = 900;
+
+    double delta_time = 0; //time between this frame & previous
 
     ScriptEng ptr script_engine;
 
     ButtonHandler ptr keyboard;
     ButtonHandler ptr mouse_buttons;
     Camera ptr camera;
+
+    Shader ptr default_shader = nullptr;
 
     vector<Light> lights;
 
@@ -56,6 +58,9 @@ class Engine
 
     void initialize();
     void shutdown();
+
+    void opt_vsync_enable();
+    void opt_vsync_disable();
 
 };
 

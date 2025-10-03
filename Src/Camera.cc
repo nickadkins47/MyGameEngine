@@ -6,9 +6,11 @@
  */
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "Camera.hh"
 #include "Engine.hh"
+#include "Shader.hh"
 
 Camera::Camera() {}
 
@@ -35,17 +37,34 @@ void Camera::update_angle(float xpos, float ypos)
 
 glm::mat4 Camera::get_vp_mat() const
 {
-    return proj_mat * glm::lookAt(pos, pos + lookDirF, lookDirU); //proj_mat * view_mat
+    return p_mat * v_mat;
 }
 
-void Camera::set_proj_mat(float fov_degrees, float near_z, float far_z)
+void Camera::set_p_mat(float fov_degrees, float near_z, float far_z)
 {
     float const aspect_ratio = 
         cast<float>(engine->window_width) / 
         cast<float>(engine->window_height);
-    proj_mat = glm::perspective(
+    p_mat = glm::perspective(
         glm::radians(fov_degrees), aspect_ratio, near_z, far_z
     );
+}
+
+glm::vec3 Camera::get_position() const
+{
+    return pos;
+}
+
+void Camera::set_position(glm::vec3 cref position)
+{
+    pos = position;
+    recalculate_v_mat();
+}
+
+void Camera::move_position(glm::vec3 cref position)
+{
+    pos += position;
+    recalculate_v_mat();
 }
 
 void Camera::recalculate_vecs()
@@ -65,11 +84,18 @@ void Camera::recalculate_vecs()
         yaw -= 360.0f;
     }
 
-    lookDirF = glm::normalize(glm::vec3(
+    look_dir_f = glm::normalize(glm::vec3(
         glm::sin(glm::radians(yaw)) * glm::cos(glm::radians(pitch)),
         glm::cos(glm::radians(yaw)) * glm::cos(glm::radians(pitch)),
         glm::sin(glm::radians(pitch))
     ));
-    lookDirL = glm::normalize(glm::cross(glm::vec3{0.0f, 0.0f, 1.0f}, lookDirF));
-    lookDirU = glm::normalize(glm::cross(lookDirF, lookDirL));
+    look_dir_l = glm::normalize(glm::cross(glm::vec3{0.0f, 0.0f, 1.0f}, look_dir_f));
+    look_dir_u = glm::normalize(glm::cross(look_dir_f, look_dir_l));
+
+    recalculate_v_mat();
+}
+
+void Camera::recalculate_v_mat()
+{
+    v_mat = glm::lookAt(pos, pos + look_dir_f, look_dir_u);
 }

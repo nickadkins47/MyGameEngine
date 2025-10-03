@@ -25,8 +25,6 @@ class ScriptEng
     //Must be done after main Engine is done initializing
     void run(string_view script_path);
 
-    //protected:
-
     asIScriptEngine ptr s_engine = nullptr;
 
     vector<asIScriptFunction ptr> s_funcs;

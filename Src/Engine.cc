@@ -26,6 +26,8 @@ Engine::~Engine() {}
 
 void Engine::run()
 {
+    is_running = true;
+
     //Init script stuff
     script_engine->run(script_entrypoint);
 
@@ -34,12 +36,22 @@ void Engine::run()
     {
         shader.use();
         for (int i = 0; i < lights.size(); i++)
-            lights[i].update(i, &shader);
+            update_light(i, &shader);
+    }
+
+    //Init Instanced Mesh data
+    for (auto ref [_, model] : Model::get_map())
+    {
+        for (auto ref mesh : model.meshes)
+        {
+            const_cast<Mesh ref>(mesh).update_instance_m_mats();
+        }
     }
 
     //Init FPS Counter
     double constexpr one_second = 1.0;
-    double prev_time = glfwGetTime();
+    double fps_prev_time = glfwGetTime();
+    double fps_cur_time = fps_prev_time;
     int frame_count = 0;
     int display_fps = 0;
     double display_ms_frame = 0.0;
@@ -50,7 +62,9 @@ void Engine::run()
     //Main Engine Loop
     for (/**/; !glfwWindowShouldClose(window); glfwPollEvents())
     {
-        if (!valid) return; //If game engine is to shut down, then break here
+        frame_count++;
+        delta_time = glfwGetTime() - fps_cur_time;
+        fps_cur_time += delta_time;
 
         //ImGui New Frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -58,13 +72,11 @@ void Engine::run()
         ImGui::NewFrame();
         
         //FPS Count Handler
-        double current_time = glfwGetTime();
-        frame_count++;
-        if (current_time - prev_time >= one_second) //if a second has passed
+        if (fps_cur_time - fps_prev_time >= one_second) //if a second has passed
         {
             display_fps = frame_count;
             display_ms_frame = 1000.0 / cast<double>(frame_count);
-            prev_time += one_second;
+            fps_prev_time += one_second;
             frame_count = 0;
         }
         ImGui::Begin("FPS Counter");
@@ -76,11 +88,12 @@ void Engine::run()
         for (auto cref cb : runtime_cbs)
             cb();
 
-        //Update camera values in all shaders
+        //Update all shaders with certain values
         for (auto cref [_, shader] : Shader::get_map())
         {
             shader.use();
-            shader.uniform_fv("view_pos", 3, glm::value_ptr(camera->pos));
+            shader.uniform_fv("view_pos", 3, glm::value_ptr(camera->get_position()));
+            shader.uniform_fm("vp_mat", 4,4, glm::value_ptr(camera->get_vp_mat()));
         }
 
         //Update moving lights
@@ -92,20 +105,18 @@ void Engine::run()
                 for (auto cref [_, shader] : Shader::get_map())
                 {
                     shader.use();
-                    lights[i].update_pos(i, &shader);
+                    update_light_pos(i, &shader);
                 }
             }
         }
 
         //Obj Rendering
 
-        glm::mat4 const vp_mat = camera->get_vp_mat();
-
         glClearColor(skybox_color.x, skybox_color.y, skybox_color.z, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        for (auto cref [_, obj] : Obj::get_map())
-            obj.render(vp_mat);
+        for (auto cref [_, model] : Model::get_map())
+            model.render();
 
         //ImGui Rendering
         ImGui::Render();
@@ -147,8 +158,7 @@ void Engine::initialize()
     
     glfwMakeContextCurrent(window);
 
-    if (opt_init_vsync)
-        glfwSwapInterval(1);
+    opt_vsync_enable();
 
     //GLAD Init
 
@@ -205,7 +215,6 @@ void Engine::initialize()
 void Engine::shutdown()
 {
     Log::info("Shutting Down");
-    valid = false;
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
@@ -215,4 +224,14 @@ void Engine::shutdown()
 
     //TODO: more detailed terminate?
     //also learn more about deleting certain specific things
+}
+
+void Engine::opt_vsync_enable()
+{
+    glfwSwapInterval(1);
+}
+
+void Engine::opt_vsync_disable()
+{
+    glfwSwapInterval(0);
 }

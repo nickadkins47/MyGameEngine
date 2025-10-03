@@ -5,10 +5,15 @@
  *  @brief: 
  */
 
+#include <glad/glad.h>
+#include <glm/mat4x4.hpp>
+
 #include "Core.hh"
 
 #pragma once
 
+class Obj;
+class Model;
 class Shader;
 class Texture;
 
@@ -18,9 +23,9 @@ union Vertex
     float at[size] = {};
     struct
     {
-        float x, y, z; //position
+        float x, y, z;  //position
         float nx,ny,nz; //normals
-        float tx,ty; //texture coords
+        float tx,ty;    //texture coords
     };
 };
 
@@ -28,31 +33,42 @@ class Mesh
 {
     public:
 
-    Mesh();
+    Mesh(Model ptr parent);
 
-    //delete_other_ops(Mesh)
-
-    uint VAO, VBO, EBO;
-    
-    //bool use_EBO; //TODO
-
-    //TODO Desc: Creates the model's VAO, VBO, and EBO, from the vertices & indices
-    void gen_gl_data();
-
-    //Renders the model on screen, based on the model matrix
-    //that is loaded into the shader beforehand
-    //(Also binds the model's VAO, VBO, and EBO)
-    void render(Shader cptr shader) const;
-
-    //protected:
+    uint VAO = 0;  //Vertex Array Object
+    uint VBO = 0;  //Vertex Buffer Object (Main)
+    uint IVBO = 0; //Vertex Buffer Object (Instances)
+    uint EBO = 0;  //Element Buffer Object
 
     vector<Vertex> vertices;
-    vector<uint> indices;
     vector<Texture ptr> textures;
     float shininess = 32.0f; //TEMP default value
 
-    static void vertex_attribute_array(uint val_type, vector<uint> cref attributes);
+    vector<uint> indices;
+
+    vector<glm::mat4> instance_m_mats;
+
+    Model ptr parent;
+
+    //TODO Desc: Creates the model's VAO, VBO, and EBO, from the vertices & indices
+    void gen_gl_data(bool is_indexed = false, bool is_instanced = false);
+
+    //TODO DESC: Renders the model on screen, based on the
+    //model matrix that is loaded into the shader beforehand
+    void render(Shader cptr shader) const;
+
+    //TODO DESC: updates instance mat4 values. Expensive, so use sparingly
+    void update_instance_m_mats();
+
+    static void set_vertex_attribs(uint val_type, int location, vector<uint> cref attributes, int divisor = 0);
 
     static constexpr int sizeof_gl_type(uint type);
+
+    template<typename T>
+    inline static void set_buffer(uint ID, uint type, vector<T> cref data, uint usage)
+    {
+        glBindBuffer(type, ID);
+        glBufferData(type, data.size() * sizeof(T), data.data(), usage);
+    }
 
 };

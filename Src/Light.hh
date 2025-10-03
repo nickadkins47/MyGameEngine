@@ -14,14 +14,8 @@
 class Obj;
 class Shader;
 
-class Light
+struct Light
 {
-    public:
-
-    Light();
-
-    //delete_other_ops(Light)
-
     int mode = 0; //0: Ignore, 1: Normal Light, 2: Global Light, 3: Spotlight
 
     glm::vec3 diffuse {0.0f};
@@ -34,11 +28,10 @@ class Light
     float dark_rim = 0.0f;
 
     Obj ptr follower = nullptr; //Set to have the light follow the obj
-
-    //Updates the GPU's light[index] to match the one in this class
-    void update(int index, Shader cptr shader) const;
-
-    //Updates the position of the GPU's light[index] to match the one in this class
-    void update_pos(int index, Shader cptr shader) const;
-
 };
+
+//Updates the GPU's light[index] to match the one in this class
+void update_light(int index, Shader cptr shader);
+
+//Updates the position of the GPU's light[index] to match the one in this class
+void update_light_pos(int index, Shader cptr shader);

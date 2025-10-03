@@ -11,7 +11,6 @@
 #include "../Core.hh"
 
 class Model;
-class Shader;
 
 class MyChunk
 {
@@ -43,7 +42,6 @@ class MyChunk
     size_t inline static const z_dim = 16;
 
     array<Model ptr, 6> inline static quad_models;
-    Shader inline static ptr default_sh = nullptr;
 
     protected:
 

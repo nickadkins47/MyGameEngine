@@ -7,26 +7,26 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Engine.hh"
 #include "Light.hh"
 #include "Shader.hh"
 
-Light::Light() {}
-
-void Light::update(int index, Shader cptr shader) const
+void update_light(int index, Shader cptr shader)
 {
     string const lname = format("lights[{}].", index);
-    shader->uniform_i (lname+"mode"       , mode);
-    shader->uniform_fv(lname+"diffuse"    , 3, glm::value_ptr(diffuse));
-    shader->uniform_fv(lname+"specular"   , 3, glm::value_ptr(specular));
-    shader->uniform_fv(lname+"ambient"    , 3, glm::value_ptr(ambient));
-    shader->uniform_fv(lname+"attenuation", 3, glm::value_ptr(attenuation));
-    shader->uniform_fv(lname+"position"   , 3, glm::value_ptr(position));
-    shader->uniform_fv(lname+"direction"  , 3, glm::value_ptr(direction));
-    shader->uniform_f (lname+"bright_rim" , bright_rim);
-    shader->uniform_f (lname+"dark_rim"   , dark_rim);
+    Light cref light = engine->lights[index];
+    shader->uniform_i (lname+"mode"       , light.mode);
+    shader->uniform_fv(lname+"diffuse"    , 3, glm::value_ptr(light.diffuse));
+    shader->uniform_fv(lname+"specular"   , 3, glm::value_ptr(light.specular));
+    shader->uniform_fv(lname+"ambient"    , 3, glm::value_ptr(light.ambient));
+    shader->uniform_fv(lname+"attenuation", 3, glm::value_ptr(light.attenuation));
+    shader->uniform_fv(lname+"position"   , 3, glm::value_ptr(light.position));
+    shader->uniform_fv(lname+"direction"  , 3, glm::value_ptr(light.direction));
+    shader->uniform_f (lname+"bright_rim" , light.bright_rim);
+    shader->uniform_f (lname+"dark_rim"   , light.dark_rim);
 }
 
-void Light::update_pos(int index, Shader cptr shader) const
+void update_light_pos(int index, Shader cptr shader)
 {
-    shader->uniform_fv(format("lights[{}].position", index), 3, glm::value_ptr(position));
+    shader->uniform_fv(format("lights[{}].position", index), 3, glm::value_ptr(engine->lights[index].position));
 }

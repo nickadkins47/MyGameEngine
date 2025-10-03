@@ -125,11 +125,11 @@ ScriptEng::ScriptEng()
     });
 
     global_func(void, camera_proj_mat, [], (float fov_degrees, float near_z, float far_z), {
-        engine->camera->set_proj_mat(fov_degrees, near_z, far_z);
+        engine->camera->set_p_mat(fov_degrees, near_z, far_z);
     });
 
     global_func(void, camera_pos, [], (float x, float y, float z), {
-        engine->camera->pos = glm::vec3(x,y,z);
+        engine->camera->set_position(glm::vec3(x,y,z));
     });
 
     //General Functions
@@ -209,7 +209,7 @@ void ScriptEng::run(string_view script_path)
 
 bool ScriptEng::run_as_function(asIScriptFunction ptr cb)
 {
-    char cptr cref name = cb->GetName();
+    string_view name = cb->GetName();
     Log::info("ScrEng running function \"{}\"...", name);
 
     asIScriptContext ptr s_ctx = s_engine->CreateContext();
