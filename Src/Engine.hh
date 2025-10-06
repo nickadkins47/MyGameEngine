@@ -59,6 +59,8 @@ class Engine
     void initialize();
     void shutdown();
 
+    void render();
+
     void opt_vsync_enable();
     void opt_vsync_disable();
 

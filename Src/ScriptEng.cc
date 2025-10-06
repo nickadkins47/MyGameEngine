@@ -6,8 +6,10 @@
  */
 
 #include <angelscript.h>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <glbinding/gl33core/enum.h>
+#include <glbinding/gl33core/functions.h>
+    using namespace gl;
+#include "Ext/GLFW.hh"
 
 #include "Ext/ScriptBuilder.hh"
 #include "ButtonHandler.hh"

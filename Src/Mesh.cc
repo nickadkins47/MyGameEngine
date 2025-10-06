@@ -5,7 +5,8 @@
  *  @brief: 
  */
 
-#include <glad/glad.h>
+#include <glbinding/gl33core/functions.h>
+    using namespace gl;
 
 #include "Mesh.hh"
 #include "Model.hh"
@@ -97,7 +98,7 @@ void Mesh::update_instance_m_mats()
     set_buffer(IVBO, GL_ARRAY_BUFFER, instance_m_mats, GL_DYNAMIC_DRAW);
 }
 
-void Mesh::set_vertex_attribs(uint val_type, int location, vector<uint> cref attributes, int divisor)
+void Mesh::set_vertex_attribs(GLenum val_type, int location, vector<uint> cref attributes, int divisor)
 {
     int total_size = 0;
     for (uint attr : attributes)
@@ -116,7 +117,7 @@ void Mesh::set_vertex_attribs(uint val_type, int location, vector<uint> cref att
     }
 }
 
-constexpr int Mesh::sizeof_gl_type(uint val_type)
+constexpr int Mesh::sizeof_gl_type(GLenum val_type)
 {
     switch (val_type)
     {

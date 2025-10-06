@@ -7,7 +7,7 @@ set_policy("run.autobuild", true) -- xmake run -> will build & run program
 
 add_requires("angelscript 2.37.0")
 add_requires("assimp v5.4.3")
-add_requires("glad v0.1.36")
+add_requires("glbinding v3.5.0")
 add_requires("glfw 3.4")
 add_requires("glm 1.0.1")
 add_requires("imgui 1.91.8", {configs = {glfw_opengl3=true}})
@@ -19,7 +19,7 @@ target("main")
     set_languages("c++23")
     set_extension(".exe")
     add_files("Src/**.cc")
-    add_packages("angelscript", "assimp", "glad", "glfw", "glm", "imgui", "stb")
+    add_packages("angelscript", "assimp", "glbinding", "glfw", "glm", "imgui", "stb")
 
     set_warnings("all")
         -- all

@@ -5,8 +5,9 @@
  *  @brief: 
  */
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <glbinding/gl33core/gl.h>
+    using namespace gl;
+#include "Ext/GLFW.hh"
 #include <glm/trigonometric.hpp>
 
 #include "MCEng/Grid.hh"

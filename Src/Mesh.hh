@@ -5,12 +5,14 @@
  *  @brief: 
  */
 
-#include <glad/glad.h>
+#pragma once
+
+#include <glbinding/gl33core/enum.h>
+#include <glbinding/gl33core/functions.h>
+    using namespace gl;
 #include <glm/mat4x4.hpp>
 
 #include "Core.hh"
-
-#pragma once
 
 class Obj;
 class Model;
@@ -60,12 +62,12 @@ class Mesh
     //TODO DESC: updates instance mat4 values. Expensive, so use sparingly
     void update_instance_m_mats();
 
-    static void set_vertex_attribs(uint val_type, int location, vector<uint> cref attributes, int divisor = 0);
+    static void set_vertex_attribs(GLenum val_type, int location, vector<uint> cref attributes, int divisor = 0);
 
-    static constexpr int sizeof_gl_type(uint type);
+    static constexpr int sizeof_gl_type(GLenum type);
 
     template<typename T>
-    inline static void set_buffer(uint ID, uint type, vector<T> cref data, uint usage)
+    inline static void set_buffer(uint ID, GLenum type, vector<T> cref data, GLenum usage)
     {
         glBindBuffer(type, ID);
         glBufferData(type, data.size() * sizeof(T), data.data(), usage);

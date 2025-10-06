@@ -10,6 +10,9 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <glbinding/gl33core/enum.h>
+#include <glbinding/gl33core/functions.h>
+    using namespace gl;
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Engine.hh"
@@ -61,33 +64,6 @@ optional<Model ptr> Model::add(string cref model_name, vector<Mesh> cref meshes)
 }
 
 manager_funcs_cc(Model, model_name)
-
-void Model::render() const
-{
-    Shader ptr shader = (this->shader == nullptr)
-        ? engine->default_shader
-        : this->shader
-    ;
-    shader->use();
-
-    glFrontFace(winding_cw ? GL_CW : GL_CCW);
-
-    if (instanced)
-    {
-        //model mat buffer (IVBO) should already be set
-        for (auto ref mesh : meshes)
-            mesh.render(shader);
-    }
-    else //not instanced -> render normally
-    {
-        for (auto obj : parent_objs)
-        {
-            shader->uniform_fm("m_mat", 4,4, glm::value_ptr(obj->model_mat));
-            for (auto ref mesh : meshes)
-                mesh.render(shader);
-        }
-    }
-}
 
 void Model::import_node(aiNode ptr node, aiScene cptr scene, string cref model_dir, bool instanced)
 {

@@ -9,7 +9,9 @@
 #include <print>
 #include <sstream>
 
-#include <glad/glad.h>
+#include <glbinding/gl33core/enum.h>
+#include <glbinding/gl33core/functions.h>
+    using namespace gl;
 
 #include "AuxFuncs.hh"
 

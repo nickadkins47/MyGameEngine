@@ -33,8 +33,6 @@ class Model
 
     bool winding_cw = false; //render Clockwise (CW) instead of Counterclockwise (CCW)
 
-    void render() const;
-
     Model();
 
     Manager<Model> inline static manager;

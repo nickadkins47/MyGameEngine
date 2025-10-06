@@ -5,7 +5,9 @@
  *  @brief: 
  */
 
-#include <glad/glad.h>
+#include <glbinding/gl33core/enum.h>
+#include <glbinding/gl33core/functions.h>
+    using namespace gl;
 
 #include "Engine.hh"
 #include "Shader.hh"

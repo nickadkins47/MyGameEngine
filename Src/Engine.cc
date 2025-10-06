@@ -5,8 +5,10 @@
  *  @brief: 
  */
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <glbinding/gl33core/gl.h>
+    using namespace gl;
+#include <glbinding/glbinding.h>
+#include "Ext/GLFW.hh"
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
@@ -110,13 +112,12 @@ void Engine::run()
             }
         }
 
-        //Obj Rendering
+        //Mesh/Model/Obj Rendering
 
         glClearColor(skybox_color.x, skybox_color.y, skybox_color.z, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        for (auto cref [_, model] : Model::get_map())
-            model.render();
+        render();
 
         //ImGui Rendering
         ImGui::Render();
@@ -135,7 +136,7 @@ void Engine::initialize()
     Log::info("Initializing...");
 
     //GLFW Init
-    
+
     if (!glfwInit())
     {
         Log::error("Initializing: Failed (Couldn't initialize GLFW)");
@@ -160,14 +161,9 @@ void Engine::initialize()
 
     opt_vsync_enable();
 
-    //GLAD Init
+    //OpenGL Init
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        Log::error("Initializing: Failed (Couldn't initialize GLAD)");
-        shutdown();
-        return;
-    }
+    glbinding::initialize(glfwGetProcAddress);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -224,6 +220,36 @@ void Engine::shutdown()
 
     //TODO: more detailed terminate?
     //also learn more about deleting certain specific things
+}
+
+void Engine::render()
+{
+    for (auto cref [_, model] : Model::get_map())
+    {
+        Shader ptr shader = (model.shader == nullptr)
+            ? default_shader
+            : model.shader
+        ;
+        shader->use();
+
+        glFrontFace(model.winding_cw ? GL_CW : GL_CCW);
+
+        if (model.instanced)
+        {
+            //model mat buffer (IVBO) should already be set
+            for (auto ref mesh : model.meshes)
+                mesh.render(shader);
+        }
+        else //not instanced -> render normally
+        {
+            for (auto obj : model.parent_objs)
+            {
+                shader->uniform_fm("m_mat", 4,4, glm::value_ptr(obj->model_mat));
+                for (auto ref mesh : model.meshes)
+                    mesh.render(shader);
+            }
+        }
+    }
 }
 
 void Engine::opt_vsync_enable()
