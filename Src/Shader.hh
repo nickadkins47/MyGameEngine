@@ -12,20 +12,18 @@
 
 class Texture;
 
-class Shader
+class Shader : public Manager<Shader>
 {
     public:
 
     //TODO DESC: Reads & Builds the Shader based on the provided path
     //given (path) has no extensions, it will look for (path).vert & (path).frag
     static optional<Shader ptr> add(string cref shader_path, int num_lights = 0, int num_textures = 0);
-
-    manager_funcs_hh(Shader, shader_name)
     
     delete_other_ops(Shader)
 
-    uint ID; //Shader program ID
-    int num_textures;
+    uint ID = 0; //Shader program ID
+    int num_textures = 0;
 
     //Use/Activate the Shader; AKA glUseProgram(ID);
     void use() const;
@@ -46,8 +44,5 @@ class Shader
 
     void uniform_fm(string_view name, int cols, int rows, float cptr value, bool transpose = false) const;
 
-    Shader();
-
-    Manager<Shader> inline static manager;
-
+    Shader(); //do not manually call. always use _::add() instead
 };

@@ -6,9 +6,8 @@
  */
 
 #include <angelscript.h>
-#include <glbinding/gl33core/enum.h>
-#include <glbinding/gl33core/functions.h>
-    using namespace gl;
+#include "Ext/GL/Enum.hh"
+#include "Ext/GL/Functions.hh"
 #include "Ext/GLFW.hh"
 
 #include "Ext/ScriptBuilder.hh"

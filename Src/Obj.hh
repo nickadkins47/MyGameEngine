@@ -15,7 +15,7 @@
 
 class Model;
 
-class Obj
+class Obj : public Manager<Obj>
 {
     public:
 
@@ -23,13 +23,9 @@ class Obj
 
     static optional<Obj ptr> add(string cref obj_name, Model ptr model);
 
-    manager_funcs_hh(Obj, obj_name)
-
     delete_other_ops(Obj)
 
     glm::mat4 model_mat {1.0f};
-
-    Manager<Obj> inline static manager;
 
     glm::vec3 get_position() const;
     void set_position(glm::vec3 cref position);
@@ -45,10 +41,9 @@ class Obj
 
     void unset_model();
 
-    Obj(); //TODO fix manager so it can call this constructor while this is private
+    Obj(); //do not manually call. always use _::add() instead
 
     protected:
 
     Model ptr model = nullptr;
-
 };

@@ -5,9 +5,8 @@
  *  @brief: 
  */
 
-#include <glbinding/gl33core/enum.h>
-#include <glbinding/gl33core/functions.h>
-    using namespace gl;
+#include "Ext/GL/Enum.hh"
+#include "Ext/GL/Functions.hh"
 
 #include "Engine.hh"
 #include "Shader.hh"
@@ -64,7 +63,7 @@ optional<Shader ptr> Shader::add(string cref shader_path, int num_lights, int nu
         return nullopt;
     }
 
-    Shader ptr shader = manager.get_new(shader_path);
+    Shader ptr shader = get_new(shader_path);
     shader->num_textures = num_textures;
 
     shader->ID = glCreateProgram();
@@ -98,8 +97,6 @@ optional<Shader ptr> Shader::add(string cref shader_path, int num_lights, int nu
     Log::info("Adding shaders \"{}\": Success", shader_path);
     return shader;
 }
-
-manager_funcs_cc(Shader, shader_name)
 
 void Shader::use() const
 {

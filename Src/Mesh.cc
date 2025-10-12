@@ -5,8 +5,7 @@
  *  @brief: 
  */
 
-#include <glbinding/gl33core/functions.h>
-    using namespace gl;
+#include "Ext/GL/Functions.hh"
 
 #include "Mesh.hh"
 #include "Model.hh"
@@ -45,11 +44,9 @@ void Mesh::gen_gl_data(bool is_indexed, bool is_instanced)
     }
 }
 
-void Mesh::render(Shader cptr shader) const
+void Mesh::set_textures(Shader cptr shader) const
 {
     int static prev_tex_num = 0;
-
-    glBindVertexArray(VAO);
 
     //shader should be already binded at this point
 
@@ -67,8 +64,11 @@ void Mesh::render(Shader cptr shader) const
     prev_tex_num = tex_num;
 
     shader->uniform_f("shininess", shininess);
+}
 
-    //glDrawElements         (GL_TRIANGLES, cast<int>(indices.size()), GL_UNSIGNED_INT, 0);
+void Mesh::draw() const
+{
+    glBindVertexArray(VAO);
 
     //TODO: more options for how to render things? IE like GL_QUADS, GL_TRIANGLE_FAN, etc
     if (EBO == 0) //not indexed

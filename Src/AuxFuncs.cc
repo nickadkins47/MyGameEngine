@@ -9,9 +9,8 @@
 #include <print>
 #include <sstream>
 
-#include <glbinding/gl33core/enum.h>
-#include <glbinding/gl33core/functions.h>
-    using namespace gl;
+#include "Ext/GL/Enum.hh"
+#include "Ext/GL/Functions.hh"
 
 #include "AuxFuncs.hh"
 

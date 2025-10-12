@@ -27,8 +27,6 @@ class Engine
 
     delete_other_ops(Engine)
 
-    void run();
-
     string window_name = "MyGameEngine";
 
     string script_entrypoint = "Scripts/Main.as";
@@ -56,10 +54,11 @@ class Engine
     //TODO: Add skybox
     glm::vec3 skybox_color = {0.2f, 0.3f, 0.3f};
 
+    void run();
+    void render();
+
     void initialize();
     void shutdown();
-
-    void render();
 
     void opt_vsync_enable();
     void opt_vsync_disable();

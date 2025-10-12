@@ -10,9 +10,8 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include <glbinding/gl33core/enum.h>
-#include <glbinding/gl33core/functions.h>
-    using namespace gl;
+#include "Ext/GL/Enum.hh"
+#include "Ext/GL/Functions.hh"
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Engine.hh"
@@ -39,7 +38,7 @@ optional<Model ptr> Model::add(string cref model_path, bool winding_cw, bool fli
         return nullopt;
     }
 
-    Model ptr model = manager.get_new(model_path);
+    Model ptr model = get_new(model_path);
     model->winding_cw = winding_cw;
     model->instanced = instanced;
 
@@ -54,7 +53,7 @@ optional<Model ptr> Model::add(string cref model_name, vector<Mesh> cref meshes)
 {
     Log::info("Adding model \"{}\" directly...", model_name);
 
-    Model ptr model = manager.get_new(model_name);
+    Model ptr model = get_new(model_name);
     model->meshes = meshes;
     for (auto ref mesh : model->meshes)
         mesh.parent = model;
@@ -62,8 +61,6 @@ optional<Model ptr> Model::add(string cref model_name, vector<Mesh> cref meshes)
     Log::info("Adding model \"{}\" directly: Success.", model_name);
     return model;
 }
-
-manager_funcs_cc(Model, model_name)
 
 void Model::import_node(aiNode ptr node, aiScene cptr scene, string cref model_dir, bool instanced)
 {

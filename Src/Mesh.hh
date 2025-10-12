@@ -7,9 +7,8 @@
 
 #pragma once
 
-#include <glbinding/gl33core/enum.h>
-#include <glbinding/gl33core/functions.h>
-    using namespace gl;
+#include "Ext/GL/Enum.hh"
+#include "Ext/GL/Functions.hh"
 #include <glm/mat4x4.hpp>
 
 #include "Core.hh"
@@ -55,9 +54,9 @@ class Mesh
     //TODO Desc: Creates the model's VAO, VBO, and EBO, from the vertices & indices
     void gen_gl_data(bool is_indexed = false, bool is_instanced = false);
 
-    //TODO DESC: Renders the model on screen, based on the
-    //model matrix that is loaded into the shader beforehand
-    void render(Shader cptr shader) const;
+    void set_textures(Shader cptr shader) const;
+
+    void draw() const;
 
     //TODO DESC: updates instance mat4 values. Expensive, so use sparingly
     void update_instance_m_mats();

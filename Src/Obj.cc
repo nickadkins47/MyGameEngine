@@ -17,7 +17,7 @@ optional<Obj ptr> Obj::add(string cref obj_name, string cref model_name)
 {
     Log::info("Adding obj \"{}\"...", obj_name);
     
-    Obj ptr obj = manager.get_new(obj_name);
+    Obj ptr obj = get_new(obj_name);
     obj->set_model(Model::get(model_name).value());
 
     Log::info("Adding obj \"{}\": Success", obj_name);
@@ -28,14 +28,12 @@ optional<Obj ptr> Obj::add(string cref obj_name, Model ptr model)
 {
     Log::info("Adding obj \"{}\"...", obj_name);
     
-    Obj ptr obj = manager.get_new(obj_name);
+    Obj ptr obj = get_new(obj_name);
     obj->set_model(model);
 
     Log::info("Adding obj \"{}\": Success", obj_name);
     return obj;
 }
-
-manager_funcs_cc(Obj, obj_name)
 
 glm::vec3 Obj::get_position() const
 {

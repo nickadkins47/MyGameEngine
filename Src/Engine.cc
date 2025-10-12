@@ -5,8 +5,7 @@
  *  @brief: 
  */
 
-#include <glbinding/gl33core/gl.h>
-    using namespace gl;
+#include "Ext/GL.hh"
 #include <glbinding/glbinding.h>
 #include "Ext/GLFW.hh"
 #include <glm/gtc/type_ptr.hpp>
@@ -131,6 +130,38 @@ void Engine::run()
     }
 }
 
+void Engine::render()
+{
+    for (auto cref [_, model] : Model::get_map())
+    {
+        Shader ptr shader = (model.shader == nullptr)
+            ? default_shader
+            : model.shader
+        ;
+        shader->use();
+
+        glFrontFace(model.winding_cw ? GL_CW : GL_CCW);
+
+        for (auto ref mesh : model.meshes)
+        {
+            mesh.set_textures(shader);
+            
+            if (model.instanced)
+            {
+                mesh.draw(); //model mat buffer (IVBO) should already be set
+            }
+            else
+            {
+                for (auto obj : model.parent_objs)
+                {
+                    shader->uniform_fm("m_mat", 4,4, glm::value_ptr(obj->model_mat));
+                    mesh.draw();
+                }
+            }
+        }
+    }
+}
+
 void Engine::initialize()
 {
     Log::info("Initializing...");
@@ -220,36 +251,6 @@ void Engine::shutdown()
 
     //TODO: more detailed terminate?
     //also learn more about deleting certain specific things
-}
-
-void Engine::render()
-{
-    for (auto cref [_, model] : Model::get_map())
-    {
-        Shader ptr shader = (model.shader == nullptr)
-            ? default_shader
-            : model.shader
-        ;
-        shader->use();
-
-        glFrontFace(model.winding_cw ? GL_CW : GL_CCW);
-
-        if (model.instanced)
-        {
-            //model mat buffer (IVBO) should already be set
-            for (auto ref mesh : model.meshes)
-                mesh.render(shader);
-        }
-        else //not instanced -> render normally
-        {
-            for (auto obj : model.parent_objs)
-            {
-                shader->uniform_fm("m_mat", 4,4, glm::value_ptr(obj->model_mat));
-                for (auto ref mesh : model.meshes)
-                    mesh.render(shader);
-            }
-        }
-    }
 }
 
 void Engine::opt_vsync_enable()

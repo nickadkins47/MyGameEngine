@@ -7,8 +7,9 @@
 
 #pragma once
 
+#include "GL.hh"
+
 //IE, dont include the GL.h from windows kits
-//Also, must include glbinding/_/gl.h before including this file
 #ifndef GLFW_INCLUDE_NONE
     #define GLFW_INCLUDE_NONE
 #endif

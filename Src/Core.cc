@@ -5,8 +5,7 @@
  *  @brief: 
  */
 
-#include <glbinding/gl33core/gl.h>
-    using namespace gl;
+#include "Ext/GL.hh"
 #include "Ext/GLFW.hh"
 #include <glm/trigonometric.hpp>
 
@@ -39,7 +38,7 @@ int main(int argc, char ** argv)
     engine->initialize();
 
     //Loading Assets
-    
+
     {
         Model::add("Models/Backpack/backpack.obj");
         Model::add("Models/Duck/duck.dae", false, false);

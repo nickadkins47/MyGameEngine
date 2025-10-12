@@ -5,9 +5,8 @@
  *  @brief: 
  */
 
-#include <glbinding/gl33core/enum.h>
-#include <glbinding/gl33core/functions.h>
-    using namespace gl;
+#include "Ext/GL/Enum.hh"
+#include "Ext/GL/Functions.hh"
 #include <stb/stb_image.h>
 
 #include "Texture.hh"
@@ -28,7 +27,7 @@ optional<Texture ptr> Texture::add(string cref texture_path, int type)
         return nullopt;
     }
 
-    Texture ptr texture = manager.get_new(texture_path);
+    Texture ptr texture = get_new(texture_path);
     texture->width = width;
     texture->height = height;
     texture->src_channels = src_channels;
@@ -50,5 +49,3 @@ optional<Texture ptr> Texture::add(string cref texture_path, int type)
     Log::info("Adding texture \"{}\": Success", texture_path);
     return texture;
 }
-
-manager_funcs_cc(Texture, texture_name)

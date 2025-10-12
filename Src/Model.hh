@@ -19,7 +19,7 @@ enum aiTextureType;
 class Obj;
 class Shader;
 
-class Model
+class Model : public Manager<Model>
 {
     public:
 
@@ -27,15 +27,9 @@ class Model
 
     static optional<Model ptr> add(string cref model_name, vector<Mesh> cref meshes);
 
-    manager_funcs_hh(Model, model_name)
-    
     delete_other_ops(Model)
 
     bool winding_cw = false; //render Clockwise (CW) instead of Counterclockwise (CCW)
-
-    Model();
-
-    Manager<Model> inline static manager;
 
     bool instanced = false;
 
@@ -43,12 +37,13 @@ class Model
     vector<Obj ptr> parent_objs;
 
     Shader ptr shader = nullptr; //if this is nullptr, then it will use global default shader
-    
+
     //possible TODO: reorganize things once i understand aiScenes a little better
 
     void import_node(aiNode ptr node, aiScene cptr scene, string cref model_dir, bool instanced);
     void import_mesh(aiMesh ptr mesh, aiScene cptr scene, string cref model_dir, bool instanced);
-    
+
     static void import_material(Mesh ref mesh, aiMaterial cptr mat, string cref model_dir);
 
+    Model(); //do not manually call. always use _::add() instead
 };
