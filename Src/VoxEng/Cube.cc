@@ -1,11 +1,11 @@
 /**
- *   @file: CubeIDs.cc
+ *   @file: Cube.cc
  * @author: Nicholas Adkins
  *   @date: Jun 15 2025
  *  @brief: 
  */
 
-#include "CubeIDs.hh"
+#include "Cube.hh"
 #include "../Engine.hh"
 #include "../Texture.hh"
 
@@ -24,7 +24,7 @@ void load_cube_txts()
 
     cube_txts = {
         //0 or Undefined value -> "Air" / Empty
-        { CubeID::TEST, six<Texture ptr>{ //test block
+        { VoxCube::TEST, six<Texture ptr>{ //test block
             test1,
             test2,
             test3,
@@ -32,7 +32,7 @@ void load_cube_txts()
             test5,
             test6
         }},
-        { CubeID::GRASS, six<Texture ptr>{ //grass
+        { VoxCube::GRASS, six<Texture ptr>{ //grass
             grass_side,
             grass_side,
             grass_side,
@@ -40,7 +40,7 @@ void load_cube_txts()
             grass_bottom,
             grass_top
         }},
-        { CubeID::DIRT, six<Texture ptr>{ //dirt
+        { VoxCube::DIRT, six<Texture ptr>{ //dirt
             grass_bottom,
             grass_bottom,
             grass_bottom,

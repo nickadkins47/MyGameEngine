@@ -29,8 +29,8 @@ class Model : public Manager<Model>
 
     delete_other_ops(Model)
 
+    bool visible = true;
     bool winding_cw = false; //render Clockwise (CW) instead of Counterclockwise (CCW)
-
     bool instanced = false;
 
     vector<Mesh> meshes;

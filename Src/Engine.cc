@@ -134,6 +134,8 @@ void Engine::render()
 {
     for (auto cref [_, model] : Model::get_map())
     {
+        if (!model.visible) continue;
+
         Shader ptr shader = (model.shader == nullptr)
             ? default_shader
             : model.shader

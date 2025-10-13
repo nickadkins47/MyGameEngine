@@ -7,9 +7,9 @@
 
 #include "Grid.hh"
 
-MyGrid::MyGrid() {}
+VoxGrid::VoxGrid() {}
 
-constexpr MyChunk ref MyGrid::chunk(int cx, int cy)
+constexpr VoxChunk ref VoxGrid::chunk(int cx, int cy)
 {
     return _grid
         [(cx < 0)? (sz_x + cx): cx]
@@ -17,39 +17,39 @@ constexpr MyChunk ref MyGrid::chunk(int cx, int cy)
         //negative values will loop back around
 }
 
-CubeID ref MyGrid::at(int x, int y, int z)
+VoxCube ref VoxGrid::at(int x, int y, int z)
 {
     return this->chunk(
-        cast<int>(std::floor(cast<double>(x) / MyChunk::x_dim)), //floor to lowest multiple of x/y_dim
-        cast<int>(std::floor(cast<double>(y) / MyChunk::y_dim))
+        cast<int>(std::floor(cast<double>(x) / VoxChunk::x_dim)), //floor to lowest multiple of x/y_dim
+        cast<int>(std::floor(cast<double>(y) / VoxChunk::y_dim))
     ).at(
-        x % MyChunk::x_dim, y % MyChunk::y_dim, z
+        x % VoxChunk::x_dim, y % VoxChunk::y_dim, z
     );
 }
 
-void MyGrid::load(int cx, int cy)
+void VoxGrid::load(int cx, int cy)
 {
-    MyChunk ref chk = this->chunk(cx,cy);
+    VoxChunk ref chk = this->chunk(cx,cy);
     if (chk.is_ren) return;
 
     for (int xs : {-1,0,1}) //generate all neighboring chunks
     {
         for (int ys : {-1,0,1})
         {
-            MyChunk ref neighbor = this->chunk(cx+xs,cy+ys);
+            VoxChunk ref neighbor = this->chunk(cx+xs,cy+ys);
             if (!neighbor.is_gen) neighbor.generate(cx+xs,cy+ys);
         }
     }
 
-    for (size_t lx = 0; lx < MyChunk::x_dim; lx++) //local x
+    for (size_t lx = 0; lx < VoxChunk::x_dim; lx++) //local x
     {
-        int const x = cast<int>(lx) + (cx * cast<int>(MyChunk::x_dim)); //global x
+        int const x = cast<int>(lx) + (cx * cast<int>(VoxChunk::x_dim)); //global x
 
-        for (size_t ly = 0; ly < MyChunk::y_dim; ly++) //local y
+        for (size_t ly = 0; ly < VoxChunk::y_dim; ly++) //local y
         {
-            int const y = cast<int>(ly) + (cy * cast<int>(MyChunk::y_dim)); //global y
+            int const y = cast<int>(ly) + (cy * cast<int>(VoxChunk::y_dim)); //global y
 
-            for (size_t lz = 0; lz < MyChunk::z_dim; lz++) //local z
+            for (size_t lz = 0; lz < VoxChunk::z_dim; lz++) //local z
             {
                 int const z = cast<int>(lz); //global z (== local z, for 2D chunks)
 
@@ -68,11 +68,11 @@ void MyGrid::load(int cx, int cy)
             }
         }
     }
-    chk.is_ren = true;
+    chk.finalize();
 }
 
-bool MyGrid::is_open(int x, int y, int z)
+bool VoxGrid::is_open(int x, int y, int z)
 {
-    if (z < 0 || z >= MyChunk::z_dim) return false;
+    if (z < 0 || z >= VoxChunk::z_dim) return false;
     return !cube_txts.contains(this->at(x,y,z));
 }

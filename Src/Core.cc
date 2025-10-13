@@ -100,13 +100,15 @@ int main(int argc, char ** argv)
     engine->lights[0].bright_rim = glm::cos(glm::radians(20.0f));
     engine->lights[0].dark_rim = glm::cos(glm::radians(25.0f)); */
 
-    /* engine->lights.emplace_back() = {
+    int const dir_light_n = cast<int>(engine->lights.size());
+    Light ref dir_light = engine->lights.emplace_back();
+    dir_light = {
         .mode = 2,
         .diffuse = glm::vec3(0.5f),
         .specular = glm::vec3(0.5f),
         .ambient = glm::vec3(0.25f),
         .direction = glm::vec3(0.0f, 0.0f, -1.0f),
-    }; */
+    };
 
     for (int i = 0; i < light_cube_positions.size(); i++)
     {
@@ -156,17 +158,19 @@ int main(int argc, char ** argv)
 
     load_cube_txts();
 
-    MyChunk::quad_models = {
+    VoxChunk::temp_tex = Texture::get("Textures/grass_side.png").value();
+
+    /* VoxChunk::quad_models = {
         Model::get("Models/Quads/nx.obj").value(),
         Model::get("Models/Quads/px.obj").value(),
         Model::get("Models/Quads/ny.obj").value(),
         Model::get("Models/Quads/py.obj").value(),
         Model::get("Models/Quads/nz.obj").value(),
         Model::get("Models/Quads/pz.obj").value(),
-    };
+    }; */
 
-    Shader ptr instanced_sh = Shader::get("Shaders/Instanced").value();
-    for (auto model : MyChunk::quad_models)
+    /* Shader ptr instanced_sh = Shader::get("Shaders/Instanced").value();
+    for (auto model : VoxChunk::quad_models)
         model->shader = instanced_sh;
 
     {
@@ -174,23 +178,24 @@ int main(int argc, char ** argv)
         Texture ptr grass_side = Texture::get("Textures/grass_side.png").value();
         Texture ptr grass_bottom = Texture::get("Textures/grass_bottom.png").value();
 
-        MyChunk::quad_models[0]->meshes[0].textures.push_back(grass_side);
-        MyChunk::quad_models[1]->meshes[0].textures.push_back(grass_side);
-        MyChunk::quad_models[2]->meshes[0].textures.push_back(grass_side);
-        MyChunk::quad_models[3]->meshes[0].textures.push_back(grass_side);
-        MyChunk::quad_models[4]->meshes[0].textures.push_back(grass_bottom);
-        MyChunk::quad_models[5]->meshes[0].textures.push_back(grass_top);
-    }
+        VoxChunk::quad_models[0]->meshes[0].textures.push_back(grass_side);
+        VoxChunk::quad_models[1]->meshes[0].textures.push_back(grass_side);
+        VoxChunk::quad_models[2]->meshes[0].textures.push_back(grass_side);
+        VoxChunk::quad_models[3]->meshes[0].textures.push_back(grass_side);
+        VoxChunk::quad_models[4]->meshes[0].textures.push_back(grass_bottom);
+        VoxChunk::quad_models[5]->meshes[0].textures.push_back(grass_top);
+    } */
     
-    MyGrid grid;
+    VoxGrid grid;
 
-    int const h_sz_x = MyGrid::sz_x / 2; //half of sz_x
-    int const h_sz_y = MyGrid::sz_y / 2; //half of sz_y
+    int const h_sz_x = VoxGrid::sz_x / 2; //half of sz_x
+    int const h_sz_y = VoxGrid::sz_y / 2; //half of sz_y
 
     for (int cx = - h_sz_x; cx < h_sz_x; cx++)
     {
         for (int cy = - h_sz_y; cy < h_sz_y; cy++)
         {
+            //if (cx == cy) continue; //test
             grid.load(cx,cy);
         }
     }
@@ -246,14 +251,28 @@ int main(int argc, char ** argv)
     });
 
     engine->runtime_cbs.push_back([](){
-        bool static b = false;
-        if (engine->keyboard->at(GLFW_KEY_R).act_press) b = !b;
+        bool static b = true;
+        if (engine->keyboard->at(GLFW_KEY_R).act_press)
+        {
+            b = !b;
+            for (auto ref [_, shader] : Shader::get_map())
+                shader.uniform_i("extra_flag", cast<int>(b));
+        }
+        glfwSwapInterval(cast<int>(b)); //has to be outside if block for some reason
+    });
 
-        for (auto ref [_, shader] : Shader::get_map())
-            shader.uniform_i("extra_flag", cast<int>(b));
-
-        if (!b) engine->opt_vsync_enable();
-        else engine->opt_vsync_disable();
+    engine->runtime_cbs.push_back([&dir_light, &dir_light_n](){
+        bool static b = true;
+        if (engine->keyboard->at(GLFW_KEY_F).act_press)
+        {
+            b = !b;
+            dir_light.mode = b ? 2 : 0;
+            for (auto ref [_, shader] : Shader::get_map())
+            {
+                shader.use();
+                update_light(dir_light_n, &shader);
+            }
+        }
     });
 
     //Run Engine (Loop)

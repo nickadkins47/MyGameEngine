@@ -21,6 +21,8 @@ class Texture : public Manager<Texture>
     uint ID = 0;
     int type = 0; //refer to assimp texture types
     int width = 0, height = 0, src_channels = 0; //data recieved from stbi_load
+    unsigned char* data = nullptr; //image data from stb
 
     Texture(); //do not manually call. always use _::add() instead
+    ~Texture();
 };

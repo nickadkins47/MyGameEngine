@@ -1,5 +1,5 @@
 /**
- *   @file: CubeIDs.hh
+ *   @file: Cube.hh
  * @author: Nicholas Adkins
  *   @date: Jun 15 2025
  *  @brief: 
@@ -15,13 +15,13 @@ template<typename T>
 using six = array<T,6>;
 
 //types of blocks present in game
-enum class CubeID: size_t {
+enum class VoxCube: size_t {
     AIR,
     TEST,
     GRASS,
     DIRT
 };
 
-inline std::unordered_map<CubeID, six<Texture ptr>> cube_txts;
+unordered_map<VoxCube, six<Texture ptr>> inline cube_txts;
 
 void load_cube_txts();

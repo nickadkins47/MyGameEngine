@@ -19,7 +19,7 @@ class ButtonHandler
     
     using GLFWInputCode = int;
 
-    struct Input {
+    struct Button {
         bool act_press = false; //True if just got GLFW_PRESS action from glfwPollEvents()
         bool act_repeat = false; //True if just got GLFW_REPEAT action from glfwPollEvents()
         bool act_release = false; //True if just got GLFW_RELEASE action from glfwPollEvents()
@@ -30,16 +30,16 @@ class ButtonHandler
 
     delete_other_ops(ButtonHandler)
 
-    //Resets all Input actions to false
+    //Resets all Button actions to false
     void reset();
 
     //Registers that the button (input_code) just polled (action)
     void set(GLFWInputCode input_code, int action);
 
     //Accesses the input state for the specified key/button
-    Input cref at(GLFWInputCode input_code);
+    Button cref at(GLFWInputCode input_code);
 
     protected:
 
-    unordered_map<GLFWInputCode, Input> inputs;
+    unordered_map<GLFWInputCode, Button> buttons;
 };

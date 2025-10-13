@@ -34,7 +34,7 @@ class Mesh
 {
     public:
 
-    Mesh(Model ptr parent);
+    Mesh(Model ptr parent = nullptr);
 
     uint VAO = 0;  //Vertex Array Object
     uint VBO = 0;  //Vertex Buffer Object (Main)
