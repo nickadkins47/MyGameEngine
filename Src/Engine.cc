@@ -13,6 +13,7 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
+#include "VoxEng/Grid.hh"
 #include "ButtonHandler.hh"
 #include "Camera.hh"
 #include "Engine.hh"
@@ -116,7 +117,9 @@ void Engine::run()
         glClearColor(skybox_color.x, skybox_color.y, skybox_color.z, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        render();
+        if (vox_grid != nullptr) vox_grid->render(); //Render voxel grid
+
+        render(); //Render normal objects (everything else)
 
         //ImGui Rendering
         ImGui::Render();
@@ -166,13 +169,13 @@ void Engine::render()
 
 void Engine::initialize()
 {
-    Log::info("Initializing...");
+    Log log("Initializing Engine");
 
     //GLFW Init
 
     if (!glfwInit())
     {
-        Log::error("Initializing: Failed (Couldn't initialize GLFW)");
+        log.fail("Couldn't initialize GLFW");
         shutdown();
         return;
     }
@@ -185,7 +188,7 @@ void Engine::initialize()
     window = glfwCreateWindow(window_width, window_height, window_name.data(), NULL, NULL);
     if (window == NULL)
     {
-        Log::error("Initializing: Failed (Couldn't initialize GLFW Window)");
+        log.fail("Couldn't initialize GLFW Window");
         shutdown();
         return;
     }
@@ -215,6 +218,7 @@ void Engine::initialize()
     //Engine Components Init
 
     script_engine = new ScriptEng();
+    vox_grid = new VoxGrid();
     keyboard = new ButtonHandler();
     mouse_buttons = new ButtonHandler();
     camera = new Camera();
@@ -237,13 +241,11 @@ void Engine::initialize()
     {
         engine->mouse_buttons->set(button, action);
     });
-
-    Log::info("Initializing: Success");
 }
 
 void Engine::shutdown()
 {
-    Log::info("Shutting Down");
+    Log log("Shutting Down Engine");
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();

@@ -3,11 +3,14 @@
 #define LIGHTS_NUM 8
 #define TEX_NUM 16
 
-in vec3 f_pos;
-in vec3 f_nor;
-in vec2 f_tex;
+in vert_data
+{
+    vec3 pos;
+    vec3 nor;
+    vec2 tex;
+} f_in;
 
-out vec4 out_color;
+out vec4 f_out_color;
 
 struct Light
 {
@@ -50,7 +53,7 @@ void get_texture_values()
 
     for (int i = 0; i < TEX_NUM; i++)
     {
-        vec3 t = vec3(texture(textures[i].tex, f_tex));
+        vec3 t = vec3(texture(textures[i].tex, f_in.tex));
         switch (textures[i].type)
         {
             case 1: t_diffuse = t; break;
@@ -67,7 +70,7 @@ void get_texture_values()
 
 float calc_luminosity(Light light)
 {
-    float dist = length(light.position - f_pos);
+    float dist = length(light.position - f_in.pos);
     return 1.0 / (
         light.attenuation[0] * dist * dist +
         light.attenuation[1] * dist +
@@ -94,7 +97,7 @@ vec3 light_calc(Light light)
 {
     vec3 light_dir = (light.mode == 2)
         ? normalize(-light.direction) //global light
-        : normalize(light.position - f_pos) //spot/normal light
+        : normalize(light.position - f_in.pos) //spot/normal light
     ;
     float diff = max(dot(normal, light_dir), 0.0);
 
@@ -125,8 +128,8 @@ vec3 light_calc(Light light)
 
 void main()
 {
-    view_dir = normalize(view_pos - f_pos);
-    normal = normalize(f_nor);
+    view_dir = normalize(view_pos - f_in.pos);
+    normal = normalize(f_in.nor);
 
     get_texture_values();
 
@@ -138,5 +141,5 @@ void main()
             result += light_calc(lights[i]);
     }
 
-    out_color = vec4(result, 1.0);
+    f_out_color = vec4(result, 1.0);
 } 

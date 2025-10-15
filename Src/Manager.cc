@@ -13,27 +13,27 @@ template<typename T>
 Manager<T>::Manager() {}
 
 template<typename T>
-T ptr Manager<T>::get_new(string cref val_name)
+T ptr Manager<T>::new_val(string cref val_name)
 {
     return &get_map_base()[val_name];
 }
 
 template<typename T>
-optional<T ptr> Manager<T>::get(string cref val_name)
+optional<T ptr> Manager<T>::get_opt(string cref val_name)
 {
     unordered_map<string, T> ref val_map = get_map_base();
-    Log::info("Getting \"{}\"...", val_name);
     auto iter = val_map.find(val_name);
     if (iter == val_map.end())
     {
-        Log::warn("Getting \"{}\": Failed", val_name);
         return nullopt;
     }
-    else
-    {
-        Log::info("Getting \"{}\": Success", val_name);
-        return &iter->second;
-    }
+    else return &iter->second;
+}
+
+template<typename T>
+T ptr Manager<T>::get(string cref val_name)
+{
+    return &get_map_base().at(val_name);
 }
 
 template<typename T>

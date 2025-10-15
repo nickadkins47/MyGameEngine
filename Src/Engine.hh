@@ -12,6 +12,7 @@
 #include "Obj.hh"
 
 struct GLFWwindow;
+class VoxGrid;
 class ButtonHandler;
 class Camera;
 class ScriptEng;
@@ -39,6 +40,7 @@ class Engine
     double delta_time = 0; //time between this frame & previous
 
     ScriptEng ptr script_engine;
+    VoxGrid ptr vox_grid;
 
     ButtonHandler ptr keyboard;
     ButtonHandler ptr mouse_buttons;

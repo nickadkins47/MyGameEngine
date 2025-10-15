@@ -9,62 +9,94 @@
 
 #include "Core.hh"
 
+//Anything that needs to be done on program's initialization
+void init_program();
+
 //Reads contents of a file from the given path
 //returns a string full of the file's contents if successful
 //otherwise returns std::nullopt if it fails
 optional<string> get_file_contents(string_view file_path);
 
-namespace Log
+//TODO DESC: Returns GL error from glGetError() if something fails, else returns nullopt
+optional<string> get_gl_error();
+
+//TODO DESC:
+//Declare this at the start of a function to track log data
+class Log
 {
-    //TODO DESC: Initialize Logging stuff at a specified mode (refer to Log::log_mode variable desc)
-    void init_logging(int mode);
+    public:
 
-    //TODO DESC: Set to value to enable certain log messages
-    // 0 : Off
-    // 1 : Errors
-    // 2 : Errors + Warnings
-    // 3 : Errors + Warnings + Info (All)
-    int inline log_mode = 0;
-
-    //TODO DESC: ofstream to handle sending data to log file
-    std::ofstream inline log_file;
-
-    //TODO DESC: uses std::format parameters & outputs to log file
+    //TODO DESC: Start tracking log data when constructed
     template<class... Args>
-    inline void info(std::format_string<Args...> fmt, Args&&... args)
+    Log(std::format_string<Args...> fmt, Args&&... args)
     {
-        if (log_mode >= 3)
+        if (enabled)
         {
-            log_file << " INFO: "
-                << std::format(fmt, std::forward<Args>(args)...)
-                << '\n';
+            start_time = get_time();
+            out_file << string(num_tabs, '\t')
+                << '['
+                << format(fmt, std::forward<Args>(args)...)
+                << "]: START {\n";
+            num_tabs++;
+        }
+    }
+    
+    //TODO DESC: If section of code is successful, state as such
+    ~Log()
+    {
+        if (enabled && success)
+        {
+            num_tabs--;
+            out_file << string(num_tabs, '\t') 
+                << "} SUCCESS"
+                << format(" (T: {} s)\n", get_time() - start_time);
         }
     }
 
-    //TODO DESC: uses std::format parameters & outputs to log file
+    delete_other_ops(Log)
+
+    //TODO DESC: Send additional data to log file
     template<class... Args>
-    inline void warn(std::format_string<Args...> fmt, Args&&... args)
+    void info(std::format_string<Args...> fmt, Args&&... args)
     {
-        if (log_mode >= 2)
+        if (enabled)
         {
-            log_file << " WARN: "
-                << std::format(fmt, std::forward<Args>(args)...)
-                << '\n';
+            out_file << string(num_tabs, '\t')
+                << "INFO ("
+                << format(fmt, std::forward<Args>(args)...)
+                << ")\n";
         }
     }
 
-    //TODO DESC: uses std::format parameters & outputs to log file
+    //TODO DESC: Upon a section of code failing, call this func with description
     template<class... Args>
-    inline void error(std::format_string<Args...> fmt, Args&&... args)
+    void fail(std::format_string<Args...> fmt, Args&&... args)
     {
-        if (log_mode >= 1)
+        if (enabled && success)
         {
-            log_file << "ERROR: "
+            success = false;
+            num_tabs--;
+            out_file << string(num_tabs, '\t') 
+                << "} FAILED ("
                 << std::format(fmt, std::forward<Args>(args)...)
-                << '\n';
+                << ')'
+                << format(" (T: {} s)\n", get_time() - start_time);
+            out_file.flush();
         }
     }
 
-    //TODO DESC: Returns GL error from glGetError() if something fails, else returns nullopt
-    optional<string> get_gl_error();
-}
+    //Call this function to enable logging
+    static void init_logging();
+
+    protected:
+
+    bool success = true;
+    double start_time = 0;
+
+    bool inline static enabled = false;
+    int inline static num_tabs = 0;
+
+    std::ofstream inline static out_file;
+
+    static double get_time();
+};

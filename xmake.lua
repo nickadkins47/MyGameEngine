@@ -3,7 +3,11 @@ set_project("MyGameEngine")
 set_version("0.1.0")
 set_xmakever("2.9.9")
 
-set_policy("run.autobuild", true) -- xmake run -> will build & run program
+add_rules(
+    "mode.debug",      --All symbols,   No optimization
+    "mode.releasedbg", --All symbols, Full optimization
+    "mode.release"     -- No symbols, Full optimization
+)
 
 add_requires("angelscript 2.37.0")
 add_requires("assimp v5.4.3")
@@ -19,22 +23,24 @@ target("main")
     set_extension(".exe")
     set_languages("c++23")
     add_files("Src/**.cc")
+
+    after_clean(function (target)
+        os.rm("Build/Bin/*.pdb")
+        os.rm("Build/Bin/*.exp")
+        os.rm("Build/Bin/*.lib")
+    end)
+
+    set_targetdir("./Build/Bin")
+    set_objectdir("./.xmake/.objs")
+    set_dependir("./.xmake/.deps")
+    set_autogendir("./.xmake/.gens")
+
     add_packages("angelscript", "assimp", "glbinding", "glfw", "glm", "imgui", "stb")
 
     set_warnings("all")
         -- all
         -- allextra
         -- everything
-
-    set_targetdir("./Build")
-    set_objectdir("./.xmake/.objs")
-    set_dependir("./.xmake/.deps")
-    set_autogendir("./.xmake/.gens")
-
-    after_build(function (target)
-        os.rm("Build/*.exp")
-        os.rm("Build/*.lib")
-    end)
 
 target("clear-logs")
     set_kind("phony")

@@ -1,13 +1,16 @@
 #version 330 core
 
-layout (location = 0) in vec3 v_pos;
-layout (location = 1) in vec3 v_nor;
-layout (location = 2) in vec2 v_tex;
-layout (location = 3) in mat4 m_mat; //div=1, loc=3,4,5,6
+layout (location = 0) in vec3 v_in_pos;
+layout (location = 1) in vec3 v_in_nor;
+layout (location = 2) in vec2 v_in_tex;
+layout (location = 3) in mat4 v_in_m_mat; //div=1, loc=3,4,5,6
 
-out vec3 f_pos;
-out vec3 f_nor;
-out vec2 f_tex;
+out vert_data
+{
+    vec3 pos;
+    vec3 nor;
+    vec2 tex;
+} v_out;
 
 uniform mat4 vp_mat;
 
@@ -16,8 +19,8 @@ uniform mat4 vp_mat;
 
 void main()
 {
-    f_pos = vec3(m_mat * vec4(v_pos, 1.0));
-    f_nor = mat3(transpose(inverse(m_mat))) * v_nor;
-    f_tex = v_tex;
-    gl_Position = vp_mat * m_mat * vec4(v_pos, 1.0);
+    v_out.pos = vec3(v_in_m_mat * vec4(v_in_pos, 1.0));
+    v_out.nor = mat3(transpose(inverse(v_in_m_mat))) * v_in_nor;
+    v_out.tex = v_in_tex;
+    gl_Position = vp_mat * v_in_m_mat * vec4(v_in_pos, 1.0);
 }

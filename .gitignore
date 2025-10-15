@@ -9,15 +9,8 @@
 .vs
 
 # MyGameEngine executable files
-Build/*.exe
-Build/*.exp
-Build/*.lib
+Build/Bin
 
-# Imgui generated file
-imgui.ini
-
-# Angelscript predefines (now auto-generated)
-as.predefined
-
-# Generated Logs
+# Other generated files
 Build/Logs
+as.predefined

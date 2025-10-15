@@ -49,9 +49,9 @@ class VoxChunk
 
     array<array<array<VoxCube, z_dim>, y_dim>, x_dim> _chunk {}; //3d array of cube IDs
 
-    float inline static const qs = 1.0f; //qs / quadSize: physical size of a quad / side of a cube
-
     void add_quad(array<glm::vec3, 8> cref v, array<int, 4> vi, glm::vec3 normals);
+
+    float inline static const qs = 1.0f; //qs / quadSize: physical size of a quad / side of a cube
 
     //Perlin noise function, given an x & y coordinate, # of octaves, persistence value, and a scalar + vertical shift value
     static int perlin(int x, int y, float in_scale, float out_shift, float out_scale);

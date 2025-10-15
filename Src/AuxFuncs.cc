@@ -6,13 +6,20 @@
  */
 
 #include <chrono>
-#include <print>
+#include <filesystem>
 #include <sstream>
 
 #include "Ext/GL/Enum.hh"
 #include "Ext/GL/Functions.hh"
+#include "Ext/GLFW.hh"
 
 #include "AuxFuncs.hh"
+
+void init_program()
+{
+    //Set current directory from ./Build/Bin -> ./Build
+    std::filesystem::current_path("..");
+}
 
 optional<string> get_file_contents(string_view file_path)
 {
@@ -27,26 +34,7 @@ optional<string> get_file_contents(string_view file_path)
     //in_file goes out of scope -> close()
 }
 
-void Log::init_logging(int mode)
-{
-    if (Log::log_mode != 0) return; //already set
-    Log::log_mode = mode;
-
-    auto now_utc = std::chrono::system_clock::now();
-    auto now_local = std::chrono::zoned_time(std::chrono::current_zone(), now_utc);
-    string log_f_name = format("_D-{:%F}_T-{:%r}_.log", now_local, now_local);
-    for (char ref c : log_f_name)
-        if (c == ':' || c == ' ') c = '-';
-
-    Log::log_file.open("Logs/" + log_f_name);
-    if (Log::log_file.fail())
-    {
-        std::print("ERROR: FAILED to open log\n");
-        Log::log_mode = 0;
-    }
-}
-
-optional<string> Log::get_gl_error()
+optional<string> get_gl_error()
 {
     switch (glGetError())
     {
@@ -59,4 +47,28 @@ optional<string> Log::get_gl_error()
         case GL_STACK_OVERFLOW:                return "Stack overflow";
         default: return nullopt; //GL_NO_ERROR
     }
+}
+
+void Log::init_logging()
+{
+    if (Log::enabled) return; //already set
+    Log::enabled = true;
+
+    auto now_utc = std::chrono::system_clock::now();
+    auto now_local = std::chrono::zoned_time(std::chrono::current_zone(), now_utc);
+    string log_f_name = format("_D-{:%F}_T-{:%r}_.log", now_local, now_local);
+    for (char ref c : log_f_name)
+        if (c == ':' || c == ' ') c = '-';
+
+    Log::out_file.open("Logs/" + log_f_name);
+    if (Log::out_file.fail())
+    {
+        printf("ERROR: FAILED to open log\n");
+        Log::enabled = false;
+    }
+}
+
+double Log::get_time()
+{
+    return glfwGetTime();
 }

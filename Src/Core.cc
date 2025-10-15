@@ -9,7 +9,7 @@
 #include "Ext/GLFW.hh"
 #include <glm/trigonometric.hpp>
 
-#include "MCEng/Grid.hh"
+#include "VoxEng/Grid.hh"
 #include "ButtonHandler.hh"
 #include "Camera.hh"
 #include "Core.hh"
@@ -20,19 +20,17 @@
 
 int main(int argc, char ** argv)
 {
+    init_program();
     engine = new Engine();
 
-    //check arguments
-    vector<string_view> args (argv, argv + argc);
+    vector<string_view> const args (argv, argv + argc); //check arguments
     for (int i = 0; i < args.size(); i++)
     {
         if (args[i] == "-S") {
             engine->script_entrypoint = args.at(i + 1);
             i++;
         }
-        else if (args[i] == "-L1") Log::init_logging(1);
-        else if (args[i] == "-L2") Log::init_logging(2);
-        else if (args[i] == "-L3") Log::init_logging(3);
+        else if (args[i] == "-L") Log::init_logging();
     }
 
     engine->initialize();
@@ -46,15 +44,10 @@ int main(int argc, char ** argv)
         Model::add("Models/FlatGround.obj", true);
         Model::add("Models/TutorialCube.obj", true);
 
-        Model::add("Models/Quads/nx.obj", true, false, true);
-        Model::add("Models/Quads/px.obj", true, false, true);
-        Model::add("Models/Quads/ny.obj", true, false, true);
-        Model::add("Models/Quads/py.obj", true, false, true);
-        Model::add("Models/Quads/nz.obj", true, false, true);
-        Model::add("Models/Quads/pz.obj", true, false, true);
-
-        Shader::add("Shaders/Default", 8, 16);
-        Shader::add("Shaders/Instanced", 8, 16);
+        Shader::add("Default",
+            "Shaders/Default.vert", "Shaders/Default.frag", "Shaders/Default.geom", 8, 16);
+        Shader::add("Instanced",
+            "Shaders/Instanced.vert", "Shaders/Default.frag", "", 8, 16);
 
         Texture::add("Textures/awesomeface.png", 1);
         Texture::add("Textures/container.jpg", 1);
@@ -72,7 +65,7 @@ int main(int argc, char ** argv)
         Texture::add("Textures/test/test6.png", 1);
     }
 
-    engine->default_shader = Shader::get("Shaders/Default").value();
+    engine->default_shader = Shader::get("Default");
 
     //Light Cubes
 
@@ -115,10 +108,10 @@ int main(int argc, char ** argv)
         Obj ptr obj = Obj::add(format("Lightcube{}", i), "Models/TutorialCube.obj").value();
         obj->move_position(light_cube_positions[i]);
     }
-    engine->lights[0].follower = Obj::get("Lightcube0").value();
+    engine->lights[0].follower = Obj::get("Lightcube0");
 
     engine->runtime_cbs.push_back([](){
-        Obj ptr light_cube0 = Obj::get("Lightcube0").value();
+        Obj ptr light_cube0 = engine->lights[0].follower;
         if (engine->keyboard->at(GLFW_KEY_3).is_down)
             light_cube0->move_position(glm::vec3{0.1f, 0.1f, 0.0f});
         if (engine->keyboard->at(GLFW_KEY_4).is_down)
@@ -154,29 +147,16 @@ int main(int argc, char ** argv)
         obj->rotate(90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
     }
 
-    //MCEng stuff
+    //VoxEng stuff
 
     load_cube_txts();
 
-    VoxChunk::temp_tex = Texture::get("Textures/grass_side.png").value();
+    VoxChunk::temp_tex = Texture::get("Textures/grass_side.png");
 
-    /* VoxChunk::quad_models = {
-        Model::get("Models/Quads/nx.obj").value(),
-        Model::get("Models/Quads/px.obj").value(),
-        Model::get("Models/Quads/ny.obj").value(),
-        Model::get("Models/Quads/py.obj").value(),
-        Model::get("Models/Quads/nz.obj").value(),
-        Model::get("Models/Quads/pz.obj").value(),
-    }; */
-
-    /* Shader ptr instanced_sh = Shader::get("Shaders/Instanced").value();
-    for (auto model : VoxChunk::quad_models)
-        model->shader = instanced_sh;
-
-    {
-        Texture ptr grass_top = Texture::get("Textures/grass_top.png").value();
-        Texture ptr grass_side = Texture::get("Textures/grass_side.png").value();
-        Texture ptr grass_bottom = Texture::get("Textures/grass_bottom.png").value();
+    /* {
+        Texture ptr grass_top = Texture::get("Textures/grass_top.png");
+        Texture ptr grass_side = Texture::get("Textures/grass_side.png");
+        Texture ptr grass_bottom = Texture::get("Textures/grass_bottom.png");
 
         VoxChunk::quad_models[0]->meshes[0].textures.push_back(grass_side);
         VoxChunk::quad_models[1]->meshes[0].textures.push_back(grass_side);
@@ -186,8 +166,6 @@ int main(int argc, char ** argv)
         VoxChunk::quad_models[5]->meshes[0].textures.push_back(grass_top);
     } */
     
-    VoxGrid grid;
-
     int const h_sz_x = VoxGrid::sz_x / 2; //half of sz_x
     int const h_sz_y = VoxGrid::sz_y / 2; //half of sz_y
 
@@ -196,7 +174,7 @@ int main(int argc, char ** argv)
         for (int cy = - h_sz_y; cy < h_sz_y; cy++)
         {
             //if (cx == cy) continue; //test
-            grid.load(cx,cy);
+            engine->vox_grid->load(cx,cy);
         }
     }
 
@@ -282,6 +260,5 @@ int main(int argc, char ** argv)
     //Shutdown
 
     engine->shutdown();
-    Log::log_file.close();
     return 0;
 }

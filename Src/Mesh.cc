@@ -19,7 +19,7 @@ Mesh::Mesh(Model ptr parent)
 
 void Mesh::gen_gl_data(bool is_indexed, bool is_instanced)
 {
-    //TODO add option for MCEng to use ints instead of floats for values
+    //TODO add option for VoxEng to use ints instead of floats for values
     
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);

@@ -5,6 +5,9 @@
  *  @brief: 
  */
 
+#include <expected>
+    using std::expected;
+
 #include "Ext/GL/Enum.hh"
 #include "Ext/GL/Functions.hh"
 
@@ -14,74 +17,60 @@
 
 Shader::Shader() {}
 
-optional<Shader ptr> Shader::add(string cref shader_path, int num_lights, int num_textures)
+optional<Shader ptr> Shader::add(string cref shader_name,
+    string_view vert_path, string_view frag_path, string_view geom_path, int num_lights, int num_textures)
 {
-    Log::info("Adding shaders \"{}\"...", shader_path);
+    Log log("Adding shaders \"{}\"", shader_name);
 
-    int success;
-    char info_log[512];
+    bool const using_geom = !geom_path.empty();
 
-    optional<string> vert_code_ostr = get_file_contents(shader_path + ".vert");
-    if (vert_code_ostr == nullopt)
-    {
-        Log::warn("Adding shaders \"{0}\": Failed (Cannot locate \"{0}.vert\")", shader_path);
-        return nullopt;
-    }
-    string vert_code_str = vert_code_ostr.value();
-    char const* vert_code = vert_code_str.data();
-
-    uint vert_shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vert_shader, 1, &vert_code, NULL);
-    glCompileShader(vert_shader);
-
-    glGetShaderiv(vert_shader, GL_COMPILE_STATUS, &success);
-    if(!success)
-    {
-        glGetShaderInfoLog(vert_shader, 512, NULL, info_log);
-        Log::warn("Adding shaders \"{}\": Failed ({})", shader_path, info_log);
+    optional<uint> vert_shader = add_one_shader(shader_name, vert_path, 0);
+    if (vert_shader == nullopt) {
+        log.fail("Cannot add vertex shader");
         return nullopt;
     }
 
-    optional<string> frag_code_ostr = get_file_contents(shader_path + ".frag");
-    if (frag_code_ostr == nullopt)
-    {
-        Log::warn("Adding shaders \"{0}\": Failed (Cannot locate \"{0}.frag\")", shader_path);
-        return nullopt;
-    }
-    string frag_code_str = frag_code_ostr.value();
-    char const* frag_code = frag_code_str.data();
-
-    uint frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(frag_shader, 1, &frag_code, NULL);
-    glCompileShader(frag_shader);
-
-    glGetShaderiv(frag_shader, GL_COMPILE_STATUS, &success);
-    if(!success)
-    {
-        glGetShaderInfoLog(frag_shader, 512, NULL, info_log);
-        Log::warn("Adding shaders \"{}\": Failed ({})", shader_path, info_log);
+    optional<uint> frag_shader = add_one_shader(shader_name, frag_path, 1);
+    if (frag_shader == nullopt) {
+        log.fail("Cannot add fragment shader");
         return nullopt;
     }
 
-    Shader ptr shader = get_new(shader_path);
+    optional<uint> geom_shader = 0;
+    if (using_geom)
+    {
+        geom_shader = add_one_shader(shader_name, geom_path, 2);
+        if (geom_shader == nullopt) {
+            log.fail("Cannot add geometry shader");
+            return nullopt;
+        }
+    }
+    
+    Shader ptr shader = new_val(shader_name);
     shader->num_textures = num_textures;
 
     shader->ID = glCreateProgram();
-    glAttachShader(shader->ID, vert_shader);
-    glAttachShader(shader->ID, frag_shader);
+    glAttachShader(shader->ID, vert_shader.value());
+    glAttachShader(shader->ID, frag_shader.value());
+    if (using_geom)
+        glAttachShader(shader->ID, geom_shader.value());
     glLinkProgram(shader->ID);
 
+    int success;
+    char info_log[512];
     glGetProgramiv(shader->ID, GL_LINK_STATUS, &success);
     if(!success)
     {
         glGetProgramInfoLog(shader->ID, 512, NULL, info_log);
-        Log::warn("Adding shaders \"{}\": Failed ({})", shader_path, info_log);
-        Shader::remove(shader_path);
+        log.fail("{}", info_log);
+        Shader::remove(shader_name);
         return nullopt;
     }
 
-    glDeleteShader(vert_shader);
-    glDeleteShader(frag_shader);
+    glDeleteShader(vert_shader.value());
+    glDeleteShader(frag_shader.value());
+    if (using_geom)
+        glDeleteShader(geom_shader.value());
 
     shader->use();
     for (int i = 0; i < num_lights; i++)
@@ -94,7 +83,6 @@ optional<Shader ptr> Shader::add(string cref shader_path, int num_lights, int nu
         shader->uniform_i(format("textures[{}].type", i), 0);
     }
 
-    Log::info("Adding shaders \"{}\": Success", shader_path);
     return shader;
 }
 
@@ -231,4 +219,38 @@ void Shader::uniform_fm(string_view name, int cols, int rows, float cptr value, 
             glUniformMatrix4fv  (glGetUniformLocation(ID, name.data()), 1, transpose, value);
         }
     }
+}
+
+optional<uint> Shader::add_one_shader(string_view shader_name, string_view sh_path, int mode)
+{
+    Log log("Adding shader part \"{}\"", sh_path);
+
+    optional<string> sh_code_o = get_file_contents(sh_path);
+    if (sh_code_o == nullopt)
+    {
+        log.fail("Cannot locate \"{}\"", sh_path);
+        return nullopt;
+    }
+    char cptr sh_code = sh_code_o.value().data();
+
+    GLenum type =
+        (mode == 0) ? GL_VERTEX_SHADER :
+        (mode == 1) ? GL_FRAGMENT_SHADER :
+        /*(mode == 2) ?*/ GL_GEOMETRY_SHADER
+    ;
+    uint shader = glCreateShader(type);
+    glShaderSource(shader, 1, &sh_code, NULL);
+    glCompileShader(shader);
+
+    int success;
+    char info_log[512];
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    if(!success)
+    {
+        glGetShaderInfoLog(shader, 512, NULL, info_log);
+        log.fail("Cannot compile ({})", info_log);
+        return nullopt;
+    }
+
+    return shader;
 }

@@ -20,17 +20,17 @@ Texture::~Texture()
 
 optional<Texture ptr> Texture::add(string cref texture_path, int type)
 {
-    Log::info("Adding texture \"{}\"...", texture_path);
+    Log log("Adding texture \"{}\"", texture_path);
 
     stbi_set_flip_vertically_on_load(true);
 
-    Texture ptr texture = get_new(texture_path);
+    Texture ptr texture = new_val(texture_path);
     texture->type = type;
 
     //desired_channels = 4 -> will always return whatever data as RGBA
     texture->data = stbi_load(texture_path.data(), &texture->width, &texture->height, &texture->src_channels, 4);
     if (!texture->data) {
-        Log::warn("Adding texture \"{}\": Failed (Cannot Load)", texture_path); //TODO more detail?
+        log.fail("Cannot Load"); //TODO more detail?
         Texture::remove(texture_path);
         return nullopt;
     }
@@ -46,6 +46,5 @@ optional<Texture ptr> Texture::add(string cref texture_path, int type)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture->data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
-    Log::info("Adding texture \"{}\": Success", texture_path);
     return texture;
 }

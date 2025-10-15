@@ -23,7 +23,7 @@ Model::Model() {}
 
 optional<Model ptr> Model::add(string cref model_path, bool winding_cw, bool flip_uvs, bool instanced)
 {
-    Log::info("Adding model \"{}\" via Assimp...", model_path);
+    Log log("Adding model \"{}\" via Assimp", model_path);
     Assimp::Importer importer;
 
     aiScene cptr scene = importer.ReadFile(model_path, 
@@ -32,33 +32,29 @@ optional<Model ptr> Model::add(string cref model_path, bool winding_cw, bool fli
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) 
     {
-        Log::warn("Adding model \"{}\" via Assimp: Failed ({})", 
-            model_path, importer.GetErrorString()
-        );
+        log.fail("{}", importer.GetErrorString());
         return nullopt;
     }
 
-    Model ptr model = get_new(model_path);
+    Model ptr model = new_val(model_path);
     model->winding_cw = winding_cw;
     model->instanced = instanced;
 
     string const model_dir = std::filesystem::path(model_path).parent_path().string();
     model->import_node(scene->mRootNode, scene, model_dir, instanced);
 
-    Log::info("Adding model \"{}\" via Assimp: Success", model_path);
     return model;
 }
 
 optional<Model ptr> Model::add(string cref model_name, vector<Mesh> cref meshes)
 {
-    Log::info("Adding model \"{}\" directly...", model_name);
+    Log log("Adding model \"{}\" directly", model_name);
 
-    Model ptr model = get_new(model_name);
+    Model ptr model = new_val(model_name);
     model->meshes = meshes;
     for (auto ref mesh : model->meshes)
         mesh.parent = model;
 
-    Log::info("Adding model \"{}\" directly: Success.", model_name);
     return model;
 }
 
@@ -129,7 +125,7 @@ void Model::import_material(Mesh ref mesh, aiMaterial cptr mat, string cref mode
 
             //Get Texture, or add it if it doenst exist already
             Texture ptr texture = (Texture::exists(texture_path))
-                ? Texture::get(texture_path).value()
+                ? Texture::get(texture_path)
                 : Texture::add(texture_path, type).value()
             ;
             mesh.textures.push_back(texture);

@@ -21,9 +21,11 @@ class Manager
 
     delete_other_ops(Manager)
 
-    static T ptr get_new(string cref name);
+    static T ptr new_val(string cref val_name);
 
-    static optional<T ptr> get(string cref val_name);
+    static optional<T ptr> get_opt(string cref val_name);
+
+    static T ptr get(string cref val_name);
 
     static void remove(string cref val_name);
 

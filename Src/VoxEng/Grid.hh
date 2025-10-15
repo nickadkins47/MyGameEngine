@@ -25,8 +25,11 @@ class VoxGrid
     //return Cube ID at (x,y,z)
     VoxCube ref at(int x, int y, int z);
 
-    //load/render chunk; also generates Cube IDs for neighboring chunks
+    //load chunk; also generates Cube IDs for neighboring chunks
     void load(int cx, int cy);
+
+    //TODO DESC: renders chunks to screen
+    void render();
 
     size_t inline static const sz_x = 8; //num of chunks wide the world is; x direction
     size_t inline static const sz_y = 8; //num of chunks wide the world is; y direction

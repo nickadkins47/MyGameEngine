@@ -5,6 +5,7 @@
  *  @brief: 
  */
 
+//TODO prevent angelscript from exporting DLL symbols
 #include <angelscript.h>
 #include "Ext/GL/Enum.hh"
 #include "Ext/GL/Functions.hh"
@@ -22,17 +23,16 @@
 //Same as global_func, but with seperate parameter lists for C++ & AS
 #define global_func_sp(ret, name, cap, cc_params, as_params, body) \
     char cptr _s_##name = m_str(ret name##as_params); \
-    Log::info("Script Global Func \"{}\"...", _s_##name); \
+    log.info("Script Global Func \"{}\"", _s_##name); \
     typedef ret (*_t_##name)##cc_params; \
     _t_##name static _f_##name = cap##cc_params##body; \
     r = s_engine->RegisterGlobalFunction(_s_##name, \
         asFUNCTION(_f_##name), asCALL_CDECL); \
     if (r < 0) \
     { \
-        Log::error("Script Global Func \"{}\": Failed (Cannot register function)", _s_##name); \
+        log.fail("Cannot register function"); \
         return; \
     } \
-    Log::info("Script Global Func \"{}\": Success", _s_##name); \
     predefs << _s_##name << ";\n";
 
 //Macro for defining a function in the Scripts that interfaces with the C++ code
@@ -42,20 +42,20 @@
 //Macro for creating function definitions
 #define funcdef(ret, name, params) \
     char cptr _s_##name = m_str(ret name##params); \
-    Log::info("Script Funcdef \"{}\"...", _s_##name); \
+    log.info("Script Funcdef \"{}\"", _s_##name); \
     r = s_engine->RegisterFuncdef(_s_##name); \
     if (r < 0) \
     { \
-        Log::error("Script Funcdef \"{}\": Failed (Cannot register funcdef)", _s_##name); \
+        log.fail("Cannot register funcdef"); \
         return; \
     } \
-    Log::info("Script Funcdef \"{}\": Success", _s_##name); \
     predefs << "funcdef " << _s_##name << ";\n";
 
+//TODO: UPDATE maybe
 //Info/Warn/Err Message Callback for Script Engine
 void message_cb(asSMessageInfo cptr msg, void ptr param)
 {
-    if (msg->type == asMSGTYPE_INFORMATION)
+    /* if (msg->type == asMSGTYPE_INFORMATION)
     {
         Log::info("Script Engine [{}, {}, {}]: {}", 
             msg->section, msg->row, msg->col, msg->message
@@ -67,12 +67,12 @@ void message_cb(asSMessageInfo cptr msg, void ptr param)
             msg->section, msg->row, msg->col, msg->message
         );
     }
-    else /*else, Error*/
+    else //else, Error
     {
         Log::error("Script Engine [{}, {}, {}]: {}", 
             msg->section, msg->row, msg->col, msg->message
         );
-    }
+    } */
 }
 
 // This callback will be called for each #include directive encountered by the
@@ -92,12 +92,12 @@ int include_cb(
 
 ScriptEng::ScriptEng()
 {
-    Log::info("Initializing Script Engine...");
+    Log log ("Initializing Script Engine");
 
     std::ofstream predefs("as.predefined");
     if (predefs.fail())
     {
-        Log::warn("Initializing Script Engine: Failed (Couldn't open as.predefined)");
+        log.fail("Couldn't open as.predefined");
         return;
     }
 
@@ -105,7 +105,7 @@ ScriptEng::ScriptEng()
     int r = s_engine->SetMessageCallback(asFUNCTION(message_cb), 0, asCALL_CDECL);
     if (r < 0)
     {
-        Log::error("Initializing Script Engine: Failed (Couldn't set message callback)");
+        log.fail("Couldn't set message callback");
         return;
     }
 
@@ -148,12 +148,11 @@ ScriptEng::ScriptEng()
     });
     
     predefs.close();
-    Log::info("Initializing Script Engine: Success");
 }
 
 ScriptEng::~ScriptEng()
 {
-    Log::info("Shutting Down Script Engine...");
+    Log log("Shutting Down Script Engine");
     int r = 0;
     for (asIScriptFunction ptr func : s_funcs)
     {
@@ -161,19 +160,20 @@ ScriptEng::~ScriptEng()
         {
             r = func->Release();
             if (r < 0)
-                Log::warn("Shutting Down Script Engine: Failed (func \"{}\" failed to release)", func->GetName());
+            {
+                log.fail("func \"{}\" failed to release", func->GetName());
+                return;
+            }
         }
     }
     r = s_engine->ShutDownAndRelease();
     if (r < 0)
-        Log::warn("Shutting Down Script Engine: Failed (engine shutdown function failed)");
-
-    Log::info("Shutting Down Script Engine: Success");
+        log.fail("engine shutdown function failed");
 }
 
 void ScriptEng::run(string_view script_path)
 {
-    Log::info("Running Script Engine...");
+    Log log("Running Script Engine...");
 
     int r = 0;
     CScriptBuilder s_builder;
@@ -181,7 +181,7 @@ void ScriptEng::run(string_view script_path)
     r = s_builder.StartNewModule(s_engine, 0);
     if (r < 0)
     {
-        Log::error("Running Script Engine: Failed (Builder cannot start new module)");
+        log.fail("Builder cannot start new module");
         return;
     }
 
@@ -191,27 +191,25 @@ void ScriptEng::run(string_view script_path)
     //r = s_builder.AddSectionFromFile(script_path.data());
     if (r < 0)
     {
-        Log::error("Running Script Engine: Failed (Cannot add section \"{}\")", script_path);
+        log.fail("Cannot add section \"{}\"", script_path);
         return;
     }
 
     r = s_builder.BuildModule();
     if (r < 0)
     {
-        Log::error("Running Script Engine: Failed (Cannot build module)");
+        log.fail("Cannot build module");
         return;
     }
 
     asIScriptFunction ptr s_main = s_engine->GetModule(0)->GetFunctionByDecl("void main()");
     if (!run_as_function(s_main)) return;
-
-    Log::info("Running Script Engine: Success");
 }
 
 bool ScriptEng::run_as_function(asIScriptFunction ptr cb)
 {
     string_view name = cb->GetName();
-    Log::info("ScrEng running function \"{}\"...", name);
+    Log log("ScrEng running function \"{}\"", name);
 
     asIScriptContext ptr s_ctx = s_engine->CreateContext();
     int r = 0;
@@ -219,24 +217,23 @@ bool ScriptEng::run_as_function(asIScriptFunction ptr cb)
     r = s_ctx->Prepare(cb);
     if (r < 0)
     {
-        Log::error("ScrEng running function \"{}\": Failed (Cannot get function)", name);
+        log.fail("Cannot get function", name);
         return false;
     }
 
     r = s_ctx->Execute();
     if (r < 0)
     {
-        Log::error("ScrEng running function \"{}\": Failed (Cannot execute)", name);
+        log.fail("Cannot execute", name);
         return false;
     }
 
     r = s_ctx->Release();
     if (r < 0)
     {
-        Log::error("ScrEng running function \"{}\": Failed (Cannot release context)", name);
+        log.fail("Cannot release context");
         return false;
     }
 
-    Log::info("ScrEng running function \"{}\": Success", name);
     return true;
 }

@@ -71,6 +71,11 @@ void VoxGrid::load(int cx, int cy)
     chk.finalize();
 }
 
+void VoxGrid::render()
+{
+
+}
+
 bool VoxGrid::is_open(int x, int y, int z)
 {
     if (z < 0 || z >= VoxChunk::z_dim) return false;
