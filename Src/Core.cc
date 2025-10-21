@@ -45,9 +45,11 @@ int main(int argc, char ** argv)
         Model::add("Models/TutorialCube.obj", true);
 
         Shader::add("Default",
-            "Shaders/Default.vert", "Shaders/Default.frag", "Shaders/Default.geom", 8, 16);
+            "Shaders/Default.vert", "Shaders/Default.geom", "Shaders/Default.frag", 8, 16);
         Shader::add("Instanced",
-            "Shaders/Instanced.vert", "Shaders/Default.frag", "", 8, 16);
+            "Shaders/Instanced.vert", "Shaders/Default.geom", "Shaders/Default.frag", 8, 16);
+        Shader::add("VoxQuads",
+            "Shaders/VoxQuads.vert", "Shaders/VoxQuads.geom", "Shaders/Default.frag", 8, 16);
 
         Texture::add("Textures/awesomeface.png", 1);
         Texture::add("Textures/container.jpg", 1);
@@ -151,20 +153,8 @@ int main(int argc, char ** argv)
 
     load_cube_txts();
 
-    VoxChunk::temp_tex = Texture::get("Textures/grass_side.png");
-
-    /* {
-        Texture ptr grass_top = Texture::get("Textures/grass_top.png");
-        Texture ptr grass_side = Texture::get("Textures/grass_side.png");
-        Texture ptr grass_bottom = Texture::get("Textures/grass_bottom.png");
-
-        VoxChunk::quad_models[0]->meshes[0].textures.push_back(grass_side);
-        VoxChunk::quad_models[1]->meshes[0].textures.push_back(grass_side);
-        VoxChunk::quad_models[2]->meshes[0].textures.push_back(grass_side);
-        VoxChunk::quad_models[3]->meshes[0].textures.push_back(grass_side);
-        VoxChunk::quad_models[4]->meshes[0].textures.push_back(grass_bottom);
-        VoxChunk::quad_models[5]->meshes[0].textures.push_back(grass_top);
-    } */
+    VoxGrid::shader = Shader::get("VoxQuads");
+    VoxGrid::temp_tex = Texture::get("Textures/grass_top.png");
     
     int const h_sz_x = VoxGrid::sz_x / 2; //half of sz_x
     int const h_sz_y = VoxGrid::sz_y / 2; //half of sz_y
@@ -176,6 +166,11 @@ int main(int argc, char ** argv)
             //if (cx == cy) continue; //test
             engine->vox_grid->load(cx,cy);
         }
+    }
+
+    for (auto ref [_, shader] : Shader::get_map())
+    {
+        shader.uniform_i("quad_size", VoxChunk::qs);
     }
 
     //Other Runtime Callbacks
@@ -230,13 +225,12 @@ int main(int argc, char ** argv)
 
     engine->runtime_cbs.push_back([](){
         bool static b = true;
-        if (engine->keyboard->at(GLFW_KEY_R).act_press)
-        {
-            b = !b;
-            for (auto ref [_, shader] : Shader::get_map())
-                shader.uniform_i("extra_flag", cast<int>(b));
-        }
-        glfwSwapInterval(cast<int>(b)); //has to be outside if block for some reason
+        if (engine->keyboard->at(GLFW_KEY_R).act_press) b = !b;
+
+        //has to be outside if block for some reason
+        for (auto ref [_, shader] : Shader::get_map())
+            shader.uniform_i("extra_flag", cast<int>(b));
+        glfwSwapInterval(cast<int>(b));
     });
 
     engine->runtime_cbs.push_back([&dir_light, &dir_light_n](){

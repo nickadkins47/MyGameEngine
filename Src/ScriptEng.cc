@@ -5,7 +5,7 @@
  *  @brief: 
  */
 
-//TODO prevent angelscript from exporting DLL symbols
+//TODO MAYBE prevent angelscript from somehow exporting DLL symbols?
 #include <angelscript.h>
 #include "Ext/GL/Enum.hh"
 #include "Ext/GL/Functions.hh"

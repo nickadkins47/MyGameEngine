@@ -15,7 +15,7 @@ uniform mat4 vp_mat;
 uniform mat4 m_mat;
 
 //TODO: move some operations here to a compute shader thats done right before vertexes
-//IE calc mvp_mat, m_mat_itr, etc
+//IE calc mvp_mat, n_mat (m_mat_itr), etc
 
 void main()
 {

@@ -19,7 +19,8 @@ class ButtonHandler
     
     using GLFWInputCode = int;
 
-    struct Button {
+    struct Button
+    {
         bool act_press = false; //True if just got GLFW_PRESS action from glfwPollEvents()
         bool act_repeat = false; //True if just got GLFW_REPEAT action from glfwPollEvents()
         bool act_release = false; //True if just got GLFW_RELEASE action from glfwPollEvents()

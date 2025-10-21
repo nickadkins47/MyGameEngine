@@ -15,7 +15,8 @@ template<typename T>
 using six = array<T,6>;
 
 //types of blocks present in game
-enum class VoxCube: size_t {
+enum class VoxCube: size_t
+{
     AIR,
     TEST,
     GRASS,

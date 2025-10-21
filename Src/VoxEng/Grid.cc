@@ -5,16 +5,29 @@
  *  @brief: 
  */
 
+#include "../Ext/GL/Enum.hh"
+#include "../Ext/GL/Functions.hh"
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include "Grid.hh"
+#include "../Mesh.hh"
+#include "../Shader.hh"
+#include "../Texture.hh"
 
-VoxGrid::VoxGrid() {}
+VoxGrid::VoxGrid()
+{
+    for (auto ref row : _grid)
+        for (auto ref chk : row)
+            chk = new VoxChunk();
+}
 
-constexpr VoxChunk ref VoxGrid::chunk(int cx, int cy)
+VoxChunk ptr VoxGrid::chunk(int cx, int cy)
 {
     return _grid
         [(cx < 0)? (sz_x + cx): cx]
-        [(cy < 0)? (sz_y + cy): cy]; 
-        //negative values will loop back around
+        [(cy < 0)? (sz_y + cy): cy] 
+    ; //negative values will loop back around
 }
 
 VoxCube ref VoxGrid::at(int x, int y, int z)
@@ -22,22 +35,22 @@ VoxCube ref VoxGrid::at(int x, int y, int z)
     return this->chunk(
         cast<int>(std::floor(cast<double>(x) / VoxChunk::x_dim)), //floor to lowest multiple of x/y_dim
         cast<int>(std::floor(cast<double>(y) / VoxChunk::y_dim))
-    ).at(
+    )->at(
         x % VoxChunk::x_dim, y % VoxChunk::y_dim, z
     );
 }
 
 void VoxGrid::load(int cx, int cy)
 {
-    VoxChunk ref chk = this->chunk(cx,cy);
-    if (chk.is_ren) return;
+    VoxChunk ptr chk = this->chunk(cx,cy);
+    if (chk->is_loaded) return;
 
     for (int xs : {-1,0,1}) //generate all neighboring chunks
     {
         for (int ys : {-1,0,1})
         {
-            VoxChunk ref neighbor = this->chunk(cx+xs,cy+ys);
-            if (!neighbor.is_gen) neighbor.generate(cx+xs,cy+ys);
+            VoxChunk ptr neighbor = this->chunk(cx+xs,cy+ys);
+            if (!neighbor->is_generated) neighbor->generate(cx+xs,cy+ys);
         }
     }
 
@@ -64,16 +77,33 @@ void VoxGrid::load(int cx, int cy)
                     is_open(x,y,z+1),
                 };
 
-                chk.register_cube(cast<int>(lx), x, cast<int>(ly), y, z, open_sides);
+                chk->register_cube(x, y, z, open_sides);
             }
         }
     }
-    chk.finalize();
+    chk->load();
 }
 
 void VoxGrid::render()
 {
+    shader->use();
 
+    shader->sampler2d(0, temp_tex);
+    shader->uniform_i("textures[0].type", temp_tex->type);
+
+    for (int i = 1; i < Mesh::prev_tex_num; i++) //unset any remaining texture slots
+    {
+        shader->uniform_i(format("textures[{}].type", i), 0);
+    }
+    Mesh::prev_tex_num = 1;
+
+    shader->uniform_f("shininess", 32.0f);
+
+    glFrontFace(GL_CCW);
+
+    for (auto ref row : _grid)
+        for (auto ref chk : row)
+            chk->render();
 }
 
 bool VoxGrid::is_open(int x, int y, int z)

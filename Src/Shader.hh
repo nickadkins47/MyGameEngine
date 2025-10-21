@@ -17,8 +17,8 @@ class Shader : public Manager<Shader>
     public:
 
     //TODO DESC: Reads & Builds the Shader based on the provided vert & frag paths
-    static optional<Shader ptr> add(string cref shader_name, 
-        string_view vert_path, string_view frag_path, string_view geom_path = "",
+    static optional<Shader ptr> add(string cref shader_name,
+        string_view vert_path, string_view geom_path, string_view frag_path,
         int num_lights = 0, int num_textures = 0);
     
     delete_other_ops(Shader)
@@ -49,6 +49,6 @@ class Shader : public Manager<Shader>
 
     protected:
 
-    //TEMP DESC: add either a vert/frag/geom shader (mode = 0/1/2 respectively)
+    //TEMP DESC: add either a vert/geom/frag shader (mode = 0/1/2 respectively)
     static optional<uint> add_one_shader(string_view shader_name, string_view sh_path, int mode);
 };

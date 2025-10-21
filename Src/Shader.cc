@@ -5,9 +5,6 @@
  *  @brief: 
  */
 
-#include <expected>
-    using std::expected;
-
 #include "Ext/GL/Enum.hh"
 #include "Ext/GL/Functions.hh"
 
@@ -18,11 +15,9 @@
 Shader::Shader() {}
 
 optional<Shader ptr> Shader::add(string cref shader_name,
-    string_view vert_path, string_view frag_path, string_view geom_path, int num_lights, int num_textures)
+    string_view vert_path, string_view geom_path, string_view frag_path, int num_lights, int num_textures)
 {
     Log log("Adding shaders \"{}\"", shader_name);
-
-    bool const using_geom = !geom_path.empty();
 
     optional<uint> vert_shader = add_one_shader(shader_name, vert_path, 0);
     if (vert_shader == nullopt) {
@@ -30,20 +25,16 @@ optional<Shader ptr> Shader::add(string cref shader_name,
         return nullopt;
     }
 
-    optional<uint> frag_shader = add_one_shader(shader_name, frag_path, 1);
-    if (frag_shader == nullopt) {
-        log.fail("Cannot add fragment shader");
+    optional<uint> geom_shader = add_one_shader(shader_name, geom_path, 1);
+    if (geom_shader == nullopt) {
+        log.fail("Cannot add geometry shader");
         return nullopt;
     }
 
-    optional<uint> geom_shader = 0;
-    if (using_geom)
-    {
-        geom_shader = add_one_shader(shader_name, geom_path, 2);
-        if (geom_shader == nullopt) {
-            log.fail("Cannot add geometry shader");
-            return nullopt;
-        }
+    optional<uint> frag_shader = add_one_shader(shader_name, frag_path, 2);
+    if (frag_shader == nullopt) {
+        log.fail("Cannot add fragment shader");
+        return nullopt;
     }
     
     Shader ptr shader = new_val(shader_name);
@@ -51,10 +42,13 @@ optional<Shader ptr> Shader::add(string cref shader_name,
 
     shader->ID = glCreateProgram();
     glAttachShader(shader->ID, vert_shader.value());
+    //log.gl_check("Attaching Vert");
+    glAttachShader(shader->ID, geom_shader.value());
+    //log.gl_check("Attaching Geom");
     glAttachShader(shader->ID, frag_shader.value());
-    if (using_geom)
-        glAttachShader(shader->ID, geom_shader.value());
+    //log.gl_check("Attaching Frag");
     glLinkProgram(shader->ID);
+    //log.gl_check("Linking shader prog.");
 
     int success;
     char info_log[512];
@@ -68,9 +62,8 @@ optional<Shader ptr> Shader::add(string cref shader_name,
     }
 
     glDeleteShader(vert_shader.value());
+    glDeleteShader(geom_shader.value());
     glDeleteShader(frag_shader.value());
-    if (using_geom)
-        glDeleteShader(geom_shader.value());
 
     shader->use();
     for (int i = 0; i < num_lights; i++)
@@ -235,8 +228,8 @@ optional<uint> Shader::add_one_shader(string_view shader_name, string_view sh_pa
 
     GLenum type =
         (mode == 0) ? GL_VERTEX_SHADER :
-        (mode == 1) ? GL_FRAGMENT_SHADER :
-        /*(mode == 2) ?*/ GL_GEOMETRY_SHADER
+        (mode == 1) ? GL_GEOMETRY_SHADER:
+        /*(mode == 2) ?*/ GL_FRAGMENT_SHADER
     ;
     uint shader = glCreateShader(type);
     glShaderSource(shader, 1, &sh_code, NULL);

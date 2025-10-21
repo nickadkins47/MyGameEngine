@@ -85,6 +85,18 @@ class Log
         }
     }
 
+    //TODO DESC: Check latest GL function call via glGetError(), and if it failed print the error code
+    template<class... Args>
+    void gl_check(string_view message)
+    {
+        if (enabled && success)
+        {
+            optional<string> err = get_gl_error();
+            if (err != nullopt)
+                fail("GL function failed ({}: {})", message, err.value_or("?"));
+        }
+    }
+
     //Call this function to enable logging
     static void init_logging();
 

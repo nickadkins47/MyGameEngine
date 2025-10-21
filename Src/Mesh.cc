@@ -46,8 +46,6 @@ void Mesh::gen_gl_data(bool is_indexed, bool is_instanced)
 
 void Mesh::set_textures(Shader cptr shader) const
 {
-    int static prev_tex_num = 0;
-
     //shader should be already binded at this point
 
     int const tex_num = cast<int>(textures.size());
@@ -70,7 +68,7 @@ void Mesh::draw() const
 {
     glBindVertexArray(VAO);
 
-    //TODO: more options for how to render things? IE like GL_QUADS, GL_TRIANGLE_FAN, etc
+    //TODO: more options for how to render things? IE like GL_TRIANGLE_STRIPS etc
     if (EBO == 0) //not indexed
     {
         if (IVBO == 0) //not instanced

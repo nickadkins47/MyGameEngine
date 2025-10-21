@@ -65,6 +65,8 @@ class Mesh
 
     static constexpr int sizeof_gl_type(GLenum type);
 
+    int inline static prev_tex_num = 0; //used for set_textures function
+
     template<typename T>
     inline static void set_buffer(uint ID, GLenum type, vector<T> cref data, GLenum usage)
     {
