@@ -19,9 +19,9 @@ class Obj : public Manager<Obj>
 {
     public:
 
-    static optional<Obj ptr> add(string cref obj_name, string cref model_name);
+    static bool add(string cref obj_name, string cref model_name);
 
-    static optional<Obj ptr> add(string cref obj_name, Model ptr model);
+    static bool add(string cref obj_name, Model ptr model);
 
     delete_other_ops(Obj)
 

@@ -14,7 +14,7 @@
 
 Shader::Shader() {}
 
-optional<Shader ptr> Shader::add(string cref shader_name,
+bool Shader::add(string cref shader_name,
     string_view vert_path, string_view geom_path, string_view frag_path, int num_lights, int num_textures)
 {
     Log log("Adding shaders \"{}\"", shader_name);
@@ -22,19 +22,19 @@ optional<Shader ptr> Shader::add(string cref shader_name,
     optional<uint> vert_shader = add_one_shader(shader_name, vert_path, 0);
     if (vert_shader == nullopt) {
         log.fail("Cannot add vertex shader");
-        return nullopt;
+        return false;
     }
 
     optional<uint> geom_shader = add_one_shader(shader_name, geom_path, 1);
     if (geom_shader == nullopt) {
         log.fail("Cannot add geometry shader");
-        return nullopt;
+        return false;
     }
 
     optional<uint> frag_shader = add_one_shader(shader_name, frag_path, 2);
     if (frag_shader == nullopt) {
         log.fail("Cannot add fragment shader");
-        return nullopt;
+        return false;
     }
     
     Shader ptr shader = new_val(shader_name);
@@ -58,7 +58,7 @@ optional<Shader ptr> Shader::add(string cref shader_name,
         glGetProgramInfoLog(shader->ID, 512, NULL, info_log);
         log.fail("{}", info_log);
         Shader::remove(shader_name);
-        return nullopt;
+        return false;
     }
 
     glDeleteShader(vert_shader.value());
@@ -76,7 +76,7 @@ optional<Shader ptr> Shader::add(string cref shader_name,
         shader->uniform_i(format("textures[{}].type", i), 0);
     }
 
-    return shader;
+    return true;
 }
 
 void Shader::use() const

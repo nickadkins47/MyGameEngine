@@ -18,7 +18,7 @@ Texture::~Texture()
     stbi_image_free(data);
 }
 
-optional<Texture ptr> Texture::add(string cref texture_path, int type)
+bool Texture::add(string cref texture_path, int type)
 {
     Log log("Adding texture \"{}\"", texture_path);
 
@@ -32,7 +32,7 @@ optional<Texture ptr> Texture::add(string cref texture_path, int type)
     if (!texture->data) {
         log.fail("Cannot Load"); //TODO more detail?
         Texture::remove(texture_path);
-        return nullopt;
+        return false;
     }
 
     glGenTextures(1, &texture->ID);
@@ -46,5 +46,5 @@ optional<Texture ptr> Texture::add(string cref texture_path, int type)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture->data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
-    return texture;
+    return true;
 }

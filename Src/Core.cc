@@ -107,7 +107,8 @@ int main(int argc, char ** argv)
 
     for (int i = 0; i < light_cube_positions.size(); i++)
     {
-        Obj ptr obj = Obj::add(format("Lightcube{}", i), "Models/TutorialCube.obj").value();
+        Obj::add(format("Lightcube{}", i), "Models/TutorialCube.obj");
+        Obj ptr obj = Obj::get(format("Lightcube{}", i));
         obj->move_position(light_cube_positions[i]);
     }
     engine->lights[0].follower = Obj::get("Lightcube0");
@@ -124,30 +125,26 @@ int main(int argc, char ** argv)
             light_cube0->move_position(glm::vec3{0.0f, 0.0f, -0.1f});
     });
 
-    {
-        Obj ptr obj = Obj::add("Ground", "Models/FlatGround.obj").value();
-        obj->move_position(glm::vec3{0.0f, 0.0f, -3.0f});
-        obj->scale(glm::vec3{128.0f});
-    }
+    Obj::add("Ground", "Models/FlatGround.obj");
+    Obj ptr ground = Obj::get("Ground");
+    ground->move_position(glm::vec3{0.0f, 0.0f, -3.0f});
+    ground->scale(glm::vec3{128.0f});
 
-    {
-        Obj ptr obj = Obj::add("Backpack", "Models/Backpack/backpack.obj").value();
-        obj->move_position(glm::vec3{10.0f, 10.0f, 15.0f});
-    }
+    Obj::add("Backpack", "Models/Backpack/backpack.obj");
+    Obj ptr backpack = Obj::get("Backpack");
+    backpack->move_position(glm::vec3{10.0f, 10.0f, 15.0f});
 
-    {
-        Obj ptr obj = Obj::add("Duck", "Models/Duck/duck.dae").value();
-        obj->move_position(glm::vec3{-10.0f, -10.0f, 15.0f});
-        obj->scale(glm::vec3(0.0325f));
-        obj->rotate(90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-    }
+    Obj::add("Duck", "Models/Duck/duck.dae");
+    Obj ptr duck = Obj::get("Duck");
+    duck->move_position(glm::vec3{-10.0f, -10.0f, 15.0f});
+    duck->scale(glm::vec3(0.0325f));
+    duck->rotate(90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 
-    {
-        Obj ptr obj = Obj::add("Spider", "Models/Spider/spider.obj").value();
-        obj->move_position(glm::vec3{10.0f, -10.0f, 15.0f});
-        obj->scale(glm::vec3(0.0325f));
-        obj->rotate(90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-    }
+    Obj::add("Spider", "Models/Spider/spider.obj");
+    Obj ptr spider = Obj::get("Spider");
+    spider->move_position(glm::vec3{10.0f, -10.0f, 15.0f});
+    spider->scale(glm::vec3(0.0325f));
+    spider->rotate(90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 
     //VoxEng stuff
 
@@ -249,7 +246,9 @@ int main(int argc, char ** argv)
 
     //Run Engine (Loop)
 
-    engine->run();
+    engine->render_init();
+    while (engine->is_running)
+        engine->render_frame();
 
     //Shutdown
 

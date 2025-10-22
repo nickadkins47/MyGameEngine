@@ -23,9 +23,9 @@ class Model : public Manager<Model>
 {
     public:
 
-    static optional<Model ptr> add(string cref model_path, bool winding_cw = false, bool flip_uvs = true, bool instanced = false);
+    static bool add(string cref model_path, bool winding_cw = false, bool flip_uvs = true, bool instanced = false);
 
-    static optional<Model ptr> add(string cref model_name, vector<Mesh> cref meshes);
+    static bool add(string cref model_name, vector<Mesh> cref meshes);
 
     delete_other_ops(Model)
 

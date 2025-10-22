@@ -17,7 +17,7 @@ class Shader : public Manager<Shader>
     public:
 
     //TODO DESC: Reads & Builds the Shader based on the provided vert & frag paths
-    static optional<Shader ptr> add(string cref shader_name,
+    static bool add(string cref shader_name,
         string_view vert_path, string_view geom_path, string_view frag_path,
         int num_lights = 0, int num_textures = 0);
     

@@ -14,14 +14,14 @@ class Texture : public Manager<Texture>
 {
     public:
 
-    static optional<Texture ptr> add(string cref texture_path, int type);
+    static bool add(string cref texture_path, int type);
 
     delete_other_ops(Texture)
 
     uint ID = 0;
     int type = 0; //refer to assimp texture types
     int width = 0, height = 0, src_channels = 0; //data recieved from stbi_load
-    unsigned char* data = nullptr; //image data from stb
+    unsigned char ptr data = nullptr; //image data from stb
 
     Texture(); //do not manually call. always use _::add() instead
     ~Texture();

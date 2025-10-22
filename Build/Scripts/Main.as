@@ -9,11 +9,22 @@ void main()
     kbd_on_press(k_escape, function(){
         exit();
     });
+    /* kbd_on_press(k_n1, function(){
+        option_draw_point();
+    }); */
     kbd_on_press(k_n1, function(){
         option_draw_lines();
     });
     kbd_on_press(k_n2, function(){
         option_draw_fill();
     });
+    
+    /* bool b = true;
+    add_runtime_cb(function(){
+        if (kbd_key(k_f))
+        {
+            b = !b;
+        }
+    }); */
 
 }

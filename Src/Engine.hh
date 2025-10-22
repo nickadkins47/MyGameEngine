@@ -11,11 +11,12 @@
 #include "Light.hh"
 #include "Obj.hh"
 
+class asIScriptEngine;
+class asIScriptFunction;
 struct GLFWwindow;
 class VoxGrid;
 class ButtonHandler;
 class Camera;
-class ScriptEng;
 class Shader;
 
 class Engine
@@ -23,7 +24,6 @@ class Engine
     public:
 
     Engine();
-
     ~Engine();
 
     delete_other_ops(Engine)
@@ -39,12 +39,12 @@ class Engine
 
     double delta_time = 0; //time between this frame & previous
 
-    ScriptEng ptr script_engine;
-    VoxGrid ptr vox_grid;
+    asIScriptEngine ptr script_engine = nullptr;
+    VoxGrid ptr vox_grid = nullptr;
 
-    ButtonHandler ptr keyboard;
-    ButtonHandler ptr mouse_buttons;
-    Camera ptr camera;
+    ButtonHandler ptr keyboard = nullptr;
+    ButtonHandler ptr mouse_buttons = nullptr;
+    Camera ptr camera = nullptr;
 
     Shader ptr default_shader = nullptr;
 
@@ -53,18 +53,23 @@ class Engine
     //Callbacks for the engine to run every frame
     vector<function<void(void)>> runtime_cbs;
 
+    //TODO
+    vector<asIScriptFunction ptr> script_funcs;
+
     //TODO: Add skybox
     glm::vec3 skybox_color = {0.2f, 0.3f, 0.3f};
 
-    void run();
-    void render();
-
     void initialize();
+
+    void render_init();
+    void render_frame();
+    
     void shutdown();
 
-    void opt_vsync_enable();
-    void opt_vsync_disable();
+    protected:
 
+    void script_funcs_init(Log ref log, std::ofstream ref predefs);
+    bool run_function_as(asIScriptFunction ptr cb);
 };
 
 Engine inline ptr engine = nullptr; //global pointer to current/primary engine

@@ -21,7 +21,7 @@
 
 Model::Model() {}
 
-optional<Model ptr> Model::add(string cref model_path, bool winding_cw, bool flip_uvs, bool instanced)
+bool Model::add(string cref model_path, bool winding_cw, bool flip_uvs, bool instanced)
 {
     Log log("Adding model \"{}\" via Assimp", model_path);
     Assimp::Importer importer;
@@ -33,7 +33,7 @@ optional<Model ptr> Model::add(string cref model_path, bool winding_cw, bool fli
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) 
     {
         log.fail("{}", importer.GetErrorString());
-        return nullopt;
+        return false;
     }
 
     Model ptr model = new_val(model_path);
@@ -43,10 +43,10 @@ optional<Model ptr> Model::add(string cref model_path, bool winding_cw, bool fli
     string const model_dir = std::filesystem::path(model_path).parent_path().string();
     model->import_node(scene->mRootNode, scene, model_dir, instanced);
 
-    return model;
+    return true;
 }
 
-optional<Model ptr> Model::add(string cref model_name, vector<Mesh> cref meshes)
+bool Model::add(string cref model_name, vector<Mesh> cref meshes)
 {
     Log log("Adding model \"{}\" directly", model_name);
 
@@ -55,7 +55,7 @@ optional<Model ptr> Model::add(string cref model_name, vector<Mesh> cref meshes)
     for (auto ref mesh : model->meshes)
         mesh.parent = model;
 
-    return model;
+    return true;
 }
 
 void Model::import_node(aiNode ptr node, aiScene cptr scene, string cref model_dir, bool instanced)
@@ -124,10 +124,8 @@ void Model::import_material(Mesh ref mesh, aiMaterial cptr mat, string cref mode
             string const texture_path (model_dir + '/' + texture_fn.C_Str());
 
             //Get Texture, or add it if it doenst exist already
-            Texture ptr texture = (Texture::exists(texture_path))
-                ? Texture::get(texture_path)
-                : Texture::add(texture_path, type).value()
-            ;
+            if (!Texture::exists(texture_path)) Texture::add(texture_path, type);
+            Texture ptr texture = Texture::get(texture_path);
             mesh.textures.push_back(texture);
         }
     }

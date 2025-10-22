@@ -13,24 +13,24 @@
 
 Obj::Obj() {}
 
-optional<Obj ptr> Obj::add(string cref obj_name, string cref model_name)
+bool Obj::add(string cref obj_name, string cref model_name)
 {
     Log log("Adding obj \"{}\"", obj_name);
     
     Obj ptr obj = new_val(obj_name);
     obj->set_model(Model::get(model_name));
 
-    return obj;
+    return true;
 }
 
-optional<Obj ptr> Obj::add(string cref obj_name, Model ptr model)
+bool Obj::add(string cref obj_name, Model ptr model)
 {
     Log log("Adding obj \"{}\"", obj_name);
     
     Obj ptr obj = new_val(obj_name);
     obj->set_model(model);
 
-    return obj;
+    return true;
 }
 
 glm::vec3 Obj::get_position() const
