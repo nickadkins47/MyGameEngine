@@ -7,5 +7,5 @@
 
 #pragma once
 
-#include <glbinding/gl33core/functions.h>
-using namespace gl;
+#include <glbinding/gl46core/functions.h>
+using namespace gl46core;

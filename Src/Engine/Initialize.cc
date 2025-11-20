@@ -58,8 +58,8 @@ void Engine::initialize()
         return;
     }
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); //v3.3
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); //v4.6
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_SAMPLES, 4); //for multisampling
 
@@ -82,6 +82,14 @@ void Engine::initialize()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glEnable(GL_MULTISAMPLE);
+
+    log.info("GL Version: {}", r_cast<char cptr>(glGetString(GL_VERSION)));
+
+    if (!glfwExtensionSupported("GL_ARB_shader_draw_parameters"))
+    {
+        log.fail("GL_ARB_shader_draw_parameters not supported");
+        shutdown();
+    }
 
     //ImGUI Init
 

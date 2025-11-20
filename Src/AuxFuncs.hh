@@ -76,12 +76,12 @@ class Log
         {
             success = false;
             num_tabs--;
+            string const msg = std::format(fmt, std::forward<Args>(args)...);
             out_file << string(num_tabs, '\t') 
-                << "} FAILED ("
-                << std::format(fmt, std::forward<Args>(args)...)
-                << ')'
+                << "} FAILED (" << msg << ')'
                 << format(" (T: {} s)\n", get_time() - start_time);
             out_file.flush();
+            throw std::runtime_error(msg);
         }
     }
 

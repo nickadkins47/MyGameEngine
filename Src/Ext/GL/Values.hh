@@ -7,5 +7,5 @@
 
 #pragma once
 
-#include <glbinding/gl33core/values.h>
-using namespace gl;
+#include <glbinding/gl46core/values.h>
+using namespace gl46core;

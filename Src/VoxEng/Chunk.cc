@@ -11,6 +11,7 @@
 #include <stb/stb_perlin.h>
 
 #include "Chunk.hh"
+#include "../Engine.hh"
 
 VoxChunk::VoxChunk() {}
 
@@ -40,40 +41,18 @@ void VoxChunk::generate(int cx, int cy)
     is_generated = true;
 }
 
-void VoxChunk::register_cube(int x, int y, int z, six<bool> cref open_sides)
+void VoxChunk::register_cube(int x, int y, int z, six<bool> cref faces)
 {
-    int const gx = qs * x; //graphical/simulation location x
-    int const gy = qs * y; //etc
-    int const gz = qs * z; //etc
-
-    for (int i = 0; i < open_sides.size(); i++)
+    int const pos_data = 0
+        | ((x & 31) << 10)
+        | ((y & 31) << 5 )
+        | ((z & 31) << 0 )
+    ;
+    for (int i = 0; i < faces.size(); i++)
     {
-        if (open_sides[i])
-            mesh.append_range(array{gx, gy, gz, i});
+        if (faces[i])
+            mesh.push_back(pos_data | ((i & 7) << 15));
     }
-}
-
-void VoxChunk::load()
-{
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, mesh.size() * sizeof(int), mesh.data(), GL_STATIC_DRAW);
-
-    glVertexAttribIPointer(0, 3, GL_INT, 4*sizeof(int), r_cast<void ptr>(0*sizeof(int)));
-    glEnableVertexAttribArray(0);
-    glVertexAttribIPointer(1, 1, GL_INT, 4*sizeof(int), r_cast<void ptr>(3*sizeof(int)));
-    glEnableVertexAttribArray(1);
-
-    is_loaded = true;
-}
-
-void VoxChunk::render()
-{
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_POINTS, 0, cast<int>(mesh.size()));
 }
 
 int VoxChunk::perlin(int x, int y, float in_scale, float out_shift, float out_scale)

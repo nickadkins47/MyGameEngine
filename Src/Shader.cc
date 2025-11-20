@@ -42,13 +42,13 @@ bool Shader::add(string cref shader_name,
 
     shader->ID = glCreateProgram();
     glAttachShader(shader->ID, vert_shader.value());
-    //log.gl_check("Attaching Vert");
+    log.gl_check("Attaching Vert");
     glAttachShader(shader->ID, geom_shader.value());
-    //log.gl_check("Attaching Geom");
+    log.gl_check("Attaching Geom");
     glAttachShader(shader->ID, frag_shader.value());
-    //log.gl_check("Attaching Frag");
+    log.gl_check("Attaching Frag");
     glLinkProgram(shader->ID);
-    //log.gl_check("Linking shader prog.");
+    log.gl_check("Linking shader prog.");
 
     int success;
     char info_log[512];

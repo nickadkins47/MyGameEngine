@@ -1,4 +1,4 @@
-#version 330 core
+#version 460 core
 
 #define LIGHTS_NUM 8
 #define TEX_NUM 16

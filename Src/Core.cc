@@ -8,6 +8,7 @@
 #include "Ext/GL.hh"
 #include "Ext/GLFW.hh"
 #include <glm/trigonometric.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "VoxEng/Grid.hh"
 #include "ButtonHandler.hh"
@@ -26,11 +27,13 @@ int main(int argc, char ** argv)
     vector<string_view> const args (argv, argv + argc); //check arguments
     for (int i = 0; i < args.size(); i++)
     {
-        if (args[i] == "-S") {
+        if (args[i] == "-S")
+        {
             engine->script_entrypoint = args.at(i + 1);
             i++;
         }
-        else if (args[i] == "-L") Log::init_logging();
+        else if (args[i] == "-L") 
+            Log::init_logging();
     }
 
     engine->initialize();
@@ -105,7 +108,7 @@ int main(int argc, char ** argv)
         .direction = glm::vec3(0.0f, 0.0f, -1.0f),
     };
 
-    for (int i = 0; i < light_cube_positions.size(); i++)
+    /* for (int i = 0; i < light_cube_positions.size(); i++)
     {
         Obj::add(format("Lightcube{}", i), "Models/TutorialCube.obj");
         Obj ptr obj = Obj::get(format("Lightcube{}", i));
@@ -123,9 +126,9 @@ int main(int argc, char ** argv)
             light_cube0->move_position(glm::vec3{0.0f, 0.0f, 0.1f});
         if (engine->keyboard->at(GLFW_KEY_6).is_down)
             light_cube0->move_position(glm::vec3{0.0f, 0.0f, -0.1f});
-    });
+    }); */
 
-    Obj::add("Ground", "Models/FlatGround.obj");
+    /* Obj::add("Ground", "Models/FlatGround.obj");
     Obj ptr ground = Obj::get("Ground");
     ground->move_position(glm::vec3{0.0f, 0.0f, -3.0f});
     ground->scale(glm::vec3{128.0f});
@@ -144,31 +147,26 @@ int main(int argc, char ** argv)
     Obj ptr spider = Obj::get("Spider");
     spider->move_position(glm::vec3{10.0f, -10.0f, 15.0f});
     spider->scale(glm::vec3(0.0325f));
-    spider->rotate(90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+    spider->rotate(90.0f, glm::vec3(1.0f, 0.0f, 0.0f)); */
 
     //VoxEng stuff
 
     load_cube_txts();
 
     VoxGrid::shader = Shader::get("VoxQuads");
+    
+    VoxGrid::shader->uniform_i("vox_x_dim", VoxChunk::x_dim);
+    VoxGrid::shader->uniform_i("vox_y_dim", VoxChunk::y_dim);
+    VoxGrid::shader->uniform_i("vox_quad_size", VoxChunk::quad_size);
+    
     VoxGrid::temp_tex = Texture::get("Textures/grass_top.png");
     
-    int const h_sz_x = VoxGrid::sz_x / 2; //half of sz_x
-    int const h_sz_y = VoxGrid::sz_y / 2; //half of sz_y
+    engine->vox_grid->for_each_chunk([](int cx, int cy){
+        //if (cx == cy) continue; //test
+        engine->vox_grid->load(cx,cy);
+    });
 
-    for (int cx = - h_sz_x; cx < h_sz_x; cx++)
-    {
-        for (int cy = - h_sz_y; cy < h_sz_y; cy++)
-        {
-            //if (cx == cy) continue; //test
-            engine->vox_grid->load(cx,cy);
-        }
-    }
-
-    for (auto ref [_, shader] : Shader::get_map())
-    {
-        shader.uniform_i("quad_size", VoxChunk::qs);
-    }
+    engine->vox_grid->finalize();
 
     //Other Runtime Callbacks
 

@@ -24,6 +24,8 @@ target("main")
     set_languages("c++23")
     add_files("Src/**.cc")
 
+    if is_plat("windows") then add_ldflags("/LTCG") end
+
     after_clean(function (target)
         os.rm("Build/Bin/*.pdb")
         os.rm("Build/Bin/*.exp")

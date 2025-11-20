@@ -1,18 +1,18 @@
-#version 330 core
+#version 460 core
+#extension GL_ARB_shader_draw_parameters : require
 
 //Pass-Through Vertex Shader (important stuff is done in VoxQuads.geom)
 
-layout (location = 0) in ivec3 v_in_pos; //x,y,z
-layout (location = 1) in int v_in_face; //face index to render
+layout (location = 0) in int v_in_data; //all data for one face
 
 out vox_data
 {
-    ivec3 pos;
-    int face;
+    int chk_data;
+    int data;
 } v_out;
 
 void main()
 {
-    v_out.pos = v_in_pos;
-    v_out.face = v_in_face;
+    v_out.chk_data = gl_BaseInstance;
+    v_out.data = v_in_data;
 }

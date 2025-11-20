@@ -40,6 +40,20 @@ VoxCube ref VoxGrid::at(int x, int y, int z)
     );
 }
 
+void VoxGrid::for_each_chunk(function<void(int, int)> cref func)
+{
+    int const h_sz_x = VoxGrid::sz_x / 2; //half of sz_x
+    int const h_sz_y = VoxGrid::sz_y / 2; //half of sz_y
+    
+    for (int cx = - h_sz_x; cx < h_sz_x; cx++)
+    {
+        for (int cy = - h_sz_y; cy < h_sz_y; cy++)
+        {
+            func(cx, cy);
+        }
+    }
+}
+
 void VoxGrid::load(int cx, int cy)
 {
     VoxChunk ptr chk = this->chunk(cx,cy);
@@ -68,7 +82,7 @@ void VoxGrid::load(int cx, int cy)
 
                 if (is_open(x,y,z)) continue; //if (x,y,z) is 0 (air) or undefined, dont render block
 
-                six<bool> const open_sides = {
+                six<bool> const faces = { //open sides of cube(x,y,z)
                     is_open(x-1,y,z), //is block at(x,y,z) air/empty/invalid?
                     is_open(x+1,y,z),
                     is_open(x,y-1,z),
@@ -77,11 +91,45 @@ void VoxGrid::load(int cx, int cy)
                     is_open(x,y,z+1),
                 };
 
-                chk->register_cube(x, y, z, open_sides);
+                chk->register_cube(x, y, z, faces);
             }
         }
     }
-    chk->load();
+
+    chk->is_loaded = true;
+}
+
+void VoxGrid::finalize()
+{
+    for_each_chunk([this](int cx, int cy){
+        int chk_val = 0
+            | ((cx & 65535) << 16)
+            | ((cy & 65535) << 0 )
+        ;
+        VoxChunk ptr chk = chunk(cx,cy);
+        draw_data.emplace_back() = {
+            .vert_count = cast<uint>(chk->mesh.size()),
+            .instance_count = 1,
+            .vert_first = cast<uint>(vert_data.size()),
+            .base_instance = chk_val,
+        };
+        vert_data.append_range(chk->mesh);
+    });
+
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, vert_data.size() * sizeof(int), vert_data.data(), GL_STATIC_DRAW);
+
+    glVertexAttribIPointer(0, 1, GL_INT, 1*sizeof(int), r_cast<void ptr>(0*sizeof(int)));
+    glEnableVertexAttribArray(0);
+
+    glGenBuffers(1, &IBO);
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, IBO);
+    glBufferData(GL_DRAW_INDIRECT_BUFFER, draw_data.size() * sizeof(DrawComData), draw_data.data(), GL_DYNAMIC_DRAW);
+
 }
 
 void VoxGrid::render()
@@ -101,9 +149,8 @@ void VoxGrid::render()
 
     glFrontFace(GL_CCW);
 
-    for (auto ref row : _grid)
-        for (auto ref chk : row)
-            chk->render();
+    glBindVertexArray(VAO);
+    glMultiDrawArraysIndirect(GL_POINTS, 0, cast<int>(draw_data.size()), 0);
 }
 
 bool VoxGrid::is_open(int x, int y, int z)

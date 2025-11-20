@@ -1,4 +1,4 @@
-#version 330 core
+#version 460 core
 
 layout (location = 0) in vec3 v_in_pos;
 layout (location = 1) in vec3 v_in_nor;
@@ -15,7 +15,7 @@ out vert_data
 uniform mat4 vp_mat;
 
 //TODO: move some operations here to a compute shader thats done right before vertexes
-//IE calc mvp_mat, m_mat_itr, etc
+//IE calc mvp_mat, n_mat (m_mat_itr), etc
 
 void main()
 {
