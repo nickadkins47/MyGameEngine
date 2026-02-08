@@ -25,7 +25,7 @@ int main(int argc, char ** argv)
     engine = new Engine();
 
     vector<string_view> const args (argv, argv + argc); //check arguments
-    for (int i = 0; i < args.size(); i++)
+    for (size_t i = 0; i < args.size(); i++)
     {
         if (args[i] == "-S")
         {
@@ -51,8 +51,8 @@ int main(int argc, char ** argv)
             "Shaders/Default.vert", "Shaders/Default.geom", "Shaders/Default.frag", 8, 16);
         Shader::add("Instanced",
             "Shaders/Instanced.vert", "Shaders/Default.geom", "Shaders/Default.frag", 8, 16);
-        Shader::add("VoxQuads",
-            "Shaders/VoxQuads.vert", "Shaders/VoxQuads.geom", "Shaders/Default.frag", 8, 16);
+        /* Shader::add("VoxQuads",
+            "Shaders/VoxQuads.vert", "Shaders/VoxQuads.geom", "Shaders/Default.frag", 8, 16); */
 
         Texture::add("Textures/awesomeface.png", 1);
         Texture::add("Textures/container.jpg", 1);
@@ -62,12 +62,12 @@ int main(int argc, char ** argv)
         Texture::add("Textures/grass_side.png", 1);
         Texture::add("Textures/grass_top.png", 1);
 
-        Texture::add("Textures/test/test1.png", 1);
+        /* Texture::add("Textures/test/test1.png", 1);
         Texture::add("Textures/test/test2.png", 1);
         Texture::add("Textures/test/test3.png", 1);
         Texture::add("Textures/test/test4.png", 1);
         Texture::add("Textures/test/test5.png", 1);
-        Texture::add("Textures/test/test6.png", 1);
+        Texture::add("Textures/test/test6.png", 1); */
     }
 
     engine->default_shader = Shader::get("Default");
@@ -93,10 +93,10 @@ int main(int argc, char ** argv)
         };
     }
 
-    /* engine->lights[0].mode = 3;
+    engine->lights[0].mode = 3;
     engine->lights[0].direction = glm::vec3(0.0f, 0.0f, -1.0f);
     engine->lights[0].bright_rim = glm::cos(glm::radians(20.0f));
-    engine->lights[0].dark_rim = glm::cos(glm::radians(25.0f)); */
+    engine->lights[0].dark_rim = glm::cos(glm::radians(25.0f));
 
     int const dir_light_n = cast<int>(engine->lights.size());
     Light ref dir_light = engine->lights.emplace_back();
@@ -108,7 +108,7 @@ int main(int argc, char ** argv)
         .direction = glm::vec3(0.0f, 0.0f, -1.0f),
     };
 
-    /* for (int i = 0; i < light_cube_positions.size(); i++)
+    for (size_t i = 0; i < light_cube_positions.size(); i++)
     {
         Obj::add(format("Lightcube{}", i), "Models/TutorialCube.obj");
         Obj ptr obj = Obj::get(format("Lightcube{}", i));
@@ -116,6 +116,7 @@ int main(int argc, char ** argv)
     }
     engine->lights[0].follower = Obj::get("Lightcube0");
 
+    //Move light_cube0 with Keys 3,4,5,6
     engine->runtime_cbs.push_back([](){
         Obj ptr light_cube0 = engine->lights[0].follower;
         if (engine->keyboard->at(GLFW_KEY_3).is_down)
@@ -126,9 +127,9 @@ int main(int argc, char ** argv)
             light_cube0->move_position(glm::vec3{0.0f, 0.0f, 0.1f});
         if (engine->keyboard->at(GLFW_KEY_6).is_down)
             light_cube0->move_position(glm::vec3{0.0f, 0.0f, -0.1f});
-    }); */
+    });
 
-    /* Obj::add("Ground", "Models/FlatGround.obj");
+    Obj::add("Ground", "Models/FlatGround.obj");
     Obj ptr ground = Obj::get("Ground");
     ground->move_position(glm::vec3{0.0f, 0.0f, -3.0f});
     ground->scale(glm::vec3{128.0f});
@@ -147,11 +148,11 @@ int main(int argc, char ** argv)
     Obj ptr spider = Obj::get("Spider");
     spider->move_position(glm::vec3{10.0f, -10.0f, 15.0f});
     spider->scale(glm::vec3(0.0325f));
-    spider->rotate(90.0f, glm::vec3(1.0f, 0.0f, 0.0f)); */
+    spider->rotate(90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 
     //VoxEng stuff
 
-    load_cube_txts();
+    /* load_cube_txts();
 
     VoxGrid::shader = Shader::get("VoxQuads");
     
@@ -166,10 +167,11 @@ int main(int argc, char ** argv)
         engine->vox_grid->load(cx,cy);
     });
 
-    engine->vox_grid->finalize();
+    engine->vox_grid->finalize(); */
 
     //Other Runtime Callbacks
 
+    //WASD (+QE) generic camera movement keys
     engine->runtime_cbs.push_back([](){
         auto ref kbd = engine->keyboard;
         bool movements[6] {
@@ -191,6 +193,7 @@ int main(int argc, char ** argv)
         ));
     });
 
+    //Key Tab: Capture cursor; use mouse to look around
     engine->runtime_cbs.push_back([](){
         static bool is_tab_mode = false, tab_available = true;
         
@@ -218,6 +221,7 @@ int main(int argc, char ** argv)
         }
     });
 
+    //Key R: Turn on/off extra flag in shader code
     engine->runtime_cbs.push_back([](){
         bool static b = true;
         if (engine->keyboard->at(GLFW_KEY_R).act_press) b = !b;
@@ -228,6 +232,7 @@ int main(int argc, char ** argv)
         glfwSwapInterval(cast<int>(b));
     });
 
+    //Key F: Turn on/off this directional light
     engine->runtime_cbs.push_back([&dir_light, &dir_light_n](){
         bool static b = true;
         if (engine->keyboard->at(GLFW_KEY_F).act_press)

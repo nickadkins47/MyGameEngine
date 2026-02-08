@@ -155,6 +155,6 @@ void VoxGrid::render()
 
 bool VoxGrid::is_open(int x, int y, int z)
 {
-    if (z < 0 || z >= VoxChunk::z_dim) return false;
+    if (z < 0 || z >= cast<int>(VoxChunk::z_dim)) return false;
     return !cube_txts.contains(this->at(x,y,z));
 }

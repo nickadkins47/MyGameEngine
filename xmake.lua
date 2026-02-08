@@ -1,13 +1,15 @@
 
 set_project("MyGameEngine")
 set_version("0.1.0")
-set_xmakever("2.9.9")
+set_xmakever("3.0.6")
 
 add_rules(
     "mode.debug",      --All symbols,   No optimization
     "mode.releasedbg", --All symbols, Full optimization
     "mode.release"     -- No symbols, Full optimization
 )
+
+set_policy("build.ccache", false)
 
 add_requires("angelscript 2.37.0")
 add_requires("assimp v5.4.3")

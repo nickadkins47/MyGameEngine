@@ -62,7 +62,7 @@ void Engine::render_frame()
     }
 
     //Update moving lights
-    for (int i = 0; i < lights.size(); i++)
+    for (size_t i = 0; i < lights.size(); i++)
     {
         if (lights[i].follower != nullptr)
         {

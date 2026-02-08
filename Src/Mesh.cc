@@ -109,7 +109,6 @@ void Mesh::set_vertex_attribs(GLenum val_type, int location, vector<uint> cref a
     {
         uint attr = attributes[i];
         int loc = i + location;
-        gl::GL_FALSE;
         glVertexAttribPointer(loc, attr, val_type, GL_FALSE, total_size, r_cast<void ptr>(size_thus_far));
         glVertexAttribDivisor(loc, divisor);
         glEnableVertexAttribArray(loc);

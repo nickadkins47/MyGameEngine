@@ -73,7 +73,7 @@ void Engine::render_init()
     for (auto cref [_, shader] : Shader::get_map())
     {
         shader.use();
-        for (int i = 0; i < lights.size(); i++)
+        for (size_t i = 0; i < lights.size(); i++)
             update_light(i, &shader);
     }
 

@@ -34,8 +34,8 @@ class Engine
     bool is_running = false;
 
     GLFWwindow ptr window = nullptr;
-    int window_width  = 1200;
-    int window_height = 900;
+    int window_width  = 1200; //Framebuffer Width in pixels
+    int window_height = 900; //Framebuffer Height in pixels
 
     double delta_time = 0; //time between this frame & previous
 

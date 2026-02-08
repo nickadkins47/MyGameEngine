@@ -15,7 +15,6 @@ struct aiMaterial;
 struct aiMesh;
 struct aiNode;
 struct aiScene;
-enum aiTextureType;
 class Obj;
 class Shader;
 

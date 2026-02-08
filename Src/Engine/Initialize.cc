@@ -63,6 +63,10 @@ void Engine::initialize()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_SAMPLES, 4); //for multisampling
 
+    glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
+
+    log.info("Framebuffer Size: ({}, {})", window_width, window_height);
+
     window = glfwCreateWindow(window_width, window_height, window_name.data(), NULL, NULL);
     if (window == NULL)
     {
@@ -70,7 +74,7 @@ void Engine::initialize()
         shutdown();
         return;
     }
-    
+
     glfwMakeContextCurrent(window);
 
     glfwSwapInterval(1);
@@ -79,17 +83,21 @@ void Engine::initialize()
 
     glbinding::initialize(glfwGetProcAddress);
 
+    log.info("GL Version: {}", r_cast<char cptr>(glGetString(GL_VERSION)));
+
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glEnable(GL_MULTISAMPLE);
-
-    log.info("GL Version: {}", r_cast<char cptr>(glGetString(GL_VERSION)));
 
     if (!glfwExtensionSupported("GL_ARB_shader_draw_parameters"))
     {
         log.fail("GL_ARB_shader_draw_parameters not supported");
         shutdown();
     }
+    
+    int fb_width, fb_height;
+    glfwGetFramebufferSize(window, &fb_width, &fb_height);
+    glViewport(0, 0, fb_width, fb_height);
 
     //ImGUI Init
 
@@ -125,7 +133,7 @@ void Engine::initialize()
 
     //Engine Components Init
 
-    vox_grid = new VoxGrid();
+    //vox_grid = new VoxGrid();
     keyboard = new ButtonHandler();
     mouse_buttons = new ButtonHandler();
     camera = new Camera();

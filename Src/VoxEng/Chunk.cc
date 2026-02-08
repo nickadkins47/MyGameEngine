@@ -48,7 +48,7 @@ void VoxChunk::register_cube(int x, int y, int z, six<bool> cref faces)
         | ((y & 31) << 5 )
         | ((z & 31) << 0 )
     ;
-    for (int i = 0; i < faces.size(); i++)
+    for (size_t i = 0; i < faces.size(); i++)
     {
         if (faces[i])
             mesh.push_back(pos_data | ((i & 7) << 15));

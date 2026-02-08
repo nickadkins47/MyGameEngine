@@ -30,7 +30,9 @@
 #define ref &
 #define mov &##&
 
-#define uint unsigned
+#ifndef __GNUC__ //if not on Linux, no types.h, therefore define uint type here
+    #define uint unsigned
+#endif
 #define cptr const ptr
 #define cref const ref
 
