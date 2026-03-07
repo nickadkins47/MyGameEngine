@@ -17,6 +17,8 @@ add_requires("glbinding v3.5.0")
 add_requires("glfw 3.4")
 add_requires("glm 1.0.1")
 add_requires("imgui 1.91.8", {configs = {glfw_opengl3=true}})
+add_requires("libsndfile 1.0.31")
+add_requires("openal-soft 1.24.3")
 add_requires("stb 2025.03.14")
 
 target("main")
@@ -39,7 +41,10 @@ target("main")
     set_dependir("./.xmake/.deps")
     set_autogendir("./.xmake/.gens")
 
-    add_packages("angelscript", "assimp", "glbinding", "glfw", "glm", "imgui", "stb")
+    add_packages(
+        "angelscript", "assimp", "glbinding", "glfw", 
+        "glm", "imgui", "libsndfile", "openal-soft", "stb"
+    )
 
     set_warnings("all")
         -- all

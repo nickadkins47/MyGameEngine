@@ -88,6 +88,7 @@ void Engine::render_init()
 
     //Init Camera values
     camera->update_angle(0.0f, 0.0f);
+
 }
 
 bool Engine::run_function_as(asIScriptFunction ptr cb)

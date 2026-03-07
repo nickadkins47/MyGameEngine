@@ -5,6 +5,8 @@
  *  @brief: 
  */
 
+#include <AL/al.h>
+#include <AL/alc.h>
 #include <angelscript.h>
 #include "../Ext/GL.hh"
 #include <glbinding/glbinding.h>
@@ -130,6 +132,39 @@ void Engine::initialize()
     script_funcs_init(log, predefs);
     
     predefs.close();
+
+
+    //Init Audio
+    ALCdevice ptr audio_device = alcOpenDevice(NULL);
+    if (!audio_device)
+    {
+        //error here
+    }
+
+    ALCcontext ptr audio_context = alcCreateContext(audio_device, NULL);
+    if (!audio_context)
+    {
+        //error here
+    }
+
+    if (!alcMakeContextCurrent(audio_context))
+    {
+        //error here
+    }
+
+    alListener3f(AL_POSITION, 0, 0, 0);
+    // check for errors
+    alListener3f(AL_VELOCITY, 0, 0, 0);
+    // check for errors
+
+    ALfloat listenerOri[] = { 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
+    alListenerfv(AL_ORIENTATION, listenerOri);
+    // check for errors
+
+    
+
+    
+
 
     //Engine Components Init
 
