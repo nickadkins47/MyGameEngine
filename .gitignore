@@ -1,6 +1,11 @@
 .vscode
-*.exe
 ols.json
 odinfmt.json
-Build/Depends
 /Test.odin
+
+*.exe
+*.a
+*.so
+*.lib
+*.dll
+*.dylib

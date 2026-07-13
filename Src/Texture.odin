@@ -6,7 +6,33 @@ import "core:strings"
 import gl "vendor:OpenGL"
 import stbi "vendor:stb/image"
 
-texture_add :: proc(tex_path: string) -> (texture: u32)
+//2D Texture (loaded from a jpg, png, etc.)
+Texture :: struct
+{
+    id: u32,
+    type: TextureType
+}
+
+//List of supported Texture types
+TextureType :: enum u32
+{
+	NONE         = 0x0,
+	DIFFUSE      = 0x1,
+	SPECULAR     = 0x2,
+	AMBIENT      = 0x3,
+	//EMISSIVE     = 0x4,
+	//HEIGHT       = 0x5,
+	//NORMALS      = 0x6,
+	//SHININESS    = 0x7,
+	//OPACITY      = 0x8,
+	//DISPLACEMENT = 0x9,
+	//LIGHTMAP     = 0xA,
+	//REFLECTION   = 0xB,
+	UNKNOWN      = 0xC,
+}
+
+
+texture_add :: proc(tex_path: string) -> (texture: Texture)
 {
     stbi.flip_vertically_on_write(true)
 
@@ -17,8 +43,8 @@ texture_add :: proc(tex_path: string) -> (texture: u32)
         fmt.panicf("Cannot load texture %v", tex_path)
     }
 
-    gl.GenTextures(1, &texture)
-    gl.BindTexture(gl.TEXTURE_2D, texture)
+    gl.GenTextures(1, &texture.id)
+    gl.BindTexture(gl.TEXTURE_2D, texture.id)
 
     gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
     gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
@@ -31,4 +57,10 @@ texture_add :: proc(tex_path: string) -> (texture: u32)
     stbi.image_free(data)
 
     return
+}
+
+texture_bind :: proc(texture: Texture, slot: u32)
+{
+    gl.ActiveTexture(gl.TEXTURE0 + slot)
+	gl.BindTexture(gl.TEXTURE_2D, texture.id)
 }

@@ -1,6 +1,6 @@
 
 #default action
-default: run_build
+default: build_run
 
 #build target directory & file name
 target_dir  = Build
@@ -11,7 +11,7 @@ sil = @
 
 ########################################
 
-.PHONY: default run run_build build test clean
+.PHONY: default run build_run build test clean
 
 SHELL := /bin/bash
 
@@ -36,7 +36,7 @@ flags = \
 run:
 	$(sil) $(run_cmd)
 	
-run_build: $(target)
+build_run: $(target)
 	$(sil) $(run_cmd)
 
 build: $(target)

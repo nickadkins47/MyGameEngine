@@ -146,6 +146,8 @@ shader_uniform_q :: proc(shader: u32, name: cstring, data: quaternion128, count:
     shader_uniform_fv(shader, name, transmute([4]f32)(data), count)
 }
 
+/* shader_sampler2d :: proc(shader: u32, ) */
+
 @(private="file")
 shader_add_part :: proc(path: string, type: u32) -> (part: u32)
 {
